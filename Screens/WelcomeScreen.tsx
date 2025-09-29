@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
   image: { width: 300, height: 300 },
   buttonWrapper: { marginTop: 24, alignItems: "center" },
   buttonLarge: {
-    backgroundColor: "#890505ff",
+    backgroundColor: "#890505b2",
     width: 260,
     height: 56,
     borderRadius: 12,
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonSmall: {
-    backgroundColor: "#797676ff",
+    backgroundColor: "#24242475",
     width: 180,
     height: 47,
     borderRadius: 10,
