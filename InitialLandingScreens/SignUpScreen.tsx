@@ -32,13 +32,13 @@ const SignUpScreen = () => {
 
   return (
     <LinearGradient
-    colors={['#141414e9', '#204582ff']}
+    colors={['#323232ff', '#081b3aff']}
     start={{x: 0, y: 0}}
     end ={{x:0, y: 1}}
       style={styles.mainContainer}
     >
       <Image
-        source={require("../assets/AlternateMuscleHeadLogo.jpg")}
+        source={require("../assets/AlternateMuscleHeadLogo.png")}
         style={styles.logo}
       />
 
@@ -53,24 +53,24 @@ const SignUpScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="John Doe"
-          placeholderTextColor="#aaa"
+          placeholderTextColor="#aaaaaaac"
           value={name}
           onChangeText={setName}
         />
         <Text style={styles.label}>Email</Text>
         <TextInput
           style={styles.input}
-          placeholder="John Doe"
-          placeholderTextColor="#aaa"
+          placeholder="JohnDoe@email.com"
+          placeholderTextColor="#aaaaaaac"
           value={name}
-          onChangeText={setName}
+          onChangeText={setEmail}
         />
 
         <Text style={styles.label}>Username</Text>
         <TextInput
           style={styles.input}
-          placeholder="Johnny"
-          placeholderTextColor="#aaa"
+          placeholder="Johnny7797"
+          placeholderTextColor="#aaaaaaac"
           value={alias}
           onChangeText={setAlias}
         />
@@ -79,7 +79,7 @@ const SignUpScreen = () => {
         <TextInput
           style={styles.input}
           placeholder="••••••••"
-          placeholderTextColor="#aaa"
+          placeholderTextColor="#aaaaaaac"
           secureTextEntry
           value={password}
           onChangeText={setPassword}
@@ -144,7 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   button: {
-    backgroundColor: "#3B82F6",
+    backgroundColor: "#2255a7ff",
     marginTop: 24,
     paddingVertical: 14,
     borderRadius: 12,

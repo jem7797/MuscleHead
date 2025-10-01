@@ -78,17 +78,19 @@ const WelcomeScreen = ({navigation}) => {
       />
 
       {/* Buttons */}
+      <Animated.View style={[styles.buttonWrapper, { opacity: signInOpacity }]}>
+        <TouchableOpacity style={styles.buttonLarge} onPress={() => navigation.navigate("SignUp") }>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+      </Animated.View>
+
       <Animated.View style={[styles.buttonWrapper, { opacity: loginOpacity }]}>
-        <TouchableOpacity style={styles.buttonLarge}>
+        <TouchableOpacity style={styles.buttonSmall}>
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
       </Animated.View>
 
-      <Animated.View style={[styles.buttonWrapper, { opacity: signInOpacity }]}>
-        <TouchableOpacity style={styles.buttonSmall} onPress={() => navigation.navigate("SignUp") }>
-          <Text style={styles.buttonTextSmall}>Sign Up</Text>
-        </TouchableOpacity>
-      </Animated.View>
+      
     </View>
   );
 };
@@ -115,6 +117,7 @@ const styles = StyleSheet.create({
   buttonWrapper: {
     marginTop: 24,
     alignItems: "center",
+    top: 150
   },
   buttonLarge: {
     backgroundColor: "#013cdeaa",
