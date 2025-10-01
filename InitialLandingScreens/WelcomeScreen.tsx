@@ -11,7 +11,7 @@ import {
 import { Video } from "expo-av";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
-
+  // @ts-ignore
 const WelcomeScreen = ({navigation}) => {
   const translateY = useRef(new Animated.Value(0)).current;
   const loginOpacity = useRef(new Animated.Value(0)).current;
@@ -63,6 +63,7 @@ const WelcomeScreen = ({navigation}) => {
         ref={videoRef}
         source={require("../assets/WorkoutBackgroundVideo.mp4")}
         style={styles.video}
+          // @ts-ignore
         resizeMode="cover"
         isLooping
         shouldPlay
