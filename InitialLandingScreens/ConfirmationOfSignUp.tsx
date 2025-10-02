@@ -15,12 +15,11 @@ import { LinearGradient } from "expo-linear-gradient";
 const ConfirmSignUpScreen = ({ route, navigation }) => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // 6-digit array
   const inputs = useRef<(TextInput | null)[]>([]);
-  const { username, email } = route.params; // 👈 grab both
+  const { username, email } = route.params;
 
   const handleChange = (text: string, index: number) => {
-    // If user pastes multiple characters
     if (text.length > 1) {
-      const chars = text.split("").slice(0, 6); // keep max 6 chars
+      const chars = text.split("").slice(0, 6);
       const newCode = [...code];
       chars.forEach((c, i) => {
         if (index + i < newCode.length) {
@@ -29,18 +28,15 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
       });
       setCode(newCode);
 
-      // move focus to the last filled box
       const nextIndex = Math.min(index + chars.length - 1, inputs.current.length - 1);
       inputs.current[nextIndex]?.focus();
       return;
     }
 
-    // Normal single-character input
     const newCode = [...code];
-    newCode[index] = text.slice(-1); // last char only
+    newCode[index] = text.slice(-1);
     setCode(newCode);
 
-    // Move focus logic
     if (text && index < inputs.current.length - 1) {
       inputs.current[index + 1]?.focus();
     }
@@ -53,8 +49,10 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
     try {
       const finalCode = code.join("");
       await confirmSignUp({ username, confirmationCode: finalCode });
-      Alert.alert("Success", "Your account has been confirmed!");
-      // TODO: Navigate to login screen
+
+      // ✅ Navigate to IdentityBasics screen after confirmation
+      navigation.navigate("IdentityBasics", { username, email });
+
     } catch (err: any) {
       Alert.alert("Error", err.message || "Failed to confirm sign up");
     }
@@ -79,11 +77,10 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
             style={styles.lockBox}
           >
             <TextInput
-            //@ts-ignore
-              ref={(ref) => (inputs.current[index] = ref)}
+              ref={(ref) => { inputs.current[index] = ref; }}
               style={styles.codeInput}
               keyboardType="number-pad"
-              maxLength={6} // allow paste of full code
+              maxLength={6}
               value={digit}
               onChangeText={(text) => handleChange(text, index)}
               placeholder=""
