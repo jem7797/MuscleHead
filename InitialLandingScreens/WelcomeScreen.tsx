@@ -80,7 +80,7 @@ const WelcomeScreen = ({navigation}) => {
 
       {/* Buttons */}
       <Animated.View style={[styles.buttonWrapper, { opacity: signInOpacity }]}>
-        <TouchableOpacity style={styles.buttonLarge} onPress={() => navigation.navigate("IdentityBasics") }>
+        <TouchableOpacity style={styles.buttonLarge} onPress={() => navigation.navigate("HeightWeight") }>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
       </Animated.View>

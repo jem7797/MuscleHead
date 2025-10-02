@@ -7,10 +7,9 @@ import WelcomeScreen from "./InitialLandingScreens/WelcomeScreen";
 import SignUpScreen from "./InitialLandingScreens/SignUpScreen";
 import ConfirmSignUpScreen from "./InitialLandingScreens/ConfirmationOfSignUp";
 import IdentityBasics from "./InitialLandingScreens/IdentityBasics"
+import HeightWeight from "./InitialLandingScreens/HeightWeight";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
-import { StackScreen } from "react-native-screens";
-
 //@ts-ignore
 Amplify.configure(awsConfig);
 const Stack = createNativeStackNavigator();
@@ -26,6 +25,7 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="ConfirmSignUp" component={ConfirmSignUpScreen} />
         <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>
+        <Stack.Screen name="HeightWeight" component={HeightWeight}/>
       </Stack.Navigator>
     </NavigationContainer>
   );

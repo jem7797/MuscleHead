@@ -143,7 +143,7 @@ const IdentityBasics = () => {
             <Animated.View style={[styles.continueWrapper, { opacity: fadeAnim }]}>
               <TouchableOpacity
                 style={styles.continueButton}
-                // onPress={() => navigation.navigate("NextScreen")} // replace with your next screen
+                onPress={() => navigation.navigate("HeightWeight")} 
               >
                 <Text style={styles.continueText}>Continue</Text>
               </TouchableOpacity>
@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
     width: 100,
   },
   maleSelected: {
-    backgroundColor: "#3b6fb8",
+    backgroundColor: "#013cdeff",
     shadowColor: "#3b6fb8",
     shadowOpacity: 1,
     shadowOffset: { width: 0, height: 6 },
@@ -252,7 +252,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   continueButton: {
-    backgroundColor: "#3b6fb8",
+    backgroundColor: "#013cdee0",
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 14,
