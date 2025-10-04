@@ -51,7 +51,7 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
       await confirmSignUp({ username, confirmationCode: finalCode });
 
       // ✅ Navigate to IdentityBasics screen after confirmation
-      navigation.navigate("IdentityBasics", { username, email });
+      navigation.navigate("ContinueSignUp", { username, email });
 
     } catch (err: any) {
       Alert.alert("Error", err.message || "Failed to confirm sign up");

@@ -8,6 +8,7 @@ import SignUpScreen from "./InitialLandingScreens/SignUpScreen";
 import ConfirmSignUpScreen from "./InitialLandingScreens/ConfirmationOfSignUp";
 import IdentityBasics from "./InitialLandingScreens/IdentityBasics"
 import HeightWeight from "./InitialLandingScreens/HeightWeight";
+import ContinueSignUp from "./InitialLandingScreens/ContinueSignUp"
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 //@ts-ignore
@@ -24,6 +25,7 @@ export default function App() {
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="ConfirmSignUp" component={ConfirmSignUpScreen} />
+        <Stack.Screen name = "ContinueSignUp" component={ContinueSignUp}/> 
         <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>
         <Stack.Screen name="HeightWeight" component={HeightWeight}/>
       </Stack.Navigator>
