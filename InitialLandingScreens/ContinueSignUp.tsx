@@ -18,7 +18,7 @@ const ContinueSignUp = ({ navigation }) => {
         <Ionicons name="checkmark-circle" size={90} color="#3b6fb8" style={styles.iconGlow} />
         <Text style={styles.headerText}>Your account was created!</Text>
         <Text style={styles.subText}>
-          Jump right in or tell us more to personalize your experience.
+          Jump right in or tell us more to personalize your experience. 
         </Text>
 
         {/* ✅ Buttons */}
@@ -27,12 +27,12 @@ const ContinueSignUp = ({ navigation }) => {
             style={styles.primaryButton}
             onPress={() => navigation.navigate("MainApp")}
           >
-            <Text style={styles.primaryButtonText}>Continue to App</Text>
+            <Text style={styles.primaryButtonText}>Continue</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.secondaryButton}
-            onPress={() => navigation.navigate("ProfileSetup")}
+            onPress={() => navigation.navigate("IdentityBasics")}
           >
             <Text style={styles.secondaryButtonText}>Add More Info</Text>
           </TouchableOpacity>

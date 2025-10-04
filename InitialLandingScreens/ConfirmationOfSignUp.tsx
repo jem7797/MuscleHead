@@ -60,7 +60,7 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
 
   return (
     <LinearGradient
-      colors={["#323232ff", "#182c54ff"]}
+      colors={["#0c1525", "#182c54ff", "#020b1f"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.container}
@@ -71,7 +71,7 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         {code.map((digit, index) => (
           <LinearGradient
             key={index}
-            colors={["#d9d9d9", "#a0a0a0", "#5c5c5c"]}
+            colors={["white", "white"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.lockBox}
@@ -92,12 +92,8 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
       </View>
 
       <TouchableOpacity style={styles.button} onPress={handleConfirm}>
-        <LinearGradient
-          colors={["#3b6fb8", "#244f9b"]}
-          style={styles.buttonGradient}
-        >
+       
           <Text style={styles.buttonText}>Confirm</Text>
-        </LinearGradient>
       </TouchableOpacity>
     </LinearGradient>
   );
@@ -106,12 +102,15 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: "center", alignItems: "center" },
   headerText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "500",
+     color: "#ffffffff",
+    fontSize: 24,
+    fontWeight: "700",
     textAlign: "center",
-    marginBottom: 30,
-    top: -150,
+    marginBottom: 10,
+    textShadowColor: "rgba(0, 0, 0, 0.7)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 6,
+    top:-100
   },
   codeContainer: {
     flexDirection: "row",
@@ -143,17 +142,22 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   button: {
-    width: 180,
+       backgroundColor: "#3b6fb8",
+    paddingVertical: 14,
+    paddingHorizontal: 60,
     borderRadius: 12,
-    overflow: "hidden",
+    shadowColor: "#3b6fb8",
+    shadowOpacity: 0.8,
+    shadowOffset: { width: 0, height: 6 },
+    shadowRadius: 10,
+    marginBottom: 20,
   },
-  buttonGradient: {
-    paddingVertical: 12,
-    alignItems: "center",
-  },
+  
   buttonText: {
-    color: "#fff",
-    fontWeight: "700",
+     color: "#ffffffff",
+    fontSize: 15,
+    fontWeight: "600",
+    letterSpacing: 0.5,
   },
 });
 

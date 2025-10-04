@@ -62,7 +62,7 @@ const SignUpScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         <LinearGradient
-          colors={["#323232ff", "#081b3aff"]}
+      colors={["#0c1525", "#182c54ff", "#020b1f"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.mainContainer}
