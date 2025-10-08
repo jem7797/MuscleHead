@@ -2,10 +2,15 @@ import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import { Dimensions, StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useUser } from "../Contexts/UserContext";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
+
+//@ts-ignore
 const ContinueSignUp = ({ navigation }) => {
+  //@ts-ignore
+  const { given_name } = useUser();
+
   return (
     <LinearGradient
       colors={["#0c1525", "#182c54ff", "#020b1f"]}
@@ -14,18 +19,18 @@ const ContinueSignUp = ({ navigation }) => {
       style={styles.mainContainer}
     >
       <View style={styles.content}>
-        {/* ✅ Checkmark Animation Placeholder */}
+        {/* Checkmark Animation Placeholder */}
         <Ionicons name="checkmark-circle" size={90} color="#3b6fb8" style={styles.iconGlow} />
-        <Text style={styles.headerText}>Your account was created!</Text>
+        <Text style={styles.headerText}>Congrats, {given_name}, your account was created!</Text>
         <Text style={styles.subText}>
           Jump right in or tell us more to personalize your experience. 
         </Text>
 
-        {/* ✅ Buttons */}
+        {/*  Buttons */}
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => navigation.navigate("MainApp")}
+            onPress={() => navigation.navigate("WorkoutInputMainPage")}
           >
             <Text style={styles.primaryButtonText}>Continue</Text>
           </TouchableOpacity>

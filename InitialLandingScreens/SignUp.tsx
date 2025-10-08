@@ -15,12 +15,15 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { signUp } from "aws-amplify/auth";
 import { useNavigation } from "@react-navigation/native";
+import { useUser } from "../Contexts/UserContext";
+
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
-  const [given_name, setgiven_name] = useState("");
+  //@ts-ignore
+  const {given_name, setgiven_name} = useUser();
   const [email, setEmail] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
