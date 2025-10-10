@@ -4,7 +4,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
 import WelcomeScreen from "./InitialLandingScreens/WelcomeScreen";
-import SignUp from "./InitialLandingScreens/SignUp";
+import SignUpScreen from "./InitialLandingScreens/SignUp";
 import ConfirmSignUpScreen from "./InitialLandingScreens/ConfirmationOfSignUp";
 import IdentityBasics from "./MoreInfoScreens/IdentityBasics"
 import HeightWeight from "./MoreInfoScreens/HeightWeight";
@@ -27,7 +27,7 @@ export default function App() {
         initialRouteName="Welcome"
       >
         <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="SignUp" component={SignUp} />
+        <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="ConfirmSignUp" component={ConfirmSignUpScreen} />
         <Stack.Screen name = "ContinueSignUp" component={ContinueSignUp}/> 
         <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>

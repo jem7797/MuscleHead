@@ -28,32 +28,60 @@ const SignUpScreen = () => {
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleSignUp = async () => {
-    if (!given_name || !email || !alias || !password) {
-      Alert.alert("Error", "Please fill out all fields.");
-      return;
-    }
+const userData ={
+  given_name,
+  email,
+  alias
+}
 
-    try {
-      const { isSignUpComplete, userId, nextStep } = await signUp({
-        username: alias, // use alias (username) for Cognito
-        password,
-        options: {
-          userAttributes: {
-            email,
-            given_name,
-            preferred_username: alias,
-          },
+
+const handleSignUp = async () => {
+  if (!given_name || !email || !alias || !password) {
+    Alert.alert("Error", "Please fill out all fields.");
+    return;
+  }
+
+  try {
+    const { isSignUpComplete, userId, nextStep } = await signUp({
+      username: alias, // use alias (username) for Cognito
+      password,
+      options: {
+        userAttributes: {
+          email,
+          given_name,
+          preferred_username: alias,
         },
+      },
+    });
+
+    // Send user data to your backend after successful sign up
+    try {
+      const response = await fetch("https://localhost:8080/UserControllerAPI/Mk1/create", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData),
       });
 
-      // @ts-ignore
-      navigation.navigate("ConfirmSignUp", {username : alias, email});
-    } catch (error : any) {
-      console.log("error signing up", error);
-      Alert.alert("Sign Up Failed", error.message || "An error has occurred");
+      if (!response.ok) {
+        throw new Error("HTTP error, status " + response.status);
+      }
+
+      const data = await response.json();
+      console.log("success", data);
+    } catch (error: any) {
+      console.log(error.message);
     }
-  };
+
+    // @ts-ignore
+    navigation.navigate("ConfirmSignUp", { username: alias, email });
+  } catch (error: any) {
+    console.log("error signing up", error);
+    Alert.alert("Sign Up Failed", error.message || "An error has occurred");
+  }
+};
+
 
   return (
     <KeyboardAvoidingView
