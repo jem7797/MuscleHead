@@ -42,21 +42,21 @@ const handleSignUp = async () => {
   }
 
   try {
-    const { isSignUpComplete, userId, nextStep } = await signUp({
-      username: alias, // use alias (username) for Cognito
-      password,
-      options: {
-        userAttributes: {
-          email,
-          given_name,
-          preferred_username: alias,
-        },
-      },
-    });
+    // const { isSignUpComplete, userId, nextStep } = await signUp({
+    //   username: alias, // use alias (username) for Cognito
+    //   password,
+    //   options: {
+    //     userAttributes: {
+    //       email,
+    //       given_name,
+    //       preferred_username: alias,
+    //     },
+    //   },
+    // });
 
     // Send user data to your backend after successful sign up
     try {
-      const response = await fetch("https://localhost:8080/UserControllerAPI/Mk1/create", {
+      const response = await fetch("http://192.168.1.222:8081/UserControllerAPI/Mk1/create", {
         method: "POST",
         headers: {
           'Content-Type': 'application/json'
@@ -75,7 +75,7 @@ const handleSignUp = async () => {
     }
 
     // @ts-ignore
-    navigation.navigate("ConfirmSignUp", { username: alias, email });
+    navigation.navigate("ContinueSignUp", { username: alias, email });
   } catch (error: any) {
     console.log("error signing up", error);
     Alert.alert("Sign Up Failed", error.message || "An error has occurred");
