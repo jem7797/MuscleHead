@@ -18,6 +18,7 @@ const { height } = Dimensions.get("window");
 
 const WorkoutInputMainPage = () => {
   const [isBack, setIsBack] = useState(false);
+  const [showAddMenu, setShowAddMenu] = useState(false);
 
   const spinVal = useRef(new Animated.Value(0)).current;
   const spin = useMemo(
@@ -46,6 +47,10 @@ const WorkoutInputMainPage = () => {
   };
 
   const size = height * 0.4;
+  const totalWeightLiftedLbs = 0; // TODO: wire real total weight lifted
+  const totalGymMinutes = 0; // TODO: wire real total time in minutes
+  const totalHours = Math.floor(totalGymMinutes / 60);
+  const totalMinutes = totalGymMinutes % 60;
 
   return (
     <View style={styles.mainContainer}>
@@ -61,10 +66,32 @@ const WorkoutInputMainPage = () => {
           </View>
         )}
 
-        <View style={styles.addWorkoutButton}>
-          <TouchableOpacity onPress={() => {}}>
+        {/* Stats row under the muscle man */}
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Lifetime Weights Lifted</Text>
+            <Text style={styles.statValue}>{totalWeightLiftedLbs} lbs</Text>
+          </View>
+          <View style={styles.statCard}>
+            <Text style={styles.statLabel}>Lifetime Workout Time</Text>
+            <Text style={styles.statValue}>{`${totalHours}h ${totalMinutes}m`}</Text>
+          </View>
+        </View>
+
+          <View style={styles.addWorkoutButton}>
+            <TouchableOpacity onPress={() => setShowAddMenu((s) => !s)}>
             <Ionicons name="add" color="#000" size={20} />
           </TouchableOpacity>
+            {showAddMenu && (
+              <View style={styles.addMenuContainer}>
+                <TouchableOpacity style={styles.addMenuItem} onPress={() => {}}>
+                  <Text style={styles.addMenuText}>Add Workout</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.addMenuItem} onPress={() => {}}>
+                  <Text style={styles.addMenuText}>Add Routine</Text>
+                </TouchableOpacity>
+              </View>
+            )}
         </View>
       </WorkedMusclesProvider>
 
@@ -98,23 +125,52 @@ const styles = StyleSheet.create({
   muscleManContainerFront: {
     flex: 0.5,
     alignItems: "center",
-    paddingTop: 110,
+    paddingTop: 90,
     // keep your scaling only on the SVG area
-    transform: [{ scaleX: 1.5 }, { scaleY: 1.2 }],
+    transform: [{ scaleX: 1.0 }, { scaleY: 1.0 }],
   },
 
   muscleManContainerBack: {
     flex: 0.5,
     alignItems: "center",
-    paddingTop: 110,
+    paddingTop: 90,
     // keep your scaling only on the SVG area
-    transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
+    transform: [{ scaleX: 0.8 }, { scaleY: 1.0 }],
   },
 
   overlay: {
     ...StyleSheet.absoluteFillObject,
     // this covers the whole screen above content; we place the button at top-right
     zIndex: 100,
+  },
+
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-evenly",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    marginTop: 40,
+  },
+
+  statCard: {
+    backgroundColor: "#f4f6fa",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    minWidth: 140,
+    alignItems: "center",
+  },
+
+  statLabel: {
+    fontSize: 12,
+    color: "#51607a",
+    marginBottom: 4,
+  },
+
+  statValue: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#1f2a44",
   },
 
   addWorkoutButton: {
@@ -125,13 +181,49 @@ const styles = StyleSheet.create({
     color: "black",
     backgroundColor: "#0966e8ff",
     padding: 13,
+    zIndex: 200,
+    elevation: 8,
+  },
+
+  addMenuContainer: {
+    position: "absolute",
+    left: 56,
+    top: -4,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    gap: 6,
+    elevation: 8,
+    zIndex: 201,
+    minWidth: 180,
+    borderWidth: 1,
+    borderColor: "#e0e6f0",
+    shadowColor: "#000",
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+  },
+
+  addMenuItem: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  addMenuText: {
+    color: "#1f2a44",
+    fontSize: 15,
+    fontWeight: "500",
   },
 
   rotateBtn: {
     position: "absolute",
     top: 50,
     right: 20,
-    backgroundColor: "#0966e8ff",
+    backgroundColor: "#C4C4C4",
     borderRadius: 22,
     padding: 10,
     elevation: 6,

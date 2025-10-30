@@ -1,22 +1,44 @@
 import React from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { useNavigation, useRoute } from "@react-navigation/native";
 
 
 const NavBar = () => {
+  const navigation = useNavigation<any>();
+  const route = useRoute();
+  const active = route.name;
   return (
     <View style={styles.container}>
       <View style={styles.box}>
-        <FontAwesome6 name="people-group" size={24} color="black" />
-        <Feather name="search" size={24} color="black" />
-        <View style={styles.weightCircle}>
-          <Ionicons name="barbell-sharp" size={30} color="black" />
-        </View>
-        <MaterialIcons name="leaderboard" size={24} color="black" />
-        <Ionicons name="person" size={24} color="black" />
+        <TouchableOpacity onPress={() => navigation.navigate("Community")}> 
+          <View style={active === "Community" ? styles.highlightCircle : undefined}>
+            <FontAwesome6 name="people-group" size={24} color="black" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Search")}>
+          <View style={active === "Search" ? styles.highlightCircle : undefined}>
+            <Feather name="search" size={24} color="black" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("WorkoutInputMainPage")}>
+          <View style={active === "WorkoutInputMainPage" ? styles.highlightCircle : undefined}>
+            <Ionicons name="barbell-sharp" size={30} color="black" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Leaderboard")}> 
+          <View style={active === "Leaderboard" ? styles.highlightCircle : undefined}>
+            <MaterialIcons name="leaderboard" size={24} color="black" />
+          </View>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("Profile")}> 
+          <View style={active === "Profile" ? styles.highlightCircle : undefined}>
+            <Ionicons name="person" size={24} color="black" />
+          </View>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -42,7 +64,7 @@ const styles = StyleSheet.create({
     paddingTop: 3,
   },
 
-  weightCircle: {
+  highlightCircle: {
     backgroundColor: "#0966e8ff",
     borderRadius: 50,
     padding: 20,

@@ -10,6 +10,10 @@ import IdentityBasics from "./MoreInfoScreens/IdentityBasics"
 import HeightWeight from "./MoreInfoScreens/HeightWeight";
 import ContinueSignUp from "./InitialLandingScreens/ContinueSignUp"
 import WorkoutInputMainPage from "./MainPage/WorkoutInputMainPage";
+import CommunityScreen from "./Community";
+import SearchScreen from "./Search";
+import LeaderboardScreen from "./Leaderboard";
+import ProfileScreen from "./Profile";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";
@@ -32,7 +36,11 @@ export default function App() {
         <Stack.Screen name = "ContinueSignUp" component={ContinueSignUp}/> 
         <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>
         <Stack.Screen name="HeightWeight" component={HeightWeight}/>
-        <Stack.Screen name= "WorkoutInputMainPage" component={WorkoutInputMainPage}/>
+        <Stack.Screen name= "WorkoutInputMainPage" component={WorkoutInputMainPage} options={{ animation: "none" }} />
+        <Stack.Screen name="Community" component={CommunityScreen} options={{ animation: "none" }} />
+        <Stack.Screen name="Search" component={SearchScreen} options={{ animation: "none" }} />
+        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ animation: "none" }} />
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>
