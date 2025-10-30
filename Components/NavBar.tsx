@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
 
   weightCircle: {
-    backgroundColor: "#4581d6ff",
+    backgroundColor: "#0966e8ff",
     borderRadius: 50,
     padding: 20,
     bottom: 25,

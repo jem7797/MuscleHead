@@ -1,5 +1,13 @@
 import React, { useMemo, useRef, useState } from "react";
-import { StyleSheet, View, Dimensions, TouchableOpacity, Animated } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Dimensions,
+  TouchableOpacity,
+  Animated,
+  Button,
+  Text,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../Components/NavBar";
 import MuscleManFront from "../Components/MuscleManFront";
@@ -13,14 +21,26 @@ const WorkoutInputMainPage = () => {
 
   const spinVal = useRef(new Animated.Value(0)).current;
   const spin = useMemo(
-    () => spinVal.interpolate({ inputRange: [0, 1], outputRange: ["0deg", "180deg"] }),
+    () =>
+      spinVal.interpolate({
+        inputRange: [0, 1],
+        outputRange: ["0deg", "180deg"],
+      }),
     [spinVal]
   );
 
   const handleRotate = () => {
     Animated.sequence([
-      Animated.timing(spinVal, { toValue: 1, duration: 180, useNativeDriver: true }),
-      Animated.timing(spinVal, { toValue: 0, duration: 0, useNativeDriver: true }),
+      Animated.timing(spinVal, {
+        toValue: 1,
+        duration: 180,
+        useNativeDriver: true,
+      }),
+      Animated.timing(spinVal, {
+        toValue: 0,
+        duration: 0,
+        useNativeDriver: true,
+      }),
     ]).start();
     setIsBack((s) => !s);
   };
@@ -30,7 +50,7 @@ const WorkoutInputMainPage = () => {
   return (
     <View style={styles.mainContainer}>
       {/* Content layer */}
-      <WorkedMusclesProvider frontWorked={["biceps"]} backWorked={["lats"]}>
+      <WorkedMusclesProvider frontWorked={[]} backWorked={[]}>
         {isBack ? (
           <View style={styles.muscleManContainerBack} pointerEvents="box-none">
             <MuscleManBack width={size} height={size} />
@@ -40,11 +60,19 @@ const WorkoutInputMainPage = () => {
             <MuscleManFront width={size} height={size} />
           </View>
         )}
+
+        <View style={styles.addWorkoutButton}>
+          <TouchableOpacity onPress={() => {}}>
+            <Ionicons name="add" color="#000" size={20} />
+          </TouchableOpacity>
+        </View>
       </WorkedMusclesProvider>
 
       {/* Overlay UI (NOT inside the scaled container) */}
       <View style={styles.overlay} pointerEvents="box-none">
-        <Animated.View style={[styles.rotateBtn, { transform: [{ rotate: spin }] }]}>
+        <Animated.View
+          style={[styles.rotateBtn, { transform: [{ rotate: spin }] }]}
+        >
           <TouchableOpacity
             onPress={handleRotate}
             accessibilityRole="button"
@@ -66,6 +94,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
+
   muscleManContainerFront: {
     flex: 0.5,
     alignItems: "center",
@@ -73,6 +102,7 @@ const styles = StyleSheet.create({
     // keep your scaling only on the SVG area
     transform: [{ scaleX: 1.5 }, { scaleY: 1.2 }],
   },
+
   muscleManContainerBack: {
     flex: 0.5,
     alignItems: "center",
@@ -80,25 +110,37 @@ const styles = StyleSheet.create({
     // keep your scaling only on the SVG area
     transform: [{ scaleX: 1.2 }, { scaleY: 1.2 }],
   },
+
   overlay: {
     ...StyleSheet.absoluteFillObject,
     // this covers the whole screen above content; we place the button at top-right
     zIndex: 100,
   },
+
+  addWorkoutButton: {
+    position: "absolute",
+    top: 50,
+    left: 20,
+    borderRadius: 24,
+    color: "black",
+    backgroundColor: "#0966e8ff",
+    padding: 13,
+  },
+
   rotateBtn: {
     position: "absolute",
     top: 50,
     right: 20,
-    backgroundColor: "#e8eef9",
+    backgroundColor: "#0966e8ff",
     borderRadius: 22,
     padding: 10,
-    // ensure visibility on Android
     elevation: 6,
-    // ensure visibility on iOS
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
+  
+  },
+
+  workoutButtonText: {
+    fontSize: 20,
+    fontWeight: "400",
   },
 });
 
