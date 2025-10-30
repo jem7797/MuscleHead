@@ -52,8 +52,31 @@ const WorkoutInputMainPage = () => {
   const totalHours = Math.floor(totalGymMinutes / 60);
   const totalMinutes = totalGymMinutes % 60;
 
+  const dayName = new Date().toLocaleDateString(undefined, { weekday: "long" });
+  const dayIndex = new Date().getDay(); // 0=Sun ... 6=Sat
+  const workoutPlanForDay = (() => {
+    switch (dayIndex) {
+      case 1: // Monday
+        return "Push Day";
+      case 2: // Tuesday
+        return "Pull Day";
+      case 3: // Wednesday
+        return "Leg Day";
+      case 4: // Thursday
+        return "Push Day";
+      case 5: // Friday
+        return "Pull Day";
+      default: // Saturday(6) & Sunday(0)
+        return "Off";
+    }
+  })();
+
   return (
     <View style={styles.mainContainer}>
+      {/* Day title */}
+      <Text style={styles.dayTitle}>{dayName}</Text>
+      <Text style={styles.daySubtitle}>{workoutPlanForDay}</Text>
+
       {/* Content layer */}
       <WorkedMusclesProvider frontWorked={[]} backWorked={[]}>
         {isBack ? (
@@ -77,7 +100,8 @@ const WorkoutInputMainPage = () => {
             <Text style={styles.statValue}>{`${totalHours}h ${totalMinutes}m`}</Text>
           </View>
         </View>
-
+        
+        {/* Add Workout Button */}  
           <View style={styles.addWorkoutButton}>
             <TouchableOpacity onPress={() => setShowAddMenu((s) => !s)}>
             <Ionicons name="add" color="#000" size={20} />
@@ -121,11 +145,31 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
+  dayTitle: {
+    textAlign: "center",
+    alignItems: "center",
+    position: "relative",
+    zIndex: 201,
+    elevation: 8,
+    marginTop: 60,
+    marginBottom: 8,
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1f2a44",
+  },
+
+  daySubtitle: {
+    textAlign: "center",
+    color: "#51607a",
+    marginBottom: 8,
+    fontSize: 13,
+    fontWeight: "500",
+  },
 
   muscleManContainerFront: {
     flex: 0.5,
     alignItems: "center",
-    paddingTop: 90,
+    paddingTop: 40,
     // keep your scaling only on the SVG area
     transform: [{ scaleX: 1.0 }, { scaleY: 1.0 }],
   },
@@ -133,24 +177,25 @@ const styles = StyleSheet.create({
   muscleManContainerBack: {
     flex: 0.5,
     alignItems: "center",
-    paddingTop: 90,
+    paddingTop: 40,
     // keep your scaling only on the SVG area
     transform: [{ scaleX: 0.8 }, { scaleY: 1.0 }],
   },
 
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    // this covers the whole screen above content; we place the button at top-right
-    zIndex: 100,
+    zIndex: 1000,
   },
 
-  statsRow: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    marginTop: 40,
-  },
+    statsRow: {
+      flexDirection: "row",
+      justifyContent: "space-evenly",
+      alignItems: "center",
+      paddingHorizontal: 16,
+      marginTop: 130,
+    },
+
+   
 
   statCard: {
     backgroundColor: "#f4f6fa",
@@ -181,7 +226,7 @@ const styles = StyleSheet.create({
     color: "black",
     backgroundColor: "#0966e8ff",
     padding: 13,
-    zIndex: 200,
+    zIndex: 400,
     elevation: 8,
   },
 
@@ -227,6 +272,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     padding: 10,
     elevation: 6,
+    zIndex: 1200,
   
   },
 
