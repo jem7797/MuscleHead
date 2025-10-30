@@ -1,5 +1,6 @@
 import * as React from "react";
 import Svg, { G, Path as RNSVGPath, SvgProps } from "react-native-svg";
+import { useWorkedMuscles } from "../Contexts/WorkedMusclesContext";
 
 
 // Optional: let callers use width/height or a scale factor.
@@ -17,10 +18,12 @@ const MuscleManFront: React.FC<Props> = ({
   width,
   height,
   scale,
-  worked = [],
+  worked,
   activeColor = "#4581d6ff",
   ...rest
 }) => {
+  const { frontWorked } = useWorkedMuscles();
+  const workedList = worked ?? frontWorked ?? [];
   // Compute final width/height:
   const W = width ?? (scale ? VB_W * scale : 200);
   const H = height ?? (scale ? VB_H * scale : (200 * VB_H) / VB_W);
@@ -61,7 +64,7 @@ const MuscleManFront: React.FC<Props> = ({
   const ACTIVE = React.useMemo(() => {
     const set = new Set<string>();
   
-    worked.forEach((name) => {
+    workedList.forEach((name) => {
       const c = canon(name);
   
       if (GROUPS[c]) {
@@ -72,7 +75,7 @@ const MuscleManFront: React.FC<Props> = ({
     });
   
     return set;
-  }, [worked]);
+  }, [workedList]);
 
   
   const isActive = (id?: string) => {
@@ -132,8 +135,10 @@ const MuscleManFront: React.FC<Props> = ({
         <Path
           id="path2035"
           fill="none"
-          stroke="#040404"
-          strokeOpacity="1"
+  fillOpacity={1}
+  stroke="#040404"
+  strokeOpacity={1}
+  strokeWidth={2.45}
           d="M424.82 471.06s-.28.09-.71.25c-5.09 1.88-36.05 14.29-49.17 41.72-8.82 18.42-15.94 42.13-21.67 61.18-3.74 12.45-6.7 22.29-9.02 26.83-1.01 2-1.98 3.82-2.9 5.49-.77 1.4-1.5 2.69-2.2 3.86-3 5.17-5.1 8.14-5.67 8.91.12-1.74.23-3.5.35-5.26 1.92-3.01 4.78-7.78 8.06-14.21 2.21-4.33 5.13-14.06 8.83-26.39 1.97-6.55 4.1-13.66 6.42-20.92.61-1.93 1.25-3.88 1.88-5.83 3.99-12.07 8.48-24.26 13.52-34.8 13.14-27.49 43.47-40.34 50.14-42.88.8-.31 1.27-.47 1.3-.48z"
         />
         <Path
