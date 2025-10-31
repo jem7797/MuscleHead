@@ -19,7 +19,7 @@ const MuscleManFront: React.FC<Props> = ({
   height,
   scale,
   worked,
-  activeColor = "#4581d6ff",
+  activeColor = "#202c76",
   ...rest
 }) => {
   const { frontWorked } = useWorkedMuscles();

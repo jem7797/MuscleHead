@@ -16,27 +16,27 @@ const NavBar = () => {
       <View style={styles.box}>
         <TouchableOpacity onPress={() => navigation.navigate("Community")}> 
           <View style={active === "Community" ? styles.highlightCircle : undefined}>
-            <FontAwesome6 name="people-group" size={24} color="black" />
+            <FontAwesome6 name="people-group" size={24} color={active === "Community" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Search")}>
           <View style={active === "Search" ? styles.highlightCircle : undefined}>
-            <Feather name="search" size={24} color="black" />
+            <Feather name="search" size={24} color={active === "Search" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("WorkoutInputMainPage")}>
           <View style={active === "WorkoutInputMainPage" ? styles.highlightCircle : undefined}>
-            <Ionicons name="barbell-sharp" size={30} color="black" />
+            <Ionicons name="barbell-sharp" size={30} color={active === "WorkoutInputMainPage" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Leaderboard")}> 
           <View style={active === "Leaderboard" ? styles.highlightCircle : undefined}>
-            <MaterialIcons name="leaderboard" size={24} color="black" />
+            <MaterialIcons name="leaderboard" size={24} color={active === "Leaderboard" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}> 
           <View style={active === "Profile" ? styles.highlightCircle : undefined}>
-            <Ionicons name="person" size={24} color="black" />
+            <Ionicons name="person" size={24} color={active === "Profile" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
       </View>
@@ -65,12 +65,12 @@ const styles = StyleSheet.create({
   },
 
   highlightCircle: {
-    backgroundColor: "#0966e8ff",
-    borderRadius: 50,
-    padding: 20,
+    backgroundColor: "#202c76",
+    borderRadius: 40,
+    padding: 15,
     bottom: 25,
     elevation: 10,
-    shadowColor: "#0e4087ff",
+    shadowColor: "#202c76",
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
     shadowRadius: 4,

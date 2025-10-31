@@ -9,6 +9,7 @@ import {
   Text,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
@@ -17,6 +18,7 @@ import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 const { height } = Dimensions.get("window");
 
 const WorkoutInputMainPage = () => {
+  const navigation = useNavigation<any>();
   const [isBack, setIsBack] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
 
@@ -80,12 +82,38 @@ const WorkoutInputMainPage = () => {
       {/* Content layer */}
       <WorkedMusclesProvider frontWorked={[]} backWorked={[]}>
         {isBack ? (
-          <View style={styles.muscleManContainerBack} pointerEvents="box-none">
-            <MuscleManBack width={size} height={size} />
+          <View style={styles.muscleManWrapper}>
+            <TouchableOpacity
+              style={styles.muscleManContainerBack}
+              onPress={() => navigation.navigate("MuscleDetail")}
+              activeOpacity={0.9}
+            >
+              <MuscleManBack width={size} height={size} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.fullscreenIcon}
+              onPress={() => navigation.navigate("MuscleDetail")}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="expand" size={16} color="#1f2a44" />
+            </TouchableOpacity>
           </View>
         ) : (
-          <View style={styles.muscleManContainerFront} pointerEvents="box-none">
-            <MuscleManFront width={size} height={size} />
+          <View style={styles.muscleManWrapper}>
+            <TouchableOpacity
+              style={styles.muscleManContainerFront}
+              onPress={() => navigation.navigate("MuscleDetail")}
+              activeOpacity={0.9}
+            >
+              <MuscleManFront width={size} height={size} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.fullscreenIcon}
+              onPress={() => navigation.navigate("MuscleDetail")}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="expand" size={16} color="#1f2a44" />
+            </TouchableOpacity>
           </View>
         )}
 
@@ -104,7 +132,7 @@ const WorkoutInputMainPage = () => {
         {/* Add Workout Button */}  
           <View style={styles.addWorkoutButton}>
             <TouchableOpacity onPress={() => setShowAddMenu((s) => !s)}>
-            <Ionicons name="add" color="#000" size={20} />
+            <Ionicons name="add" color="#fff" size={20} />
           </TouchableOpacity>
             {showAddMenu && (
               <View style={styles.addMenuContainer}>
@@ -166,8 +194,13 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  muscleManContainerFront: {
+  muscleManWrapper: {
     flex: 0.5,
+    position: "relative",
+  },
+
+  muscleManContainerFront: {
+    flex: 1,
     alignItems: "center",
     paddingTop: 40,
     // keep your scaling only on the SVG area
@@ -175,11 +208,21 @@ const styles = StyleSheet.create({
   },
 
   muscleManContainerBack: {
-    flex: 0.5,
+    flex: 1,
     alignItems: "center",
     paddingTop: 40,
     // keep your scaling only on the SVG area
     transform: [{ scaleX: 0.8 }, { scaleY: 1.0 }],
+  },
+
+  fullscreenIcon: {
+    position: "absolute",
+    bottom: -120,
+    left: 275,
+    padding: 6,
+    zIndex: 100,
+    elevation: 4,
+    
   },
 
   overlay: {
@@ -224,7 +267,7 @@ const styles = StyleSheet.create({
     left: 20,
     borderRadius: 24,
     color: "black",
-    backgroundColor: "#0966e8ff",
+    backgroundColor: "#202c76",
     padding: 13,
     zIndex: 400,
     elevation: 8,

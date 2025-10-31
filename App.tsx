@@ -13,7 +13,8 @@ import WorkoutInputMainPage from "./MainPage/WorkoutInputMainPage";
 import CommunityScreen from "./Community";
 import SearchScreen from "./Search";
 import LeaderboardScreen from "./Leaderboard";
-import ProfileScreen from "./Profile";
+import ProfileScreen from "./Profile/ProfileMain";
+import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";
@@ -41,6 +42,7 @@ export default function App() {
         <Stack.Screen name="Search" component={SearchScreen} options={{ animation: "none" }} />
         <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ animation: "none" }} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
+        <Stack.Screen name="MuscleDetail" component={MuscleDetailScreen} options={{ animation: "none" }} />
       </Stack.Navigator>
     </NavigationContainer>
     </UserProvider>

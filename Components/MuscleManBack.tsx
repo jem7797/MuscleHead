@@ -16,7 +16,7 @@ const MuscleManBack: React.FC<Props> = ({
   height,
   scale,
   worked,
-  activeColor = "#4581d6ff",
+  activeColor = "#202c76",
   ...rest
 }) => {
   const W = width ?? (scale ? VB_W * scale : 200);
