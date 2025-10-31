@@ -25,59 +25,82 @@ const { height, width } = Dimensions.get("window");
 
 // Dictionary storing muscle information - maps muscle ID to name, description, and exercise list
 // Used to display info when user selects a muscle
-const MUSCLE_INFO: Record<string, { name: string; description: string; exercises: string[] }> = {
+const MUSCLE_INFO: Record<string, { name: string; subname: string; description: string; exercises: string[]  }> = {
     pecs: {
-      name: "Pectorals",
-      description: "Engineered for power, the chest’s pectoralis major and minor drive every press, push, and punch — the torque center of the upper body.",
+      name: "Pecs",
+      subname: "Pectoralis Major & Minor",
+      description: "Engineered for power, every fiber of the chest drives presses, pushes, and punches — the upper body's torque center.",
       exercises: ["Bench Press", "Push-ups", "Dumbbell Flyes", "Cable Crossovers"],
     },
     biceps: {
       name: "Biceps",
-      description: "Two heads, one purpose — to pull. The biceps flex the elbow and twist the forearm with precision, defining every strong grip and curl.",
+      subname: "Biceps Brachii",
+      description: "Two heads, one purpose — to pull. The biceps flex the elbow and twist the forearm, defining every strong grip and curl.",
       exercises: ["Barbell Curls", "Dumbbell Curls", "Hammer Curls", "Cable Curls"],
     },
     triceps: {
       name: "Triceps",
-      description: "The unsung heavy lifters of the arm — three powerful heads forming two-thirds of your arm’s mass, built to drive every press and lockout.",
+      subname: "Triceps Brachii",
+      description: "The unsung heavy lifters of the arm — three powerful heads forming two-thirds of your arm's mass, built to drive every press and lockout.",
       exercises: ["Close-Grip Bench Press", "Overhead Extensions", "Tricep Dips", "Pushdowns"],
     },
+    forearms: {
+      name: "Forearms",
+      subname: "Flexor & Extensor Carpi",
+      description: "The crux of every pull — forearms stabilize lifts, control rotations, and deliver raw grip strength. Inner and outer muscles working in unison to transfer force.",
+      exercises: ["Wrist Curls", "Reverse Wrist Curls", "Farmer's Walks", "Hammer Curls"],
+    },
     delts: {
-      name: "Deltoids",
-      description: "Three heads, endless range. The delts lift, rotate, and stabilize the arm — the shoulder’s all-terrain system for motion and control.",
+      name: "Delts",
+      subname: "Deltoideus",
+      description: "Three heads working as one dynamic system. The delts power every lift, twist, and reach, stabilizing the shoulder like a finely tuned suspension built for motion in every plane.",
       exercises: ["Overhead Press", "Lateral Raises", "Front Raises", "Rear Delt Flyes"],
     },
     lats: {
-      name: "Latissimus Dorsi",
+      name: "Lats",
+      subname: "Latissimus Dorsi",
       description: "Wide, powerful, unmistakable — the lats pull the arms down and back, sculpting that signature V-taper and anchoring your upper body strength.",
       exercises: ["Pull-ups", "Lat Pulldowns", "Barbell Rows", "T-Bar Rows"],
     },
     quads: {
-      name: "Quadriceps",
-      description: "Four engines driving the front of the thigh — the quads extend the knee, power sprints, and turn every step into forward force.",
+      name: "Quads",
+      subname: "Quadriceps Femoris",
+      description: "Acceleration, climb, control — four powerhouse muscles turning every stride into raw forward motion. The quads extend the knee, stabilize the body, and drive dominance from the front of the thigh.",
       exercises: ["Squats", "Leg Press", "Lunges", "Leg Extensions"],
     },
     hamstrings: {
       name: "Hamstrings",
-      description: "A trio of muscles running the back of the thigh — built for flexing, hinging, and raw acceleration. Where sprint speed and stability are forged.",
+      subname: "Biceps Femoris, Semitendinosus, Semimembranosus",
+      description: "A trio of muscles running the back of the thigh — built for sprint recovery, explosive speed, and balance. Where sprint speed and stability are forged.",
       exercises: ["Romanian Deadlifts", "Leg Curls", "Good Mornings", "Stiff-Leg Deadlifts"],
     },
     glutes: {
       name: "Glutes",
-      description: "Three gluteal muscles working as one powerhouse — the drivers of hip thrust, rotation, and control. The workhorses of every stride and lift.",
+      subname: "Gluteus Maximus, Medius & Minimus",
+      description: "Three gluteal muscles working as one powerhouse — the drivers of hip thrust, rotation, and control. The workhorses of nearly all lower body movements.",
       exercises: ["Hip Thrusts", "Squats", "Romanian Deadlifts", "Glute Bridges"],
     },
+    calves: {
+      name: "Calves",
+      subname: "Gastrocnemius & Soleus",
+      description: "Muscles for launch — the calves drive propulsion, stabilize the stride, and add spring to every step.",
+      exercises: ["Calf Raises", "Standing Calf Raises", "Seated Calf Raises", "Jump Rope"],
+    },
     abs: {
-      name: "Abdominals",
+      name: "Abs",
+      subname: "Rectus Abdominis",
       description: "Front-line stability — the abs flex the spine, brace the torso, and link upper and lower power. Every lift begins here.",
       exercises: ["Crunches", "Planks", "Leg Raises", "Hanging Knee Raises"],
     },
     obliques: {
       name: "Obliques",
+      subname: "External & Internal Obliques",
       description: "Twin sets of angled muscles guarding your core — the obliques twist, bend, and resist torque, giving structure to every turn and pivot.",
       exercises: ["Russian Twists", "Side Planks", "Cable Woodchoppers", "Hanging Oblique Raises"],
     },
     traps: {
-      name: "Trapezius",
+      name: "Traps",
+      subname: "Trapezius",
       description: "A three-tiered muscle running from neck to spine — the traps lift, pull, and stabilize with silent dominance, commanding posture and power.",
       exercises: ["Shrugs", "Upright Rows", "Face Pulls", "High Pulls"],
     },
@@ -211,6 +234,7 @@ const MuscleDetailScreen = () => {
         <View style={styles.infoPanel}>
           <ScrollView style={styles.infoScroll}>
             <Text style={styles.muscleName}>{selectedInfo.name}</Text>
+            <Text style={styles.muscleSubname}>{selectedInfo.subname}</Text>
             <Text style={styles.muscleDescription}>{selectedInfo.description}</Text>
             <Text style={styles.exercisesTitle}>Exercises:</Text>
             {selectedInfo.exercises.map((exercise, idx) => (
@@ -337,7 +361,16 @@ const styles = StyleSheet.create({
     fontSize: 20, // 20px font size
     fontWeight: "700", // Bold
     color: "#1f2a44", // Dark blue-gray
-    marginBottom: 8, // 8px space below name
+    marginBottom: 4, // 4px space below name
+  },
+  
+  // Muscle scientific name text
+  muscleSubname: {
+    fontSize: 14, // 14px font size
+    fontWeight: "500", // Medium weight
+    fontStyle: "italic", // Italicized for scientific name
+    color: "#51607a", // Medium gray color
+    marginBottom: 8, // 8px space below subname
   },
   
   // Description paragraph text

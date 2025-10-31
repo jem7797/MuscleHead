@@ -40,6 +40,7 @@ const MuscleManFront: React.FC<Props> = ({
 
     outerforearms: ["rightforearmouter", "leftforearmouter"],
     innerforearms: ["rightforearminner", "leftforearminner"],
+    forearms: ["rightforearmouter", "leftforearmouter", "rightforearminner", "leftforearminner"],
     
 
     abs: ["rightab1", "leftab1","rightab2", "leftab2","rightab3", "leftab3","rightab4", "leftab4","rightab5", "leftab5","rightab6", "leftab6",],
