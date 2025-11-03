@@ -37,7 +37,7 @@ const ContinueSignUp = ({ navigation }) => {
 
           <TouchableOpacity
             style={styles.secondaryButton}
-            onPress={() => navigation.navigate("IdentityBasics")}
+            onPress={() => navigation.navigate("ProfileSetUp")}
           >
             <Text style={styles.secondaryButtonText}>Add More Info</Text>
           </TouchableOpacity>

@@ -8,6 +8,7 @@ import SignUpScreen from "./InitialLandingScreens/SignUp";
 import ConfirmSignUpScreen from "./InitialLandingScreens/ConfirmationOfSignUp";
 import IdentityBasics from "./MoreInfoScreens/IdentityBasics"
 import HeightWeight from "./MoreInfoScreens/HeightWeight";
+import ProfileSetUp from "./MoreInfoScreens/ProfileSetUp";
 import ContinueSignUp from "./InitialLandingScreens/ContinueSignUp"
 import WorkoutInputMainPage from "./MainPage/WorkoutInputMainPage";
 import AddWorkoutPage from "./MainPage/AddWorkoutPage";
@@ -44,6 +45,7 @@ export default function App() {
             <Stack.Screen name = "ContinueSignUp" component={ContinueSignUp}/> 
             <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>
             <Stack.Screen name="HeightWeight" component={HeightWeight}/>
+            <Stack.Screen name="ProfileSetUp" component={ProfileSetUp}/>
             <Stack.Screen name= "WorkoutInputMainPage" component={WorkoutInputMainPage} options={{ animation: "none" }} />
             <Stack.Screen name="ConfirmWorkout" component={ConfirmWorkoutPage} options={{ animation: "none" }} />
             <Stack.Screen name="AddWorkout" component={AddWorkoutPage} options={{ animation: "none" }} />
