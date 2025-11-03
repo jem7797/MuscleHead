@@ -10,6 +10,10 @@ import IdentityBasics from "./MoreInfoScreens/IdentityBasics"
 import HeightWeight from "./MoreInfoScreens/HeightWeight";
 import ContinueSignUp from "./InitialLandingScreens/ContinueSignUp"
 import WorkoutInputMainPage from "./MainPage/WorkoutInputMainPage";
+import AddWorkoutPage from "./MainPage/AddWorkoutPage";
+import AddRoutinePage from "./MainPage/AddRoutinePage";
+import ConfirmWorkoutPage from "./MainPage/ConfirmWorkoutPage";
+import WorkoutStatsPage from "./MainPage/WorkoutStatsPage";
 import CommunityScreen from "./Community";
 import SearchScreen from "./Search";
 import LeaderboardScreen from "./Leaderboard";
@@ -18,33 +22,42 @@ import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";
+import { WorkoutStatsProvider } from "./Contexts/WorkoutStatsContext";
+import { GlobalWorkedMusclesProvider } from "./Contexts/GlobalWorkedMusclesContext";
 //@ts-ignore
 Amplify.configure(awsConfig);
 const Stack = createNativeStackNavigator();
 
 export default function App() {
   return (
-
     <UserProvider>
-    <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{ headerShown: false }}
-        initialRouteName="Welcome"
-      >
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
-        <Stack.Screen name="ConfirmSignUp" component={ConfirmSignUpScreen} />
-        <Stack.Screen name = "ContinueSignUp" component={ContinueSignUp}/> 
-        <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>
-        <Stack.Screen name="HeightWeight" component={HeightWeight}/>
-        <Stack.Screen name= "WorkoutInputMainPage" component={WorkoutInputMainPage} options={{ animation: "none" }} />
-        <Stack.Screen name="Community" component={CommunityScreen} options={{ animation: "none" }} />
-        <Stack.Screen name="Search" component={SearchScreen} options={{ animation: "none" }} />
-        <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ animation: "none" }} />
-        <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
-        <Stack.Screen name="MuscleDetail" component={MuscleDetailScreen} options={{ animation: "none" }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+      <WorkoutStatsProvider>
+        <GlobalWorkedMusclesProvider>
+          <NavigationContainer>
+          <Stack.Navigator
+            screenOptions={{ headerShown: false }}
+            initialRouteName="Welcome"
+          >
+            <Stack.Screen name="Welcome" component={WelcomeScreen} />
+            <Stack.Screen name="SignUp" component={SignUpScreen} />
+            <Stack.Screen name="ConfirmSignUp" component={ConfirmSignUpScreen} />
+            <Stack.Screen name = "ContinueSignUp" component={ContinueSignUp}/> 
+            <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>
+            <Stack.Screen name="HeightWeight" component={HeightWeight}/>
+            <Stack.Screen name= "WorkoutInputMainPage" component={WorkoutInputMainPage} options={{ animation: "none" }} />
+            <Stack.Screen name="ConfirmWorkout" component={ConfirmWorkoutPage} options={{ animation: "none" }} />
+            <Stack.Screen name="AddWorkout" component={AddWorkoutPage} options={{ animation: "none" }} />
+            <Stack.Screen name="WorkoutStats" component={WorkoutStatsPage} options={{ animation: "none" }} />
+            <Stack.Screen name="AddRoutine" component={AddRoutinePage} options={{ animation: "none" }} />
+            <Stack.Screen name="Community" component={CommunityScreen} options={{ animation: "none" }} />
+            <Stack.Screen name="Search" component={SearchScreen} options={{ animation: "none" }} />
+            <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ animation: "none" }} />
+            <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
+            <Stack.Screen name="MuscleDetail" component={MuscleDetailScreen} options={{ animation: "none" }} />
+          </Stack.Navigator>
+        </NavigationContainer>
+        </GlobalWorkedMusclesProvider>
+      </WorkoutStatsProvider>
     </UserProvider>
   );
 }

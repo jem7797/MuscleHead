@@ -14,11 +14,13 @@ import NavBar from "../Components/NavBar";
 import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
+import { useGlobalWorkedMuscles } from "../Contexts/GlobalWorkedMusclesContext";
 
 const { height } = Dimensions.get("window");
 
 const WorkoutInputMainPage = () => {
   const navigation = useNavigation<any>();
+  const { globalFrontWorked, globalBackWorked } = useGlobalWorkedMuscles();
   const [isBack, setIsBack] = useState(false);
   const [showAddMenu, setShowAddMenu] = useState(false);
 
@@ -80,7 +82,7 @@ const WorkoutInputMainPage = () => {
       <Text style={styles.daySubtitle}>{workoutPlanForDay}</Text>
 
       {/* Content layer */}
-      <WorkedMusclesProvider frontWorked={[]} backWorked={[]}>
+      <WorkedMusclesProvider frontWorked={globalFrontWorked} backWorked={globalBackWorked}>
         {isBack ? (
           <View style={styles.muscleManWrapper}>
             <TouchableOpacity
@@ -136,10 +138,22 @@ const WorkoutInputMainPage = () => {
           </TouchableOpacity>
             {showAddMenu && (
               <View style={styles.addMenuContainer}>
-                <TouchableOpacity style={styles.addMenuItem} onPress={() => {}}>
+                <TouchableOpacity 
+                  style={styles.addMenuItem} 
+                  onPress={() => {
+                    setShowAddMenu(false);
+                    navigation.navigate("ConfirmWorkout");
+                  }}
+                >
                   <Text style={styles.addMenuText}>Add Workout</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.addMenuItem} onPress={() => {}}>
+                <TouchableOpacity 
+                  style={styles.addMenuItem} 
+                  onPress={() => {
+                    setShowAddMenu(false);
+                    navigation.navigate("AddRoutine");
+                  }}
+                >
                   <Text style={styles.addMenuText}>Add Routine</Text>
                 </TouchableOpacity>
               </View>
