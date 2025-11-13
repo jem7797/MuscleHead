@@ -15,12 +15,12 @@ const ContentSection: React.FC<ContentSectionProps> = ({ activeTab }) => {
     <View style={styles.contentSection}>
       {activeTab === "posts" ? (
         <View style={styles.postsContent}>
-          <Text style={styles.contentPlaceholder}>Posts Content</Text>
+          <Text style={styles.contentPlaceholder}>Posts </Text>
           {/* Add your posts grid/list here */}
         </View>
       ) : (
         <View style={styles.progressContent}>
-          <Text style={styles.contentPlaceholder}>Progress Pictures Content</Text>
+          <Text style={styles.contentPlaceholder}>Progress Pictures </Text>
           {/* Add your progress pictures grid here */}
         </View>
       )}

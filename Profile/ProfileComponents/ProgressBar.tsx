@@ -9,7 +9,7 @@ import { View, StyleSheet } from "react-native";
 const ProgressBar: React.FC = () => {
   return (
     <View style={styles.progressBarContainer}>
-      <View style={styles.progressBarSegmentGrey} />
+      <View style={styles.progressBarSegment} />
       <View style={styles.progressBarDivider} />
       <View style={styles.progressBarSegmentGrey} />
       <View style={styles.progressBarDivider} />
@@ -31,6 +31,11 @@ const styles = StyleSheet.create({
   progressBarSegmentGrey: {
     flex: 1,
     backgroundColor: "#b4b4b4",
+    height: "100%",
+  },
+  progressBarSegment: {
+    flex: 1,
+    backgroundColor: "#202c76",
     height: "100%",
   },
   progressBarDivider: {

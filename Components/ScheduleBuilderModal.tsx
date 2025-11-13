@@ -99,7 +99,7 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
                 <TextInput
                   key={day}
                   placeholder={dayPlaceholders[index]}
-                  placeholderTextColor="#666666"
+                  placeholderTextColor="#565757"
                   style={styles.dayText}
                   value={schedule[day]}
                   onChangeText={(value) => handleDayChange(day, value)}
@@ -155,13 +155,14 @@ const styles = StyleSheet.create({
   dayText: {
     width: "100%",
     minHeight: 60,
-    fontSize: 15,
-    padding: 15,
+    fontSize: 16,
+    padding: 12,
     color: "#080808",
     borderColor: "#202c76",
     borderWidth: 2,
-    borderRadius: 8,
+    borderRadius: 20,
     marginBottom: 12,
+    
   },
 
 
