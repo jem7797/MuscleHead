@@ -1,6 +1,6 @@
 import { ResizeMode, Video } from "expo-av";
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TextInput } from "react-native";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TextInput, Switch } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
@@ -11,11 +11,15 @@ const ProfileSetUp = () => {
     const navigation = useNavigation<any>();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedPrivacy, setSelectedPrivacy] = useState<string | null>(null);
+  const [showWeight, setShowWeight] = useState(true);
+  const [showHeight, setShowHeight] = useState(true);
+  const [statTracking, setStatTracking] = useState(true);
+
 
   const privacyOptions = [
-    { value: "open", label: "Open", description: "All users can see you, your workouts, and your posts" },
-    { value: "closeFriends", label: "Close Friends", description: "Only people who you follow will see you, your workouts, and your posts" },
-    { value: "closed", label: "Closed", description: "No one will see anything from you" },
+    { value: "public", label: "Public", description: "All users can see you, your workouts, and your posts" },
+    { value: "friendsOnly", label: "Friends Only", description: "Only people who you follow will see you, your workouts, and your posts" },
+    { value: "private", label: "Private", description: "Only you will see your workouts and leaderboard position" },
   ];
 
 
@@ -101,6 +105,52 @@ const ProfileSetUp = () => {
       )}
           </View>
 
+          {/* Visibility Toggles */}
+          <View style={styles.toggleGroup}>
+            <View style={styles.toggleRow}>
+              <View>
+                <Text style={styles.toggleLabel}>Show Weight</Text>
+                <Text style={styles.toggleDescription}>
+                  Allow others to see your weight on your profile
+                </Text>
+              </View>
+              <Switch
+                value={showWeight}
+                onValueChange={setShowWeight}
+                thumbColor={showWeight ? "#013cdeff" : "#f4f3f4"}
+                trackColor={{ false: "rgba(255,255,255,0.2)", true: "rgba(1,60,222,0.4)" }}
+              />
+            </View>
+            <View style={styles.toggleRow}>
+              <View>
+                <Text style={styles.toggleLabel}>Show Height</Text>
+                <Text style={styles.toggleDescription}>
+                  Allow others to see your height on your profile
+                </Text>
+              </View>
+              <Switch
+                value={showHeight}
+                onValueChange={setShowHeight}
+                thumbColor={showHeight ? "#013cdeff" : "#f4f3f4"}
+                trackColor={{ false: "rgba(255,255,255,0.2)", true: "rgba(1,60,222,0.4)" }}
+              />
+            </View>
+            <View style={styles.toggleRow}>
+              <View>
+                <Text style={styles.toggleLabel}>Stat Tracking</Text>
+                <Text style={styles.toggleDescription}>
+                  Allow MuscleHead to track your workout data to place you on leaderboards, track progress, and more
+                </Text>
+              </View>
+              <Switch
+                value={statTracking}
+                onValueChange={setStatTracking}
+                thumbColor={statTracking ? "#013cdeff" : "#f4f3f4"}
+                trackColor={{ false: "rgba(255,255,255,0.2)", true: "rgba(1,60,222,0.4)" }}
+              />
+            </View>
+          </View>
+
           {/* Continue Button */}
           <TouchableOpacity
             style={styles.continueButton}
@@ -135,10 +185,12 @@ const styles = StyleSheet.create({
   },
   overlay: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     width: "100%",
     zIndex: 1,
+    paddingTop: SCREEN_HEIGHT * 0.12,
+    paddingBottom: 40,
   },
   profilePicture: {
     width: 100,
@@ -146,9 +198,10 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 2,
     backgroundColor:"#708090",
-    top: -260,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: 12,
+    borderColor: "rgba(255,255,255,0.4)",
   },
 
   AddProfilePictureText:{
@@ -157,8 +210,7 @@ const styles = StyleSheet.create({
    fontWeight: "700",
     justifyContent: "center",
     alignSelf:"center",
-    top: -250,
-
+    marginBottom: 28,
   },
 
   PrivacySettingText:{
@@ -171,9 +223,9 @@ const styles = StyleSheet.create({
   },
   dropdownContainer: {
     width: SCREEN_WIDTH * 0.85,
-    top: -200,
     zIndex: 1000,
     position: "relative",
+    marginBottom: 24,
   },
   dropdownButton: {
     backgroundColor: "rgba(98, 98, 98, 0.67)",
@@ -235,6 +287,34 @@ const styles = StyleSheet.create({
     right: 18,
     top: 16,
   },  
+  toggleGroup: {
+    width: SCREEN_WIDTH * 0.85,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    marginTop: 8,
+    marginBottom: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(0,0,0,0.7)",
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.2)",
+  },
+  toggleRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  toggleLabel: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+  toggleDescription: {
+    color: "#aaa",
+    fontSize: 12,
+    marginTop: 4,
+    width: SCREEN_WIDTH * 0.55,
+  },
   continueButton: {
     backgroundColor: "#013cdee0",
     paddingVertical: 14,
@@ -244,9 +324,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.8,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 10,
-    marginTop: 30,
+    marginTop: 10,
     zIndex: 1002,
-    bottom: -260
   },
   continueText: {
     color: "#fff",

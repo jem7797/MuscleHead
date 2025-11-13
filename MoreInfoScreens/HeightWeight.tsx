@@ -16,7 +16,7 @@ const HeightWeight = () => {
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
   const weightOptions = Array.from({ length: 300 }, (_, i) => i + 50); // 50–350
-  const heightFeetOptions = Array.from({ length: 6 }, (_, i) => i + 4); // 4–9 feet
+  const heightFeetOptions = Array.from({ length: 4 }, (_, i) => i + 4); // 4–7 feet
   const heightInchesOptions = Array.from({ length: 12 }, (_, i) => i); // 0–11 inches
 
   const handleContinue = () => {
