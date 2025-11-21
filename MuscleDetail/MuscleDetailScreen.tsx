@@ -19,6 +19,7 @@ import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
 // Context provider that manages which muscles should be highlighted
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
+import PageHeader from "../Components/PageHeader";
 import InfoPanel from "./MuscleDetailScreen Components/InfoPanel";
 import MuscleSelector from "./MuscleDetailScreen Components/MuscleSelector";
 
@@ -182,14 +183,7 @@ const MuscleDetailScreen = () => {
   // Main render - returns the component UI
   return (
     <View style={styles.container}>
-      {/* Header: back button, title, placeholder for spacing */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color="#1f2a44" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Muscle Guide</Text>
-        <View style={styles.placeholder} />
-      </View>
+      <PageHeader title="Muscle Guide" />
 
       {/* Context provider - supplies worked muscles for highlighting */}
       <WorkedMusclesProvider

@@ -2,7 +2,8 @@ import React, { useState, useRef } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Animated } from "react-native";
 import { ResizeMode, Video } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
+import BackButton from "../Components/BackButton";
+import PrimaryButton from "../Components/PrimaryButton";
 import WeightPicker from "./HeightWeight Components/WeightPicker";
 import HeightPicker from "./HeightWeight Components/HeightPicker";
 
@@ -78,10 +79,12 @@ const HeightWeight = () => {
 
       {/* Overlay */}
       <View style={styles.overlay}>
-        {/* Back Button */}
-        <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-          <Ionicons name="arrow-back" size={24} color="#fff" />
-        </TouchableOpacity>
+        <BackButton
+          color="#fff"
+          style={styles.backButton}
+          backgroundColor="rgba(0, 0, 0, 0.3)"
+          onPress={handleBack}
+        />
 
         <Animated.View style={{ opacity: fadeAnim, width: '100%', alignItems: 'center' }}>
           {step === 'weight' ? (
@@ -96,9 +99,11 @@ const HeightWeight = () => {
           )}
         </Animated.View>
 
-        <TouchableOpacity style={styles.continueButton} onPress={handleContinue}>
-          <Text style={styles.continueText}>Continue</Text>
-        </TouchableOpacity>
+        <PrimaryButton
+          label="Continue"
+          variant="continue"
+          onPress={handleContinue}
+        />
       </View>
     </View>
   );
@@ -128,27 +133,7 @@ const styles = StyleSheet.create({
     top: 50,
     left: 20,
     zIndex: 10,
-    padding: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
     borderRadius: 20,
-  },
-  continueButton: {
-    backgroundColor: "#013cdee0",
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 14,
-    shadowColor: "#3b6fb8",
-    shadowOpacity: 0.8,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
-    marginTop: 50,
-  },
-   continueText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
 });
 

@@ -3,29 +3,19 @@ import {
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import PageHeader from "../Components/PageHeader";
+import PrimaryButton from "../Components/PrimaryButton";
+import SecondaryButton from "../Components/SecondaryButton";
 
 const ConfirmWorkoutPage = () => {
   const navigation = useNavigation<any>();
 
   return (
     <View style={styles.mainContainer}>
-      {/* Header with back button */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1f2a44" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Start Workout</Text>
-        <View style={styles.placeholder} />
-      </View>
-
-      {/* Content */}
+      <PageHeader title="Start Workout" paddingTop={50} paddingHorizontal={16} />
       <View style={styles.content}>
         <View style={styles.confirmContainer}>
           <Ionicons name="fitness" size={80} color="#202c76" style={styles.icon} />
@@ -35,21 +25,16 @@ const ConfirmWorkoutPage = () => {
           </Text>
           
           <View style={styles.buttonContainer}>
-            <TouchableOpacity 
-              style={styles.confirmButton}
-              onPress={() => {
-                navigation.replace("AddWorkout");
-              }}
-            >
-              <Text style={styles.confirmButtonText}>Start Workout</Text>
-            </TouchableOpacity>
-            
-            <TouchableOpacity 
-              style={styles.cancelButton}
+            <PrimaryButton
+              label="Start Workout"
+              variant="confirm"
+              onPress={() => navigation.replace("AddWorkout")}
+            />
+            <SecondaryButton
+              label="Cancel"
+              variant="outline"
               onPress={() => navigation.goBack()}
-            >
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
+            />
           </View>
         </View>
       </View>
@@ -61,27 +46,6 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 16,
-    paddingTop: 50,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e8e8e8",
-  },
-  backButton: {
-    padding: 4,
-  },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1f2a44",
-  },
-  placeholder: {
-    width: 32,
   },
   content: {
     flex: 1,
@@ -113,34 +77,6 @@ const styles = StyleSheet.create({
   buttonContainer: {
     width: "100%",
     gap: 12,
-  },
-  confirmButton: {
-    backgroundColor: "#202c76",
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  confirmButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  cancelButton: {
-    backgroundColor: "white",
-    borderRadius: 12,
-    paddingVertical: 16,
-    paddingHorizontal: 20,
-    alignItems: "center",
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: "#e8e8e8",
-  },
-  cancelButtonText: {
-    color: "#666",
-    fontSize: 16,
-    fontWeight: "500",
   },
 });
 

@@ -11,7 +11,7 @@ import HeaderSection from "./WorkoutStatsPage Components/HeaderSection";
 import WorkoutNameInput from "./WorkoutStatsPage Components/WorkoutNameInput";
 import StatsGrid from "./WorkoutStatsPage Components/StatsGrid";
 import ExercisesSection from "./WorkoutStatsPage Components/ExercisesSection";
-import SaveButton from "./WorkoutStatsPage Components/SaveButton";
+import PrimaryButton from "../Components/PrimaryButton";
 
 // Map muscle group names to muscle IDs and front/back
 const MUSCLE_GROUP_MAP: Record<string, { id: string; side: 'front' | 'back' }[]> = {
@@ -88,7 +88,7 @@ const WorkoutStatsPage = () => {
         />
         <ExercisesSection workouts={stats.workouts} />
       </ScrollView>
-      <SaveButton onPress={handleSave} />
+      <PrimaryButton label="Save & Continue" variant="footer" onPress={handleSave} />
     </View>
   );
 };

@@ -1,8 +1,7 @@
 import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import MuscleGroupSelector from "./MuscleGroupSelector";
-import WorkoutSelector from "./WorkoutSelector";
+import SelectorButton from "../../Components/SelectorButton";
 import SetsInput from "./SetsInput";
 
 interface Set {
@@ -50,17 +49,19 @@ const WorkoutBox: React.FC<WorkoutBoxProps> = ({
         </TouchableOpacity>
       )}
       
-      <MuscleGroupSelector
-        muscleGroups={muscleGroups}
-        selectedGroup={workout.muscleGroup}
+      <SelectorButton
+        options={muscleGroups}
+        selected={workout.muscleGroup}
         onSelect={onSelectMuscleGroup}
+        title="Select Muscle Group"
       />
 
       {workout.muscleGroup && availableWorkouts.length > 0 && (
-        <WorkoutSelector
-          workouts={availableWorkouts}
-          selectedWorkout={workout.workout}
+        <SelectorButton
+          options={availableWorkouts}
+          selected={workout.workout}
           onSelect={onSelectWorkout}
+          title="Select Workout"
         />
       )}
 

@@ -16,6 +16,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { signUp } from "aws-amplify/auth";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
+import PrimaryButton from "../Components/PrimaryButton";
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -151,9 +152,12 @@ const handleSignUp = async () => {
               onChangeText={setPassword}
             />
 
-            <TouchableOpacity style={styles.button} onPress={handleSignUp}>
-              <Text style={styles.buttonText}>Sign Up</Text>
-            </TouchableOpacity>
+            <PrimaryButton
+              label="Sign Up"
+              variant="continue"
+              onPress={handleSignUp}
+              containerStyle={styles.button}
+            />
           </View>
         </LinearGradient>
       </ScrollView>
@@ -212,14 +216,6 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#2255a7ff",
     marginTop: 24,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
-  },
-  buttonText: {
-    color: "#fff",
-    fontWeight: "600",
-    fontSize: 16,
   },
 });
 

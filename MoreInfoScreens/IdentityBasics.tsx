@@ -15,6 +15,8 @@ import {
 import { Video, ResizeMode } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import BackButton from "../Components/BackButton";
+import PrimaryButton from "../Components/PrimaryButton";
 import GenderSelector from "./IdentityBasics Components/GenderSelector";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -91,13 +93,11 @@ const IdentityBasics = () => {
 
           {/* Overlay Content */}
           <View style={styles.overlay}>
-            {/* Back Button */}
-            <TouchableOpacity 
-              style={styles.backButton} 
-              onPress={() => navigation.goBack()}
-            >
-              <Ionicons name="arrow-back" size={24} color="#fff" />
-            </TouchableOpacity>
+            <BackButton
+              color="#fff"
+              style={styles.backButton}
+              backgroundColor="rgba(0, 0, 0, 0.3)"
+            />
 
             {/* Date of Birth Input */}
             <View style={styles.ageWrapper}>
@@ -120,15 +120,12 @@ const IdentityBasics = () => {
               onSelect={(g) => setGender(g)}
             />
 
-            {/* Continue Button (Animated Fade In) */}
-            <Animated.View style={[styles.continueWrapper, { opacity: fadeAnim }]}>
-              <TouchableOpacity
-                style={styles.continueButton}
-                onPress={() => navigation.navigate("HeightWeight")} 
-              >
-                <Text style={styles.continueText}>Continue</Text>
-              </TouchableOpacity>
-            </Animated.View>
+            <PrimaryButton
+              label="Continue"
+              variant="continue"
+              onPress={() => navigation.navigate("HeightWeight")}
+              animatedStyle={[styles.continueWrapper, { opacity: fadeAnim }]}
+            />
           </View>
         </View>
       </TouchableWithoutFeedback>
@@ -160,8 +157,6 @@ const styles = StyleSheet.create({
     top: 50,
     left: 20,
     zIndex: 10,
-    padding: 10,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
     borderRadius: 20,
   },
   ageWrapper: {
@@ -196,23 +191,6 @@ const styles = StyleSheet.create({
   },
   continueWrapper: {
     marginTop: 50,
-  },
-  continueButton: {
-    backgroundColor: "#013cdee0",
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 14,
-    shadowColor: "#3b6fb8",
-    shadowOpacity: 0.8,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
-  },
-  continueText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
 });
 

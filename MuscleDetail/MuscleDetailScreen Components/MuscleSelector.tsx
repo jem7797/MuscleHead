@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
+import { View, StyleSheet } from "react-native";
+import SelectorButton from "../../Components/SelectorButton";
 
 interface MuscleInfo {
   name: string;
@@ -19,30 +20,33 @@ const MuscleSelector: React.FC<MuscleSelectorProps> = ({
   selectedMuscle,
   onSelect,
 }) => {
+  const muscleOptions = Object.keys(muscles).map(id => muscles[id].name);
+  const selectedName = selectedMuscle ? muscles[selectedMuscle]?.name : null;
+  const selectedIndex = muscleOptions.indexOf(selectedName || "");
+  const selectedKey = selectedIndex >= 0 ? Object.keys(muscles)[selectedIndex] : null;
+
+  const handleSelect = (name: string) => {
+    const muscleId = Object.keys(muscles).find(id => muscles[id].name === name);
+    if (muscleId) {
+      onSelect(muscleId);
+    }
+  };
+
   return (
     <View style={styles.muscleSelector}>
-      <Text style={styles.selectorTitle}>Select Muscle:</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.selectorScroll}>
-        {Object.keys(muscles).map((muscleId) => (
-          <TouchableOpacity
-            key={muscleId}
-            style={[
-              styles.muscleButton,
-              selectedMuscle === muscleId && styles.muscleButtonActive,
-            ]}
-            onPress={() => onSelect(muscleId)}
-          >
-            <Text
-              style={[
-                styles.muscleButtonText,
-                selectedMuscle === muscleId && styles.muscleButtonTextActive,
-              ]}
-            >
-              {muscles[muscleId].name}
-            </Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      <SelectorButton
+        options={muscleOptions}
+        selected={selectedName}
+        onSelect={handleSelect}
+        title="Select Muscle:"
+        showTitle={true}
+        horizontal={true}
+        containerStyle={styles.selectorContainer}
+        buttonStyle={styles.muscleButton}
+        activeButtonStyle={styles.muscleButtonActive}
+        textStyle={styles.muscleButtonText}
+        activeTextStyle={styles.muscleButtonTextActive}
+      />
     </View>
   );
 };
@@ -62,24 +66,15 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     shadowOffset: { width: 0, height: -2 },
   },
-  selectorTitle: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#1f2a44",
-    marginBottom: 10,
-  },
-  selectorScroll: {
-    flexDirection: "row",
+  selectorContainer: {
+    marginBottom: 0,
   },
   muscleButton: {
     paddingVertical: 13,
     paddingHorizontal: 16,
     borderRadius: 20,
     backgroundColor: "#f4f6fa",
-    marginRight: 8,
-    borderWidth: 1,
     borderColor: "#e0e6f0",
-    bottom: 0,
   },
   muscleButtonActive: {
     backgroundColor: "#202c76",
@@ -87,7 +82,6 @@ const styles = StyleSheet.create({
   },
   muscleButtonText: {
     fontSize: 14,
-    fontWeight: "500",
     color: "#51607a",
   },
   muscleButtonTextActive: {

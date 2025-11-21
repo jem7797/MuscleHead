@@ -1,8 +1,10 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Dimensions, StyleSheet, Text, View, TouchableOpacity } from "react-native";
+import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "../Contexts/UserContext";
+import PrimaryButton from "../Components/PrimaryButton";
+import SecondaryButton from "../Components/SecondaryButton";
 
 
 
@@ -26,21 +28,18 @@ const ContinueSignUp = ({ navigation }) => {
           Jump right in or tell us more to personalize your experience. 
         </Text>
 
-        {/*  Buttons */}
         <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={styles.primaryButton}
+          <PrimaryButton
+            label="Continue"
+            variant="continue"
             onPress={() => navigation.navigate("WorkoutInputMainPage")}
-          >
-            <Text style={styles.primaryButtonText}>Continue</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={styles.secondaryButton}
+            containerStyle={styles.primaryButton}
+          />
+          <SecondaryButton
+            label="Add More Info"
+            variant="ghost"
             onPress={() => navigation.navigate("ProfileSetUp")}
-          >
-            <Text style={styles.secondaryButtonText}>Add More Info</Text>
-          </TouchableOpacity>
+          />
         </View>
       </View>
     </LinearGradient>
@@ -86,34 +85,11 @@ const styles = StyleSheet.create({
   },
   primaryButton: {
     backgroundColor: "#3b6fb8",
-    paddingVertical: 14,
-    paddingHorizontal: 60,
-    borderRadius: 12,
     shadowColor: "#3b6fb8",
     shadowOpacity: 0.8,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 10,
     marginBottom: 20,
-  },
-  primaryButtonText: {
-    color: "#ffffffff",
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
-  },
-  secondaryButton: {
-    borderColor: "#3b6fb8",
-    borderWidth: 2,
-    paddingVertical: 12,
-    paddingHorizontal: 50,
-    borderRadius: 12,
-  },
-  secondaryButtonText: {
-    color: "#ffffffff",
-    fontSize: 15,
-    fontWeight: "600",
-    letterSpacing: 0.5,
   },
 });
 

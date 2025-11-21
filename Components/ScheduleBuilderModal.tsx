@@ -9,9 +9,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import PrimaryButton from "./PrimaryButton";
 
 interface ScheduleBuilderModalProps {
   visible: boolean;
@@ -107,9 +107,12 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
               ))}
             </View>
 
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
+            <PrimaryButton
+              label="Save"
+              variant="default"
+              onPress={handleSave}
+              containerStyle={styles.saveButton}
+            />
           </ScrollView>
         </View>
       </KeyboardAvoidingView>
@@ -166,23 +169,11 @@ const styles = StyleSheet.create({
   },
 
 
-  saveButton:{
+  saveButton: {
     alignSelf: "center",
-backgroundColor: "#202c76",
-borderRadius: 15,
-width: 100,
-height: 45,
-alignContent:"center",
+    width: 100,
+    height: 45,
   },
-
-  saveButtonText:{
-    color: "white",
-    alignContent: "center",
-    alignSelf: "center",
-    top: 5,
-    fontSize: 25,
-    fontWeight: 400,
-  }
 });
 
 export default ScheduleBuilderModal;

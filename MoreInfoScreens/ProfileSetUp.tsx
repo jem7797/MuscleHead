@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import PrimaryButton from "../Components/PrimaryButton";
 import PrivacyDropdown from "./ProfileSetUp Components/PrivacyDropdown";
 import ToggleGroup from "./ProfileSetUp Components/ToggleGroup";
 
@@ -91,13 +92,12 @@ const ProfileSetUp = () => {
 
           <ToggleGroup toggles={toggleToggles} />
 
-          {/* Continue Button */}
-          <TouchableOpacity
-            style={styles.continueButton}
-            onPress={() => navigation.navigate("WorkoutInputMainPage")} 
-          >
-            <Text style={styles.continueText}>Finish Set Up</Text>
-          </TouchableOpacity>
+          <PrimaryButton
+            label="Finish Set Up"
+            variant="continue"
+            onPress={() => navigation.navigate("WorkoutInputMainPage")}
+            containerStyle={styles.continueButton}
+          />
         </View>
     </View>
   );
@@ -162,23 +162,8 @@ const styles = StyleSheet.create({
       top: -200,
   },
   continueButton: {
-    backgroundColor: "#013cdee0",
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 14,
-    shadowColor: "#3b6fb8",
-    shadowOpacity: 0.8,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
     marginTop: 10,
     zIndex: 1002,
-  },
-  continueText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
-    letterSpacing: 1,
-    textTransform: "uppercase",
   },
 });
 

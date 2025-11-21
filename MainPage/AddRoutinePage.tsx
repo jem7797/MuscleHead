@@ -3,29 +3,16 @@ import {
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
+import PageHeader from "../Components/PageHeader";
 
 const AddRoutinePage = () => {
-  const navigation = useNavigation<any>();
 
   return (
     <View style={styles.mainContainer}>
-      {/* Header with back button */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Ionicons name="arrow-back" size={24} color="#1f2a44" />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Add Routine</Text>
-        <View style={styles.placeholder} />
-      </View>
+      <PageHeader title="Add Routine" />
 
       {/* Content */}
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
@@ -42,27 +29,6 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
-  },
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    paddingTop: 60,
-    paddingBottom: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e0e6f0",
-  },
-  backButton: {
-    padding: 8,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#1f2a44",
-  },
-  placeholder: {
-    width: 40,
   },
   content: {
     flex: 1,

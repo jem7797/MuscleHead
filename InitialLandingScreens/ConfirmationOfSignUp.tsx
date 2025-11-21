@@ -3,13 +3,13 @@ import {
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   StyleSheet,
   Alert,
   Platform,
 } from "react-native";
 import { confirmSignUp } from "aws-amplify/auth";
 import { LinearGradient } from "expo-linear-gradient";
+import PrimaryButton from "../Components/PrimaryButton";
 
 // @ts-ignore
 const ConfirmSignUpScreen = ({ route, navigation }) => {
@@ -90,10 +90,12 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         ))}
       </View>
 
-      <TouchableOpacity style={styles.button} onPress={handleConfirm}>
-       
-          <Text style={styles.buttonText}>Confirm</Text>
-      </TouchableOpacity>
+      <PrimaryButton
+        label="Confirm"
+        variant="continue"
+        onPress={handleConfirm}
+        containerStyle={styles.button}
+      />
     </LinearGradient>
   );
 };
@@ -141,22 +143,12 @@ const styles = StyleSheet.create({
     textShadowRadius: 0,
   },
   button: {
-       backgroundColor: "#3b6fb8",
-    paddingVertical: 14,
-    paddingHorizontal: 60,
-    borderRadius: 12,
+    backgroundColor: "#3b6fb8",
     shadowColor: "#3b6fb8",
     shadowOpacity: 0.8,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 10,
     marginBottom: 20,
-  },
-  
-  buttonText: {
-     color: "#ffffffff",
-    fontSize: 15,
-    fontWeight: "600",
-    letterSpacing: 0.5,
   },
 });
 

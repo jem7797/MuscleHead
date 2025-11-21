@@ -3,13 +3,16 @@ import {
   StyleSheet,
   View,
   ScrollView,
+  Text,
+  TouchableOpacity,
 } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
-import WorkoutHeader from "./AddWorkoutPage Components/WorkoutHeader";
+import PageHeader from "../Components/PageHeader";
+import PrimaryButton from "../Components/PrimaryButton";
 import WorkoutBox from "./AddWorkoutPage Components/WorkoutBox";
 import AddWorkoutButton from "./AddWorkoutPage Components/AddWorkoutButton";
-import DoneButton from "./AddWorkoutPage Components/DoneButton";
 
 // Workout data organized by muscle groups
 const WORKOUT_BY_MUSCLE_GROUP: Record<string, string[]> = {
@@ -156,13 +159,26 @@ const AddWorkoutPage = () => {
     navigation.navigate("WorkoutStats");
   };
 
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const timerComponent = (
+    <TouchableOpacity onPress={toggleTimer} style={styles.timerButton}>
+      <Ionicons name={isTimerRunning ? "pause" : "play"} size={16} color="#202c76" />
+      <Text style={styles.timerText}>{formatTime(timerSeconds)}</Text>
+    </TouchableOpacity>
+  );
+
   return (
     <View style={styles.mainContainer}>
-      <WorkoutHeader
-        onBack={() => navigation.goBack()}
-        timerSeconds={timerSeconds}
-        isTimerRunning={isTimerRunning}
-        onToggleTimer={toggleTimer}
+      <PageHeader
+        title="Add Workout"
+        paddingTop={50}
+        paddingHorizontal={16}
+        rightComponent={timerComponent}
       />
 
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
@@ -189,7 +205,7 @@ const AddWorkoutPage = () => {
         <AddWorkoutButton onPress={addWorkout} />
       </ScrollView>
 
-      <DoneButton onPress={handleDone} />
+      <PrimaryButton label="Done" variant="footer" onPress={handleDone} />
     </View>
   );
 };
@@ -206,6 +222,20 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 40,
     flexGrow: 1,
+  },
+  timerButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#f4f4f4",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    gap: 4,
+  },
+  timerText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#202c76",
   },
 });
 
