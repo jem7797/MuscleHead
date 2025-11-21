@@ -19,6 +19,8 @@ import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
 // Context provider that manages which muscles should be highlighted
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
+import InfoPanel from "./MuscleDetailScreen Components/InfoPanel";
+import MuscleSelector from "./MuscleDetailScreen Components/MuscleSelector";
 
 // Get screen dimensions once - used for responsive sizing
 const { height, width } = Dimensions.get("window");
@@ -229,48 +231,12 @@ const MuscleDetailScreen = () => {
         </Animated.View>
       </View>
 
-      {/* Info panel - shows muscle details when selected */}
-      {selectedInfo && (
-        <View style={styles.infoPanel}>
-          <ScrollView style={styles.infoScroll}>
-            <Text style={styles.muscleName}>{selectedInfo.name}</Text>
-            <Text style={styles.muscleSubname}>{selectedInfo.subname}</Text>
-            <Text style={styles.muscleDescription}>{selectedInfo.description}</Text>
-            <Text style={styles.exercisesTitle}>Exercises:</Text>
-            {selectedInfo.exercises.map((exercise, idx) => (
-              <Text key={idx} style={styles.exerciseItem}>
-                • {exercise}
-              </Text>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-
-      {/* Muscle selector - bottom bar with scrollable buttons */}
-      <View style={styles.muscleSelector}>
-        <Text style={styles.selectorTitle}>Select Muscle:</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.selectorScroll}>
-          {Object.keys(MUSCLE_INFO).map((muscleId) => (
-            <TouchableOpacity
-              key={muscleId}
-              style={[
-                styles.muscleButton,
-                selectedMuscle === muscleId && styles.muscleButtonActive,
-              ]}
-              onPress={() => handleMuscleClick(muscleId)}
-            >
-              <Text
-                style={[
-                  styles.muscleButtonText,
-                  selectedMuscle === muscleId && styles.muscleButtonTextActive,
-                ]}
-              >
-                {MUSCLE_INFO[muscleId].name}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
-      </View>
+      {selectedInfo && <InfoPanel info={selectedInfo} />}
+      <MuscleSelector
+        muscles={MUSCLE_INFO}
+        selectedMuscle={selectedMuscle}
+        onSelect={handleMuscleClick}
+      />
     </View>
   );
 };
@@ -351,128 +317,6 @@ const styles = StyleSheet.create({
     top: -70, // Negative top - moves it up from controls container position
   },
   
-  // ScrollView inside info panel
-  infoScroll: {
-    flex: 1, // Takes all available space in parent
-  },
-  
-  // Muscle name text (e.g., "Pectorals")
-  muscleName: {
-    fontSize: 20, // 20px font size
-    fontWeight: "700", // Bold
-    color: "#1f2a44", // Dark blue-gray
-    marginBottom: 4, // 4px space below name
-  },
-  
-  // Muscle scientific name text
-  muscleSubname: {
-    fontSize: 14, // 14px font size
-    fontWeight: "500", // Medium weight
-    fontStyle: "italic", // Italicized for scientific name
-    color: "#51607a", // Medium gray color
-    marginBottom: 8, // 8px space below subname
-  },
-  
-  // Description paragraph text
-  muscleDescription: {
-    fontSize: 14, // 14px font size
-    color: "#51607a", // Medium gray color (lighter than title)
-    lineHeight: 20, // 20px between lines (readability)
-    marginBottom: 12, // 12px space below description
-  },
-  
-  // "Exercises:" label text
-  exercisesTitle: {
-    fontSize: 16, // 16px font size
-    fontWeight: "600", // Semi-bold
-    color: "#1f2a44", // Dark blue-gray
-    marginBottom: 8, // 8px space below label
-  },
-  
-  // Individual exercise item text (bullet point)
-  exerciseItem: {
-    fontSize: 14, // 14px font size
-    color: "#51607a", // Medium gray
-    marginBottom: 4, // 4px space between exercises
-  },
-  
-  // Info panel - appears above muscle selector when muscle is selected
-  infoPanel: {
-    position: "absolute", // Absolutely positioned, floats above content
-    bottom: 160, // 160px from bottom (above muscle selector)
-    left: 20, // 20px from left edge
-    right: 20, // 20px from right edge (creates margins)
-    backgroundColor: "#f4f6fa", // Light gray-blue background
-    borderRadius: 12, // 12px rounded corners
-    padding: 16, // 16px padding inside panel
-    maxHeight: height * 0.3, // Maximum 30% of screen height (prevents overflow)
-    elevation: 8, // Android shadow depth (makes it appear raised)
-    // iOS shadow properties (elevation is Android-only)
-    shadowColor: "#000", // Black shadow
-    shadowOpacity: 0.15, // 15% opacity (semi-transparent)
-    shadowRadius: 8, // 8px blur radius
-    shadowOffset: { width: 0, height: 3 }, // 3px offset downward
-  },
-  
-  // Muscle selector bar - fixed at bottom of screen
-  muscleSelector: {
-    position: "absolute", // Absolutely positioned
-    bottom: 50, // 50px from bottom (raised for better visibility)
-    left: 0, // Starts at left edge
-    right: 0, // Extends to right edge (full width)
-    backgroundColor: "#fff", // White background
-    paddingVertical: 12, // 12px padding top and bottom
-    paddingHorizontal: 16, // 16px padding left and right
-    elevation: 8, // Android shadow depth
-    // iOS shadow (subtle, upward shadow since it's at bottom)
-    shadowColor: "#000", // Black shadow
-    shadowOpacity: 0.1, // 10% opacity (lighter than info panel)
-    shadowRadius: 4, // 4px blur
-    shadowOffset: { width: 0, height: -2 }, // -2px offset upward (negative)
-  },
-  
-  // "Select Muscle:" label text
-  selectorTitle: {
-    fontSize: 15, // 15px font size
-    fontWeight: "700", // Semi-bold
-    color: "#1f2a44", // Dark blue-gray
-    marginBottom: 10, // 10px space below label
-  },
-  
-  // Horizontal ScrollView container
-  selectorScroll: {
-    flexDirection: "row", // Arranges children horizontally (buttons in a row)
-  },
-  
-  // Individual muscle button (inactive state)
-  muscleButton: {
-    paddingVertical: 13, // 13px padding top and bottom
-    paddingHorizontal: 16, // 16px padding left and right
-    borderRadius: 20, // 20px radius = pill-shaped button
-    backgroundColor: "#f4f6fa", // Light gray-blue background
-    marginRight: 8, // 8px space to right (gap between buttons)
-    borderWidth: 1, // 1px border
-    borderColor: "#e0e6f0", // Light gray border
-    bottom: 0, // Moves button down 20px (adjustment for layout)
-  },
-  
-  // Active muscle button (when selected)
-  muscleButtonActive: {
-    backgroundColor: "#202c76", // Blue background (primary color)
-    borderColor: "#202c76", // Blue border (matches background)
-  },
-  
-  // Button text (inactive state)
-  muscleButtonText: {
-    fontSize: 14, // 13px font size
-    fontWeight: "500", // Medium weight
-    color: "#51607a", // Medium gray text
-  },
-  
-  // Active button text (when selected)
-  muscleButtonTextActive: {
-    color: "#fff", // White text (for contrast on blue background)
-  },
 });
 
 export default MuscleDetailScreen;

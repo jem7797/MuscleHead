@@ -1,9 +1,10 @@
 import React, { useState, useRef } from "react";
 import { View, Text, StyleSheet, Dimensions, TouchableOpacity, Animated } from "react-native";
 import { ResizeMode, Video } from "expo-av";
-import WheelPickerExpo from "react-native-wheel-picker-expo";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import WeightPicker from "./HeightWeight Components/WeightPicker";
+import HeightPicker from "./HeightWeight Components/HeightPicker";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -15,9 +16,6 @@ const HeightWeight = () => {
   const [step, setStep] = useState<'weight' | 'height'>('weight');
   const fadeAnim = useRef(new Animated.Value(1)).current;
 
-  const weightOptions = Array.from({ length: 300 }, (_, i) => i + 50); // 50–350
-  const heightFeetOptions = Array.from({ length: 4 }, (_, i) => i + 4); // 4–7 feet
-  const heightInchesOptions = Array.from({ length: 12 }, (_, i) => i); // 0–11 inches
 
   const handleContinue = () => {
     if (step === 'weight') {
@@ -87,50 +85,14 @@ const HeightWeight = () => {
 
         <Animated.View style={{ opacity: fadeAnim, width: '100%', alignItems: 'center' }}>
           {step === 'weight' ? (
-            <>
-              <Text style={styles.label}>Select Your Weight</Text>
-              <View style={styles.wheelRow}>
-                <View style={styles.wheelWrapper}>
-                  <WheelPickerExpo
-                    height={200}
-                    width={120}
-                    initialSelectedIndex={weightOptions.indexOf(weight)}
-                    items={weightOptions.map((w) => ({ label: `${w} lbs`, value: w }))}
-                    onChange={({ item }) => setWeight(item.value)}
-                    backgroundColor="rgba(254, 253, 253, 0)"
-                    selectedStyle={{ borderColor: "#3b6fb8", borderWidth: 2 }}
-                  />
-                </View>
-              </View>
-            </>
+            <WeightPicker weight={weight} onWeightChange={setWeight} />
           ) : (
-            <>
-              <Text style={styles.label}>Select Your Height</Text>
-              <View style={styles.wheelRow}>
-                <View style={styles.wheelWrapper}>
-                  <WheelPickerExpo
-                    height={200}
-                    width={120}
-                    initialSelectedIndex={heightFeetOptions.indexOf(heightFeet)}
-                    items={heightFeetOptions.map((h) => ({ label: `${h} ft`, value: h }))}
-                    onChange={({ item }) => setHeightFeet(item.value)}
-                    backgroundColor="rgba(254, 253, 253, 0)"
-                    selectedStyle={{ borderColor: "#3b6fb8", borderWidth: 2 }}
-                  />
-                </View>
-                <View style={styles.wheelWrapper}>
-                  <WheelPickerExpo
-                    height={200}
-                    width={120}
-                    initialSelectedIndex={heightInchesOptions.indexOf(heightInches)}
-                    items={heightInchesOptions.map((i) => ({ label: `${i} in`, value: i }))}
-                    onChange={({ item }) => setHeightInches(item.value)}
-                    backgroundColor="rgba(254, 253, 253, 0)"
-                    selectedStyle={{ borderColor: "#3b6fb8", borderWidth: 2 }}
-                  />
-                </View>
-              </View>
-            </>
+            <HeightPicker
+              heightFeet={heightFeet}
+              heightInches={heightInches}
+              onFeetChange={setHeightFeet}
+              onInchesChange={setHeightInches}
+            />
           )}
         </Animated.View>
 
@@ -169,32 +131,6 @@ const styles = StyleSheet.create({
     padding: 10,
     backgroundColor: "rgba(0, 0, 0, 0.3)",
     borderRadius: 20,
-  },
-  label: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "700",
-    letterSpacing: 1,
-    marginBottom: 40,
-    textAlign: "center",
-    textTransform: "uppercase",
-  },
-  wheelRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-evenly",
-    width: SCREEN_WIDTH * 0.9,
-  },
-  wheelWrapper: {
-    backgroundColor: "rgba(255,255,255,0.05)",
-    borderRadius: 12,
-    overflow: "hidden",
-  },
-  resultText: {
-    marginTop: 30,
-    color: "#fff",
-    fontSize: 26,
-    fontWeight: "700",
   },
   continueButton: {
     backgroundColor: "#013cdee0",

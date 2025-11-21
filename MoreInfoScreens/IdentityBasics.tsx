@@ -15,6 +15,7 @@ import {
 import { Video, ResizeMode } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import GenderSelector from "./IdentityBasics Components/GenderSelector";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -114,59 +115,10 @@ const IdentityBasics = () => {
               />
             </View>
 
-            {/* Gender Selection */}
-            <Text style={[styles.label, { marginBottom: 25 }]}>
-              Select your gender
-            </Text>
-            <View style={styles.genderWrapper}>
-              {/* Male */}
-              <TouchableOpacity
-                style={[
-                  styles.genderButton,
-                  gender === "Male" && styles.maleSelected,
-                ]}
-                onPress={() => setGender("Male")}
-              >
-                <Ionicons
-                  name="male"
-                  size={50}
-                  color={gender === "Male" ? "#fff" : "#999"}
-                />
-                <Text
-                  style={[
-                    styles.genderText,
-                    gender === "Male" && styles.genderTextSelected,
-                  ]}
-                >
-                  Male
-                </Text>
-              </TouchableOpacity>
-
-              {/* Female */}
-              <TouchableOpacity
-                style={[
-                  styles.genderButton,
-                  gender === "Female" && styles.femaleSelected,
-                ]}
-                onPress={() => setGender("Female")}
-              >
-                <Ionicons
-                  name="female"
-                  size={50}
-                  color={gender === "Female" ? "#fff" : "#999"}
-                />
-                <Text
-                  style={[
-                    styles.genderText,
-                    gender === "Female" && styles.genderTextSelected,
-                  ]}
-                >
-                  Female
-                </Text>
-              </TouchableOpacity>
-
-              
-            </View>
+            <GenderSelector
+              selectedGender={gender}
+              onSelect={(g) => setGender(g)}
+            />
 
             {/* Continue Button (Animated Fade In) */}
             <Animated.View style={[styles.continueWrapper, { opacity: fadeAnim }]}>
@@ -241,50 +193,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowOffset: { width: 0, height: 4 },
     shadowRadius: 8,
-  },
-  genderWrapper: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
-    width: SCREEN_WIDTH * 0.9,
-  },
-  genderButton: {
-    alignItems: "center",
-    padding: 20,
-    borderRadius: 18,
-    backgroundColor: "rgba(255,255,255,0.08)",
-    width: 100,
-  },
-  maleSelected: {
-    backgroundColor: "#013cdeff",
-    shadowColor: "#3b6fb8",
-    shadowOpacity: 1,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-  },
-  femaleSelected: {
-    backgroundColor: "#e75480",
-    shadowColor: "#ff8ab7",
-    shadowOpacity: 1,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-  },
-  otherSelected: {
-    backgroundColor: "#888",
-    shadowColor: "#fff",
-    shadowOpacity: 1,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 12,
-  },
-  genderText: {
-    marginTop: 8,
-    color: "#aaa",
-    fontSize: 15,
-    fontWeight: "500",
-    letterSpacing: 0.5,
-  },
-  genderTextSelected: {
-    color: "#fff",
-    fontWeight: "700",
   },
   continueWrapper: {
     marginTop: 50,

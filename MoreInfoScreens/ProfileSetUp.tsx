@@ -1,8 +1,10 @@
 import { ResizeMode, Video } from "expo-av";
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Dimensions, TouchableOpacity, ScrollView, TextInput, Switch } from "react-native";
+import { View, Text, StyleSheet, Dimensions, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import PrivacyDropdown from "./ProfileSetUp Components/PrivacyDropdown";
+import ToggleGroup from "./ProfileSetUp Components/ToggleGroup";
 
 
 const {width : SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get("window");
@@ -35,16 +37,31 @@ const ProfileSetUp = () => {
 
 
 
-  const getSelectedLabel = () => {
-    if (!selectedPrivacy) return "Select privacy setting";
-    const option = privacyOptions.find(opt => opt.value === selectedPrivacy);
-    return option ? option.label : "Select privacy setting";
-  };
-
   const handleSelectPrivacy = (value: string) => {
     setSelectedPrivacy(value);
     setIsDropdownOpen(false);
   };
+
+  const toggleToggles = [
+    {
+      label: "Show Weight",
+      description: "Allow others to see your weight on your profile",
+      value: showWeight,
+      onValueChange: setShowWeight,
+    },
+    {
+      label: "Show Height",
+      description: "Allow others to see your height on your profile",
+      value: showHeight,
+      onValueChange: setShowHeight,
+    },
+    {
+      label: "Stat Tracking",
+      description: "Allow MuscleHead to track your workout data to place you on leaderboards, track progress, and more",
+      value: statTracking,
+      onValueChange: setStatTracking,
+    },
+  ];
 
   return (
     <View style={styles.container}>
@@ -64,92 +81,15 @@ const ProfileSetUp = () => {
           </TouchableOpacity>
           <Text style={styles.AddProfilePictureText}>Add Profile Picture</Text>
 
-          {/* Privacy Dropdown */}
-          <View style={styles.dropdownContainer}>
-      <TouchableOpacity 
-        style={[
-          styles.dropdownButton,
-          selectedPrivacy && styles.dropdownButtonSelected
-        ]} 
-        onPress={() => setIsDropdownOpen(!isDropdownOpen)}
-      >
-        <Text style={styles.dropdownButtonText}>{getSelectedLabel()}</Text>
-        <Ionicons 
-          name={isDropdownOpen ? "chevron-up" : "chevron-down"} 
-          size={20} 
-          color="#fff" 
-        />
-      </TouchableOpacity>
+          <PrivacyDropdown
+            options={privacyOptions}
+            selectedPrivacy={selectedPrivacy}
+            isOpen={isDropdownOpen}
+            onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+            onSelect={handleSelectPrivacy}
+          />
 
-      {isDropdownOpen && (
-        <View style={styles.dropdownList}>
-          <ScrollView>
-            {privacyOptions.map((option) => (
-              <TouchableOpacity
-                key={option.value}
-                style={[
-                  styles.dropdownOption,
-                  selectedPrivacy === option.value && styles.dropdownOptionSelected
-                ]}
-                onPress={() => handleSelectPrivacy(option.value)}
-              >
-                <Text style={styles.dropdownOptionLabel}>{option.label}</Text>
-                <Text style={styles.dropdownOptionDescription}>{option.description}</Text>
-                {selectedPrivacy === option.value && (
-                  <Ionicons name="checkmark" size={20} color="#013cdeff" style={styles.checkIcon} />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-          </View>
-
-          {/* Visibility Toggles */}
-          <View style={styles.toggleGroup}>
-            <View style={styles.toggleRow}>
-              <View>
-                <Text style={styles.toggleLabel}>Show Weight</Text>
-                <Text style={styles.toggleDescription}>
-                  Allow others to see your weight on your profile
-                </Text>
-              </View>
-              <Switch
-                value={showWeight}
-                onValueChange={setShowWeight}
-                thumbColor={showWeight ? "#013cdeff" : "#f4f3f4"}
-                trackColor={{ false: "rgba(255,255,255,0.2)", true: "rgba(1,60,222,0.4)" }}
-              />
-            </View>
-            <View style={styles.toggleRow}>
-              <View>
-                <Text style={styles.toggleLabel}>Show Height</Text>
-                <Text style={styles.toggleDescription}>
-                  Allow others to see your height on your profile
-                </Text>
-              </View>
-              <Switch
-                value={showHeight}
-                onValueChange={setShowHeight}
-                thumbColor={showHeight ? "#013cdeff" : "#f4f3f4"}
-                trackColor={{ false: "rgba(255,255,255,0.2)", true: "rgba(1,60,222,0.4)" }}
-              />
-            </View>
-            <View style={styles.toggleRow}>
-              <View>
-                <Text style={styles.toggleLabel}>Stat Tracking</Text>
-                <Text style={styles.toggleDescription}>
-                  Allow MuscleHead to track your workout data to place you on leaderboards, track progress, and more
-                </Text>
-              </View>
-              <Switch
-                value={statTracking}
-                onValueChange={setStatTracking}
-                thumbColor={statTracking ? "#013cdeff" : "#f4f3f4"}
-                trackColor={{ false: "rgba(255,255,255,0.2)", true: "rgba(1,60,222,0.4)" }}
-              />
-            </View>
-          </View>
+          <ToggleGroup toggles={toggleToggles} />
 
           {/* Continue Button */}
           <TouchableOpacity
@@ -220,100 +160,6 @@ const styles = StyleSheet.create({
       justifyContent: "center",
       alignSelf:"center",
       top: -200,
-  },
-  dropdownContainer: {
-    width: SCREEN_WIDTH * 0.85,
-    zIndex: 1000,
-    position: "relative",
-    marginBottom: 24,
-  },
-  dropdownButton: {
-    backgroundColor: "rgba(98, 98, 98, 0.67)",
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  dropdownButtonSelected: {
-    borderColor: "#013cdeff",
-  },
-  dropdownButtonText: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "600",
-    flex: 1,
-  },
-  dropdownList: {
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
-    borderRadius: 14,
-    maxHeight: 300,
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-    overflow: "hidden",
-    position: "absolute",
-    top: 52,
-    width: "100%",
-    zIndex: 1001,
-    elevation: 10,
-  },
-  dropdownOption: {
-    paddingHorizontal: 18,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.1)",
-    position: "relative",
-  },
-  dropdownOptionSelected: {
-    backgroundColor: "rgba(1, 60, 222, 0.2)",
-  },
-  dropdownOptionLabel: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
-    marginBottom: 4,
-  },
-  dropdownOptionDescription: {
-    color: "#aaa",
-    fontSize: 13,
-    lineHeight: 18,
-    paddingRight: 30,
-  },
-  checkIcon: {
-    position: "absolute",
-    right: 18,
-    top: 16,
-  },  
-  toggleGroup: {
-    width: SCREEN_WIDTH * 0.85,
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
-  },
-  toggleRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: 16,
-  },
-  toggleLabel: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  toggleDescription: {
-    color: "#aaa",
-    fontSize: 12,
-    marginTop: 4,
-    width: SCREEN_WIDTH * 0.55,
   },
   continueButton: {
     backgroundColor: "#013cdee0",
