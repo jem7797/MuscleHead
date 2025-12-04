@@ -6,12 +6,14 @@ import BackButton from "../Components/BackButton";
 import PrimaryButton from "../Components/PrimaryButton";
 import WeightPicker from "./HeightWeight Components/WeightPicker";
 import HeightPicker from "./HeightWeight Components/HeightPicker";
+import { useOnboarding } from "../Contexts/OnboardingContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const HeightWeight = () => {
   const navigation = useNavigation<any>();
-  const [weight, setWeight] = useState(150);
+  const { setHeight, setWeight } = useOnboarding();
+  const [weight, setWeightLocal] = useState(150);
   const [heightFeet, setHeightFeet] = useState(5);
   const [heightInches, setHeightInches] = useState(10);
   const [step, setStep] = useState<'weight' | 'height'>('weight');
@@ -20,6 +22,8 @@ const HeightWeight = () => {
 
   const handleContinue = () => {
     if (step === 'weight') {
+      // Save weight to context before transitioning to height
+      setWeight(weight);
       // Fade out weight section
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -37,8 +41,8 @@ const HeightWeight = () => {
         }).start();
       });
     } else {
-      // Final continue - navigate to ProfileSetUp screen
-      // TODO: Save weight and height data
+      // Final continue - save height to context, then navigate to ProfileSetUp screen
+      setHeight(heightFeet, heightInches);
       navigation.navigate("ProfileSetUp");
     }
   };
@@ -88,7 +92,7 @@ const HeightWeight = () => {
 
         <Animated.View style={{ opacity: fadeAnim, width: '100%', alignItems: 'center' }}>
           {step === 'weight' ? (
-            <WeightPicker weight={weight} onWeightChange={setWeight} />
+            <WeightPicker weight={weight} onWeightChange={setWeightLocal} />
           ) : (
             <HeightPicker
               heightFeet={heightFeet}

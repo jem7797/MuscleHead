@@ -14,13 +14,15 @@ import { useNavigation } from "@react-navigation/native";
 import BackButton from "../Components/BackButton";
 import PrimaryButton from "../Components/PrimaryButton";
 import GenderSelector from "./IdentityBasics Components/GenderSelector";
+import { useOnboarding } from "../Contexts/OnboardingContext";
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const IdentityBasics = () => {
   const videoRef = useRef(null);
   const [videoReady, setVideoReady] = useState(false);
-  const [gender, setGender] = useState<string | null>(null);
+  const { onboardingData, setGender } = useOnboarding();
+  const gender = onboardingData.gender;
   const navigation = useNavigation<any>();
 
   // Animation value for continue button
@@ -76,13 +78,18 @@ const IdentityBasics = () => {
 
             <GenderSelector
               selectedGender={gender}
-              onSelect={(g) => setGender(g)}
+              onSelect={(g) => {
+                setGender(g);
+              }}
             />
 
             <PrimaryButton
               label="Continue"
               variant="continue"
-              onPress={() => navigation.navigate("HeightWeight")}
+              onPress={() => {
+                // Gender is already saved in context via onSelect
+                navigation.navigate("HeightWeight");
+              }}
               animatedStyle={[styles.continueWrapper, { opacity: fadeAnim }]}
             />
           </View>

@@ -25,6 +25,7 @@ import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";
 import { WorkoutStatsProvider } from "./Contexts/WorkoutStatsContext";
 import { GlobalWorkedMusclesProvider } from "./Contexts/GlobalWorkedMusclesContext";
+import { OnboardingProvider } from "./Contexts/OnboardingContext";
 //@ts-ignore
 Amplify.configure(awsConfig);
 const Stack = createNativeStackNavigator();
@@ -32,8 +33,9 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <UserProvider>
-      <WorkoutStatsProvider>
-        <GlobalWorkedMusclesProvider>
+      <OnboardingProvider>
+        <WorkoutStatsProvider>
+          <GlobalWorkedMusclesProvider>
           <NavigationContainer>
           <Stack.Navigator
             screenOptions={{ headerShown: false }}
@@ -60,6 +62,7 @@ export default function App() {
         </NavigationContainer>
         </GlobalWorkedMusclesProvider>
       </WorkoutStatsProvider>
+      </OnboardingProvider>
     </UserProvider>
   );
 }
