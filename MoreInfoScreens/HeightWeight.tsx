@@ -99,7 +99,7 @@ const HeightWeight = () => {
           )}
         </Animated.View>
 
-        <PrimaryButton
+        <PrimaryButton containerStyle={styles.primaryButton}
           label="Continue"
           variant="continue"
           onPress={handleContinue}
@@ -135,6 +135,11 @@ const styles = StyleSheet.create({
     zIndex: 10,
     borderRadius: 20,
   },
+
+  primaryButton:{
+    marginTop: 35,
+  }
+
 });
 
 export default HeightWeight;

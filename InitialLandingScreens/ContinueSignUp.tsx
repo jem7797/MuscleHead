@@ -38,7 +38,7 @@ const ContinueSignUp = ({ navigation }) => {
           <SecondaryButton
             label="Add More Info"
             variant="ghost"
-            onPress={() => navigation.navigate("ProfileSetUp")}
+            onPress={() => navigation.navigate("IdentityBasics")}
           />
         </View>
       </View>

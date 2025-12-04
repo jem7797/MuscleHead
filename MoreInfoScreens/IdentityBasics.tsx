@@ -3,9 +3,6 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  Text,
-  TextInput,
-  TouchableOpacity,
   KeyboardAvoidingView,
   TouchableWithoutFeedback,
   Keyboard,
@@ -14,7 +11,6 @@ import {
 } from "react-native";
 import { Video, ResizeMode } from "expo-av";
 import { useNavigation } from "@react-navigation/native";
-import { Ionicons } from "@expo/vector-icons";
 import BackButton from "../Components/BackButton";
 import PrimaryButton from "../Components/PrimaryButton";
 import GenderSelector from "./IdentityBasics Components/GenderSelector";
@@ -24,7 +20,6 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const IdentityBasics = () => {
   const videoRef = useRef(null);
   const [videoReady, setVideoReady] = useState(false);
-  const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState<string | null>(null);
   const navigation = useNavigation<any>();
 
@@ -35,29 +30,9 @@ const IdentityBasics = () => {
     setVideoReady(true);
   };
 
-  // Format date input as MM/DD/YYYY
-  const formatDateInput = (text: string) => {
-    // Remove all non-digits
-    const numbers = text.replace(/\D/g, '');
-    
-    // Format as MM/DD/YYYY
-    if (numbers.length <= 2) {
-      return numbers;
-    } else if (numbers.length <= 4) {
-      return `${numbers.slice(0, 2)}/${numbers.slice(2)}`;
-    } else {
-      return `${numbers.slice(0, 2)}/${numbers.slice(2, 4)}/${numbers.slice(4, 8)}`;
-    }
-  };
-
-  const handleDateChange = (text: string) => {
-    const formatted = formatDateInput(text);
-    setDateOfBirth(formatted);
-  };
-
-  // Animate button fade in/out when both inputs are filled
+  // Animate button fade in/out when gender is selected
   useEffect(() => {
-    if (dateOfBirth && dateOfBirth.length === 10 && gender) {
+    if (gender) {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
@@ -70,7 +45,7 @@ const IdentityBasics = () => {
         useNativeDriver: true,
       }).start();
     }
-  }, [dateOfBirth, gender]);
+  }, [gender]);
 
   return (
     <KeyboardAvoidingView
@@ -98,22 +73,6 @@ const IdentityBasics = () => {
               style={styles.backButton}
               backgroundColor="rgba(0, 0, 0, 0.3)"
             />
-
-            {/* Date of Birth Input */}
-            <View style={styles.ageWrapper}>
-              <Text style={styles.label}>Date of Birth?</Text>
-              <TextInput
-                value={dateOfBirth}
-                onChangeText={handleDateChange}
-                keyboardType="numeric"
-                placeholder="MM/DD/YYYY"
-                placeholderTextColor="#777"
-                style={styles.input}
-                returnKeyType="done"
-                onSubmitEditing={Keyboard.dismiss}
-                maxLength={10}
-              />
-            </View>
 
             <GenderSelector
               selectedGender={gender}
@@ -158,36 +117,6 @@ const styles = StyleSheet.create({
     left: 20,
     zIndex: 10,
     borderRadius: 20,
-  },
-  ageWrapper: {
-    width: SCREEN_WIDTH * 0.75,
-    marginBottom: 60,
-    alignItems: "center",
-  },
-  label: {
-    color: "#fff",
-    fontSize: 22,
-    fontWeight: "700",
-    letterSpacing: 1,
-    marginBottom: 12,
-    textAlign: "center",
-    textTransform: "uppercase",
-  },
-  input: {
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 14,
-    color: "#fff",
-    fontSize: 20,
-    textAlign: "center",
-    width: "100%",
-    fontWeight: "600",
-    letterSpacing: 0.5,
-    shadowColor: "#000",
-    shadowOpacity: 0.5,
-    shadowOffset: { width: 0, height: 4 },
-    shadowRadius: 8,
   },
   continueWrapper: {
     marginTop: 50,

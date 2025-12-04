@@ -14,6 +14,7 @@ const ProfileSetUp = () => {
     const navigation = useNavigation<any>();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedPrivacy, setSelectedPrivacy] = useState<string | null>(null);
+  const [isNatty, setIsNatty] = useState(true);
   const [showWeight, setShowWeight] = useState(true);
   const [showHeight, setShowHeight] = useState(true);
   const [statTracking, setStatTracking] = useState(true);
@@ -26,17 +27,6 @@ const ProfileSetUp = () => {
   ];
 
 
-  const days = [
-    {value: 1, day: "Monday"},
-    {value: 2, day: "Tuesday"},
-    {value: 3, day: "Wednesday"},
-    {value: 4, day: "Thursday"},
-    {value: 5, day: "Friday"},
-    {value: 6, day: "Saturday"},
-    {value: 7, day: "Sunday"},
-  ]
-
-
 
   const handleSelectPrivacy = (value: string) => {
     setSelectedPrivacy(value);
@@ -44,6 +34,14 @@ const ProfileSetUp = () => {
   };
 
   const toggleToggles = [
+    {
+
+      label: "Natty Status",
+      description: "Toggle on if you train naturally, off if you are enhanced",
+      value: isNatty,
+      onValueChange: setIsNatty,
+    },
+
     {
       label: "Show Weight",
       description: "Allow others to see your weight on your profile",
