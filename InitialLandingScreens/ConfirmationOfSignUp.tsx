@@ -7,15 +7,18 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { confirmSignUp } from "aws-amplify/auth";
+import { confirmSignUp, signIn } from "aws-amplify/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import PrimaryButton from "../Components/PrimaryButton";
+import { useUser } from "../Contexts/UserContext";
 
 // @ts-ignore
 const ConfirmSignUpScreen = ({ route, navigation }) => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // 6-digit array
   const inputs = useRef<(TextInput | null)[]>([]);
   const { username, email } = route.params;
+  //@ts-ignore
+  const { getAndClearTempPassword } = useUser();
 
   const handleChange = (text: string, index: number) => {
     if (text.length > 1) {
@@ -48,12 +51,103 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
   const handleConfirm = async () => {
     try {
       const finalCode = code.join("");
-      await confirmSignUp({ username, confirmationCode: finalCode });
-
+      
+      // Validate code is complete
+      if (finalCode.length !== 6) {
+        Alert.alert("Invalid Code", "Please enter the complete 6-digit code.");
+        return;
+      }
+      
+      // Step 1: Confirm the sign up with the verification code
+      console.log("Step 1: Confirming sign up with code...");
+      try {
+        await confirmSignUp({ username, confirmationCode: finalCode });
+        console.log("Step 1: Sign up confirmed successfully");
+      } catch (confirmError: any) {
+        console.error("Step 1 FAILED - confirmSignUp error:", confirmError);
+        console.error("Confirm error details:", {
+          name: confirmError?.name,
+          message: confirmError?.message,
+          code: confirmError?.code,
+          underlyingError: confirmError?.underlyingError,
+        });
+        
+        // Check for specific error types
+        if (confirmError?.name === 'CodeMismatchException') {
+          Alert.alert("Invalid Code", "The verification code is incorrect. Please check and try again.");
+          return;
+        }
+        if (confirmError?.name === 'ExpiredCodeException') {
+          Alert.alert("Code Expired", "The verification code has expired. Please request a new one.");
+          return;
+        }
+        if (confirmError?.name === 'NotAuthorizedException') {
+          Alert.alert("Already Confirmed", "This account has already been confirmed. You can sign in now.");
+          // Try to sign in anyway
+        } else {
+          throw confirmError; // Re-throw to be caught by outer catch
+        }
+      }
+      
+      // Step 2: Get password from context
+      console.log("Step 2: Getting password from context...");
+      const password = getAndClearTempPassword();
+      if (!password) {
+        throw new Error("Password not found. Please try signing up again.");
+      }
+      console.log("Step 2: Password retrieved successfully");
+      
+      // Step 3: Automatically sign in the user after successful confirmation
+      console.log("Step 3: Signing in user...");
+      try {
+        await signIn({ username, password });
+        console.log("Step 3: Sign in successful");
+      } catch (signInError: any) {
+        console.error("Step 3 FAILED - signIn error:", signInError);
+        console.error("Sign in error details:", {
+          name: signInError?.name,
+          message: signInError?.message,
+          code: signInError?.code,
+          underlyingError: signInError?.underlyingError,
+        });
+        
+        // Check for specific sign-in errors
+        if (signInError?.name === 'NotAuthorizedException') {
+          Alert.alert("Sign In Failed", "Invalid username or password. Please try again.");
+          return;
+        }
+        if (signInError?.name === 'UserNotConfirmedException') {
+          Alert.alert("Not Confirmed", "Please confirm your email first.");
+          return;
+        }
+        throw signInError; // Re-throw to be caught by outer catch
+      }
+      
+      // Step 4: Navigate to continue sign up screen
+      console.log("Step 4: Navigating to ContinueSignUp...");
       navigation.navigate("ContinueSignUp", { username, email });
 
     } catch (err: any) {
-      Alert.alert("Error", err.message || "Failed to confirm sign up");
+      // Log the full error for debugging
+      console.error("Error in handleConfirm:", err);
+      console.error("Error name:", err?.name);
+      console.error("Error message:", err?.message);
+      console.error("Error code:", err?.code);
+      console.error("Underlying error:", err?.underlyingError);
+      console.error("Full error object:", JSON.stringify(err, null, 2));
+      
+      // Extract meaningful error message
+      let errorMessage = "Failed to confirm sign up";
+      
+      if (err?.message) {
+        errorMessage = err.message;
+      } else if (err?.name) {
+        errorMessage = `${err.name}: ${err.message || 'Unknown error'}`;
+      } else if (typeof err === 'string') {
+        errorMessage = err;
+      }
+      
+      Alert.alert("Error", errorMessage);
     }
   };
 

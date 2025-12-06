@@ -1,4 +1,4 @@
-import { getCurrentUser } from "aws-amplify/auth";
+import { getCurrentUser, fetchAuthSession } from "aws-amplify/auth";
 
 // API Configuration
 const API_BASE_URL = "http://localhost:8080";
@@ -21,7 +21,7 @@ export const getDefaultHeaders = () => ({
 });
 
 // API request wrapper with error handling
-// Automatically includes user sub ID in request body or headers if needed
+// Automatically includes user sub ID in request body and access token in headers
 export const apiRequest = async (
   endpoint: string,
   options: RequestInit = {},
@@ -54,31 +54,67 @@ export const apiRequest = async (
     }
   }
   
+  // Get access token from Amplify auth session
+  let accessToken: string | null = null;
+  try {
+    const session = await fetchAuthSession();
+    accessToken = session.tokens?.accessToken?.toString() || null;
+  } catch (error) {
+    // User might not be authenticated, continue without token
+    // Backend will handle unauthenticated requests appropriately
+    console.warn("Could not get access token:", error);
+  }
+  
+  // Build headers with access token if available
+  const headers: Record<string, string> = {
+    ...getDefaultHeaders(),
+    ...(options.headers as Record<string, string>),
+  };
+  
+  // Add Authorization header with access token if available
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
+  
   const config: RequestInit = {
     ...options,
     body: requestBody,
-    headers: {
-      ...getDefaultHeaders(),
-      ...options.headers,
-    },
+    headers,
   };
 
   try {
     const response = await fetch(url, config);
     return response;
-  } catch (error) {
+  } catch (error: any) {
     console.error(`API request failed for ${endpoint}:`, error);
-    throw error;
+    console.error(`Request URL: ${url}`);
+    console.error(`Request method: ${config.method}`);
+    console.error(`Request headers:`, config.headers);
+    console.error(`Request body:`, requestBody);
+    // Re-throw with more context
+    throw new Error(`Network request failed: ${error.message || 'Unknown error'}. URL: ${url}`);
   }
 };
 
 // Helper to parse JSON response with error handling
 export const parseJsonResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({
-      message: `HTTP error! status: ${response.status}`,
-    }));
-    throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+    const status = response.status;
+    const statusText = response.statusText;
+    
+    // Try to get error message from response body
+    let errorMessage = `HTTP error! status: ${status} ${statusText}`;
+    try {
+      const errorData = await response.json();
+      errorMessage = errorData.message || errorData.error || errorMessage;
+    } catch {
+      // If response isn't JSON, use status text
+      const text = await response.text().catch(() => '');
+      errorMessage = text || errorMessage;
+    }
+    
+    console.error(`API response error - Status: ${status}, Message: ${errorMessage}`);
+    throw new Error(errorMessage);
   }
 
   return response.json();

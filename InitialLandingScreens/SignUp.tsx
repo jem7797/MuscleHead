@@ -26,7 +26,7 @@ const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 const SignUpScreen = () => {
   const navigation = useNavigation();
   //@ts-ignore
-  const {given_name, setgiven_name} = useUser();
+  const {given_name, setgiven_name, setTempPasswordForSignup} = useUser();
   const [email, setEmail] = useState("");
   const [DOB, setDOB] = useState("");
   const [alias, setAlias] = useState("");
@@ -120,17 +120,23 @@ const handleSignUp = async () => {
       // If backend creation fails, log it but don't block the flow
       // The user is already created in Cognito, so they can still verify their email
       // We might want to retry this later or handle it differently
-      console.error("Failed to create user in backend:", error.message);
+      console.error("Failed to create user in backend:", error);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
       // You might want to show a warning here, but not block navigation
       Alert.alert(
         "Warning",
-        "Account created but there was an issue saving your profile. Please contact support."
+        `Account created but there was an issue saving your profile: ${error.message || 'Unknown error'}. Please contact support.`
       );
     }
 
-    // STEP 4: Navigate to email confirmation screen
+    // STEP 4: Store password temporarily in context for auto-login after email confirmation
+    // This is more secure than passing it through navigation params
+    setTempPasswordForSignup(password);
+    
+    // STEP 5: Navigate to email confirmation screen
     // The user needs to verify their email with the code Cognito sent
-    // Pass the alias (username) since that's what Cognito uses for confirmation
+    // Password is stored in context, not passed through navigation params for security
     // @ts-ignore
     navigation.navigate("ConfirmSignUp", { username: alias, email });
   } catch (error: any) {

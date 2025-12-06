@@ -34,8 +34,8 @@ export default function App() {
   return (
     <UserProvider>
       <OnboardingProvider>
-        <WorkoutStatsProvider>
-          <GlobalWorkedMusclesProvider>
+      <WorkoutStatsProvider>
+        <GlobalWorkedMusclesProvider>
           <NavigationContainer>
           <Stack.Navigator
             screenOptions={{ headerShown: false }}
