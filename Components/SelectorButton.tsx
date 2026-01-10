@@ -85,7 +85,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   selectorScroll: {
-    marginHorizontal: -16,
+    marginHorizontal: -12,
     paddingHorizontal: 16,
   },
   verticalContainer: {
@@ -94,11 +94,11 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   selectorButton: {
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 16,
     backgroundColor: "white",
-    marginRight: 6,
+    marginRight: 8,
     borderWidth: 1,
     borderColor: "#d0d0d0",
   },
