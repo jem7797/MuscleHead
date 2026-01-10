@@ -5,7 +5,6 @@ const HeaderSection: React.FC = () => {
   return (
     <View style={styles.headerSection}>
       <Text style={styles.celebrationText}>🎉 Workout Complete! 🎉</Text>
-      <Text style={styles.subtitleText}>Great job today!</Text>
     </View>
   );
 };
@@ -16,11 +15,11 @@ const styles = StyleSheet.create({
     marginBottom: 32,
   },
   celebrationText: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: "700",
     color: "#202c76",
-    marginBottom: 8,
-    marginTop: 50,
+    marginBottom: 6,
+    marginTop: 60,
   },
   subtitleText: {
     fontSize: 16,

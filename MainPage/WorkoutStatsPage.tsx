@@ -3,6 +3,8 @@ import {
   StyleSheet,
   View,
   ScrollView,
+  TextInput,
+  Text
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
@@ -87,6 +89,16 @@ const WorkoutStatsPage = () => {
           totalSets={totalSets}
         />
         <ExercisesSection workouts={stats.workouts} />
+
+        <View style={styles.inputSection}>
+          <Text style={styles.inputLabel}>Notes:</Text>
+          <TextInput
+            placeholder="Enter notes..."
+            style={styles.workoutNotesInput}
+            multiline
+            textAlignVertical="top"
+          />
+        </View>
       </ScrollView>
       <PrimaryButton label="Save & Continue" variant="footer" onPress={handleSave} />
     </View>
@@ -104,6 +116,28 @@ const styles = StyleSheet.create({
   contentContainer: {
     padding: 20,
     paddingBottom: 40,
+  },
+  inputSection: {
+    marginBottom: 32,
+  },
+  inputLabel: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1f2a44",
+    marginBottom: 8,
+  },
+  workoutNotesInput: {
+    backgroundColor: "#fafafa",
+    borderRadius: 8,
+    paddingTop: 12,
+    paddingBottom: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: "#1f2a44",
+    borderWidth: 1,
+    borderColor: "#e8e8e8",
+    minHeight: 120,
+    textAlignVertical: "top",
   },
 });
 
