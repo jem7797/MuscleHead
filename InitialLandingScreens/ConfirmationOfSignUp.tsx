@@ -7,16 +7,17 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { confirmSignUp, signIn } from "aws-amplify/auth";
+import { confirmSignUp, signIn, getCurrentUser } from "aws-amplify/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import PrimaryButton from "../Components/PrimaryButton";
 import { useUser } from "../Contexts/UserContext";
+import { createUser } from "../Services/userApi";
 
 // @ts-ignore
 const ConfirmSignUpScreen = ({ route, navigation }) => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // 6-digit array
   const inputs = useRef<(TextInput | null)[]>([]);
-  const { username, email } = route.params;
+  const { username, email, given_name, DOB } = route.params;
   //@ts-ignore
   const { getAndClearTempPassword } = useUser();
 
@@ -123,8 +124,48 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         throw signInError; // Re-throw to be caught by outer catch
       }
       
-      // Step 4: Navigate to continue sign up screen
-      console.log("Step 4: Navigating to ContinueSignUp...");
+      // Step 4: Create user in backend database (now we have authenticated session with ID token)
+      console.log("Step 4: Creating user in backend database...");
+      try {
+        // Get the user's sub ID from Cognito (now that we're authenticated)
+        const { userId: sub } = await getCurrentUser();
+        
+        if (!sub) {
+          throw new Error("Failed to get user ID from Cognito.");
+        }
+        
+        console.log("Step 4: User sub retrieved:", sub);
+        
+        // Default values: 70 inches (5'10") and 150 lbs
+        // These will be updated when the user completes the HeightWeight screen
+        const defaultHeight = 70; // inches
+        const defaultWeight = 150; // pounds
+        
+        // Create user in backend with all required fields
+        // Now we have an authenticated session, so the ID token will be included
+        const userData = await createUser(username, sub, email, given_name, DOB, {
+          height: defaultHeight,
+          weight: defaultWeight,
+        });
+        
+        console.log("Step 4: User created in backend database:", userData);
+      } catch (createUserError: any) {
+        console.error("Step 4 FAILED - createUser error:", createUserError);
+        console.error("Create user error details:", {
+          message: createUserError?.message,
+          stack: createUserError?.stack,
+        });
+        
+        // Don't block the flow - user is already authenticated in Cognito
+        // They can still continue, and we can try to create the user later
+        Alert.alert(
+          "Warning",
+          `Account verified but there was an issue saving your profile: ${createUserError?.message || 'Unknown error'}. You can continue, but some features may not work.`
+        );
+      }
+      
+      // Step 5: Navigate to continue sign up screen
+      console.log("Step 5: Navigating to ContinueSignUp...");
       navigation.navigate("ContinueSignUp", { username, email });
 
     } catch (err: any) {

@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, View, TouchableOpacity } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -31,7 +32,7 @@ const NavBar = () => {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Leaderboard")}> 
           <View style={active === "Leaderboard" ? styles.highlightCircle : undefined}>
-            <MaterialIcons name="leaderboard" size={24} color={active === "Leaderboard" ? "#fff" : "black"} />
+            <MaterialCommunityIcons name="sword-cross" size={24} color={active === "Leaderboard" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}> 

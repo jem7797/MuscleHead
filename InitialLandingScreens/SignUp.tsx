@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -13,12 +13,12 @@ import {
   ScrollView,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { signUp } from "aws-amplify/auth";
+import { signUp, signOut, getCurrentUser } from "aws-amplify/auth";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
 import PrimaryButton from "../Components/PrimaryButton";
-// Import our new user API service
-import { createUser } from "../Services/userApi";
+// Note: createUser will be called after email confirmation and sign-in
+// when we have an authenticated session
 
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
@@ -31,6 +31,30 @@ const SignUpScreen = () => {
   const [DOB, setDOB] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
+
+  // Automatically sign out any existing user when this screen loads
+  // This allows testing signup multiple times without manual sign-out
+  useEffect(() => {
+    const clearExistingSession = async () => {
+      try {
+        // Check if a user is currently signed in
+        const user = await getCurrentUser();
+        if (user) {
+          console.log("[SignUp] Existing user found, signing out...");
+          await signOut();
+          console.log("[SignUp] Successfully signed out existing user");
+        }
+      } catch (error: any) {
+        // If getCurrentUser throws, no user is signed in - that's fine
+        // Only log if it's an unexpected error
+        if (error.name !== 'UserUnAuthenticatedException') {
+          console.log("[SignUp] No existing user session (or error checking):", error.name);
+        }
+      }
+    };
+
+    clearExistingSession();
+  }, []); // Run once when component mounts
 
 /**
  * handleSignUp - Main sign up flow handler
@@ -62,6 +86,24 @@ const handleSignUp = async () => {
   }
 
   try {
+    // STEP 1.5: Ensure no user is signed in before attempting signup
+    // This prevents "already signed in user" errors during testing
+    try {
+      const existingUser = await getCurrentUser();
+      if (existingUser) {
+        console.log("[SignUp] User already signed in, signing out before signup...");
+        await signOut();
+        console.log("[SignUp] Successfully signed out before signup");
+        // Small delay to ensure sign-out completes
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    } catch (checkError: any) {
+      // If getCurrentUser throws, no user is signed in - that's fine
+      if (checkError.name !== 'UserUnAuthenticatedException') {
+        console.log("[SignUp] Error checking for existing user:", checkError.name);
+      }
+    }
+
     // STEP 2: Sign up with AWS Cognito
     // This creates the user account in AWS Cognito
     // IMPORTANT: When Cognito is configured with email alias (loginWith: { email: true }),
@@ -94,54 +136,62 @@ const handleSignUp = async () => {
     console.log("Cognito sign up successful. User ID (sub):", sub);
     console.log("Next step:", nextStep);
 
-    // STEP 3: Create user in our backend database
-    // Now that we have the sub from Cognito, we can create the user record in our database
-    // We're sending all required fields:
-    //   - sub_id: The Cognito user ID (UUID format, primary key in our database)
-    //   - username: The alias the user chose (e.g., "Johnny7797")
-    //   - email: The user's email address
-    //   - first_name: The user's first name
-    //   - birth_year: The user's birth year (as integer)
-    //   - height: Default height in inches (will be updated later when user provides it)
-    //   - weight: Default weight in pounds (will be updated later when user provides it)
-    // Note: Height and weight are collected later in the flow (HeightWeight screen),
-    // so we use default values here. The user record should be updated after HeightWeight screen.
-    try {
-      // Default values: 70 inches (5'10") and 150 lbs
-      // These will be updated when the user completes the HeightWeight screen
-      const defaultHeight = 70; // inches
-      const defaultWeight = 150; // pounds
-      const userData = await createUser(alias, sub, email, given_name, DOB, {
-        height: defaultHeight,
-        weight: defaultWeight,
-      });
-      console.log("User created in backend database:", userData);
-    } catch (error: any) {
-      // If backend creation fails, log it but don't block the flow
-      // The user is already created in Cognito, so they can still verify their email
-      // We might want to retry this later or handle it differently
-      console.error("Failed to create user in backend:", error);
-      console.error("Error message:", error.message);
-      console.error("Error stack:", error.stack);
-      // You might want to show a warning here, but not block navigation
-      Alert.alert(
-        "Warning",
-        `Account created but there was an issue saving your profile: ${error.message || 'Unknown error'}. Please contact support.`
-      );
-    }
-
-    // STEP 4: Store password temporarily in context for auto-login after email confirmation
+    // STEP 3: Store password temporarily in context for auto-login after email confirmation
+    // Note: User creation in backend will happen after email confirmation and sign-in
+    // when we have an authenticated session (ID token available)
     // This is more secure than passing it through navigation params
     setTempPasswordForSignup(password);
     
-    // STEP 5: Navigate to email confirmation screen
+    // STEP 4: Navigate to email confirmation screen
     // The user needs to verify their email with the code Cognito sent
     // Password is stored in context, not passed through navigation params for security
+    // Pass required data for user creation (will happen after sign-in)
     // @ts-ignore
-    navigation.navigate("ConfirmSignUp", { username: alias, email });
+    navigation.navigate("ConfirmSignUp", { 
+      username: alias, 
+      email, 
+      given_name, 
+      DOB 
+    });
   } catch (error: any) {
     // Handle any errors during the sign up process
     console.error("Error during sign up:", error);
+    console.error("Error name:", error?.name);
+    console.error("Error message:", error?.message);
+    console.error("Full error:", JSON.stringify(error, null, 2));
+    
+    // Special handling for "already signed in" error
+    // Check multiple possible error formats
+    const errorMessage = (error?.message || "").toLowerCase();
+    const errorName = error?.name || "";
+    const isAlreadySignedIn = 
+      (errorMessage.includes("already") && errorMessage.includes("signed in")) ||
+      errorMessage.includes("already a signed in user") ||
+      errorName === "UserAlreadyAuthenticatedException" ||
+      errorName === "AlreadyAuthenticatedException";
+    
+    if (isAlreadySignedIn) {
+      console.log("[SignUp] User already signed in error detected, signing out...");
+      try {
+        // Sign out the existing user
+        await signOut();
+        console.log("[SignUp] Successfully signed out, please try signing up again");
+        Alert.alert(
+          "Already Signed In",
+          "You were already signed in. We've signed you out. Please try signing up again.",
+          [{ text: "OK" }]
+        );
+      } catch (signOutError: any) {
+        console.error("[SignUp] Failed to sign out:", signOutError);
+        Alert.alert(
+          "Sign Up Failed",
+          "You are already signed in. Please sign out first, then try again."
+        );
+      }
+      return; // Don't show the generic error message
+    }
+    
+    // For all other errors, show the error message
     Alert.alert("Sign Up Failed", error.message || "An error has occurred");
   }
 };

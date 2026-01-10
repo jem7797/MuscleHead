@@ -7,8 +7,9 @@ import PrimaryButton from "../Components/PrimaryButton";
 import PrivacyDropdown from "./ProfileSetUp Components/PrivacyDropdown";
 import ToggleGroup from "./ProfileSetUp Components/ToggleGroup";
 import { useOnboarding } from "../Contexts/OnboardingContext";
-import { updateUser } from "../Services/userApi";
+import { updateUser, getUser, createUser } from "../Services/userApi";
 import { getCurrentUserSub } from "../Services/apiConfig";
+import { fetchAuthSession, fetchUserAttributes } from "aws-amplify/auth";
 
 
 const {width : SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get("window");
@@ -95,10 +96,76 @@ const ProfileSetUp = () => {
     setIsSaving(true);
 
     try {
-      // Get the current user's sub ID
+      // Step 1: Verify user is authenticated and refresh session if needed
+      console.log("[ProfileSetUp] Verifying authentication...");
+      let session;
+      try {
+        session = await fetchAuthSession({ forceRefresh: true });
+        // API requires ID token (not access token) - ID token has 'aud' claim needed by backend
+        if (!session.tokens?.idToken) {
+          throw new Error("No ID token available. Please sign in again.");
+        }
+        console.log("[ProfileSetUp] Authentication verified - ID token available");
+        // Log token preview for debugging
+        const idToken = session.tokens.idToken;
+        const tokenStr = typeof idToken === 'string' ? idToken : String(idToken);
+        const preview = tokenStr.length > 20 
+          ? `${tokenStr.substring(0, 10)}...${tokenStr.substring(tokenStr.length - 10)}`
+          : tokenStr;
+        console.log(`[ProfileSetUp] ID token preview: ${preview}`);
+      } catch (authError: any) {
+        console.error("[ProfileSetUp] Authentication check failed:", authError);
+        throw new Error("You are not signed in. Please sign in and try again.");
+      }
+
+      // Step 2: Get the current user's sub ID
       const sub = await getCurrentUserSub();
       if (!sub) {
         throw new Error("Unable to get user information. Please try signing in again.");
+      }
+      console.log("[ProfileSetUp] User sub retrieved:", sub);
+
+      // Step 2.5: Get required user attributes from Cognito (needed for backend validation)
+      // The backend requires these fields even for updates, so we fetch them from Cognito
+      let userAttributes;
+      try {
+        userAttributes = await fetchUserAttributes();
+        console.log("[ProfileSetUp] User attributes retrieved from Cognito");
+      } catch (attrError: any) {
+        console.error("[ProfileSetUp] Failed to fetch user attributes:", attrError);
+        throw new Error("Unable to retrieve user information. Please try signing in again.");
+      }
+
+      // Extract required fields from Cognito attributes
+      // Note: Cognito stores these with attribute names like 'email', 'given_name', 'preferred_username'
+      const email = userAttributes.email;
+      const firstName = userAttributes.given_name;
+      const username = userAttributes.preferred_username || userAttributes['custom:alias'] || userAttributes.username;
+
+      // Validate we have basic required fields from Cognito
+      if (!email || !firstName || !username) {
+        throw new Error("Missing required user information. Please contact support.");
+      }
+
+      // Try to get birth_year from existing backend user record
+      // If user doesn't exist, we'll need to create them with all required fields
+      let birthYear: number | null = null;
+      let existingUser = null;
+      try {
+        existingUser = await getUser(sub);
+        birthYear = existingUser.birth_year;
+        console.log("[ProfileSetUp] Existing user found in backend, birth_year:", birthYear);
+      } catch (getUserError: any) {
+        // User doesn't exist yet - this is OK, we'll need to include birth_year when creating/updating
+        console.log("[ProfileSetUp] User not found in backend (may need to be created)");
+        
+        // If DOB is not available from backend, we can't proceed without it
+        // For now, throw an error - the user should have been created during signup
+        throw new Error("User profile not found. Please try signing out and signing in again, or contact support.");
+      }
+      
+      if (!birthYear || birthYear < 1920) {
+        throw new Error("Invalid birth year in user profile. Please contact support.");
       }
 
       // Calculate total height in inches
@@ -107,7 +174,13 @@ const ProfileSetUp = () => {
         : null;
 
       // Build the update payload with all onboarding data
-      const updateData: Record<string, any> = {};
+      // Include required fields from Cognito (backend validation requires these even for updates)
+      const updateData: Record<string, any> = {
+        email: email,
+        first_name: firstName,
+        username: username,
+        birth_year: birthYear,
+      };
 
       if (safeOnboardingData.gender) {
         updateData.gender = safeOnboardingData.gender;

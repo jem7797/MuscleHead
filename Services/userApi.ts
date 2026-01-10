@@ -97,9 +97,8 @@ export const createUser = async (
  * @returns Promise with user data from the backend
  */
 export const getUser = async (sub: string): Promise<any> => {
-  // For GET requests, we might pass sub as a query parameter or in the path
-  // Adjust this based on your backend API design
-  const response = await apiRequest(`/user/api/?sub=${sub}`, {
+  // Backend expects subId as a query parameter (not sub)
+  const response = await apiRequest(`/user/api/?subId=${sub}`, {
     method: "GET",
   });
 
@@ -117,18 +116,16 @@ export const updateUser = async (
   sub: string,
   updateData: Record<string, any>
 ): Promise<any> => {
-  const requestBody = JSON.stringify({
-    sub: sub,
-    ...updateData, // Spread any additional fields to update
-  });
+  // Backend expects subId in the URL path, not in the request body
+  const requestBody = JSON.stringify(updateData);
 
   const response = await apiRequest(
-    "/user/api/",
+    `/user/api/${sub}`, // Include subId in the URL path
     {
       method: "PUT",
       body: requestBody,
     },
-    false // Don't auto-add sub since we're including it manually
+    false // Don't auto-add sub since it's already in the URL
   );
 
   return parseJsonResponse(response);
@@ -141,8 +138,9 @@ export const updateUser = async (
  * @returns Promise with deletion confirmation
  */
 export const deleteUser = async (sub: string): Promise<any> => {
+  // Backend expects subId in the URL path (not as query parameter)
   const response = await apiRequest(
-    `/user/api/?sub=${sub}`,
+    `/user/api/${sub}`, // Path parameter like PUT
     {
       method: "DELETE",
     },
