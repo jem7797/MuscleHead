@@ -20,34 +20,144 @@ import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 
 // Workout data organized by muscle groups
 const WORKOUT_BY_MUSCLE_GROUP: Record<string, string[]> = {
-  Chest: ["Bench Press", "Push-ups", "Dumbbell Flyes", "Cable Crossovers", "Incline Bench Press"],
-  Arms: ["Barbell Curls", "Dumbbell Curls", "Hammer Curls", "Close-Grip Bench Press", "Overhead Extensions", "Tricep Dips"],
-  Shoulders: ["Overhead Press", "Lateral Raises", "Front Raises", "Rear Delt Flyes"],
-  Back: ["Pull-ups", "Lat Pulldowns", "Barbell Rows", "T-Bar Rows", "Face Pulls"],
-  Legs: ["Squats", "Leg Press", "Lunges", "Leg Extensions", "Romanian Deadlifts", "Leg Curls"],
-  Glutes: ["Hip Thrusts", "Glute Bridges"],
-  Calfs: ["Calf Raises", "Standing Calf Raises", "Seated Calf Raises"],
-  Abs: ["Crunches", "Planks", "Leg Raises", "Hanging Knee Raises"],
-  Core: ["Russian Twists", "Side Planks", "Cable Woodchoppers", "Hanging Oblique Raises"],
-  Traps: ["Shrugs", "Upright Rows"],
+  Chest: [
+    "Barbell Bench Press",
+    "Dumbbell Bench Press",
+    "Incline Bench Press",
+    "Decline Bench Press",
+    "Push-Ups",
+    "Cable Chest Fly",
+    "Dumbbell Chest Fly",
+    "Pec Deck Machine",
+    "Chest Press Machine",
+    "Pec Fly Machine",
+    "Lat Pullover Machine",
+  ],
+  Arms: [
+    "Barbell Bicep Curl",
+    "Dumbbell Bicep Curl",
+    "Hammer Curl",
+    "Preacher Curl",
+    "Concentration Curl",
+    "Cable Curl",
+    "Incline Dumbbell Curl",
+    "EZ Bar Curl",
+    "Overhead Tricep Extension (Dumbbell)",
+    "Overhead Tricep Extension (Cable)",
+    "Skull Crushers",
+    "Tricep Kickbacks",
+    "Close-Grip Bench Press",
+    "Dips",
+    "Machine Tricep Pushdown",
+    "Rope Tricep Pushdown",
+  ],
+  Shoulders: [
+    "Dumbbell Shoulder Press",
+    "Barbell Shoulder Press (Overhead Press)",
+    "Arnold Press",
+    "Lateral Raise",
+    "Front Raise",
+    "Rear Delt Fly",
+    "Cable Lateral Raise",
+    "Cable Front Raise",
+    "Cable Rear Delt Fly",
+    "Cable Face Pull with Rope",
+    "Shoulder Press Machine",
+  ],
+  Back: [
+    "Barbell Row",
+    "Dumbbell Row",
+    "T-Bar Row",
+    "Seated Cable Row",
+    "Lat Pulldown",
+    "Pull-Ups",
+    "Chin-Ups",
+    "Inverted Row",
+    "Face Pulls",
+    "Lat Pullover Machine",
+  ],
+  Legs: [
+    "Barbell Squat",
+    "Front Squat",
+    "Goblet Squat",
+    "Sumo Squat",
+    "Leg Press Machine",
+    "Lunges (Walking)",
+    "Reverse Lunges",
+    "Step-Ups",
+    "Bulgarian Split Squat",
+    "Leg Extension Machine",
+    "Hamstring Curl Machine",
+    "Romanian Deadlift",
+    "Stiff-Leg Deadlift",
+    "Conventional Deadlift",
+    "Sumo Deadlift",
+    "Jump Squats",
+    "Box Jumps",
+    "Leg Curl (Seated)",
+    "Leg Curl (Lying)",
+  ],
+  Glutes: [
+    "Hip Thrust",
+    "Glute Bridge",
+  ],
+  Calfs: [
+    "Seated Calf Raise",
+    "Standing Calf Raise",
+    "Donkey Calf Raise",
+  ],
+  Abs: [
+    "Plank",
+    "Side Plank",
+    "Hanging Leg Raise",
+    "Cable Crunch",
+    "Ab Wheel Rollout",
+    "Russian Twist",
+    "Bicycle Crunch",
+    "Mountain Climbers",
+    "Reverse Crunch",
+    "Sit-Ups",
+    "Flutter Kicks",
+    "Back Extension",
+    "Good Mornings",
+  ],
+  Core: [
+    "Kettlebell Swing",
+    "Farmer's Carry",
+    "Suitcase Carry",
+    "Sled Push",
+    "Sled Pull",
+    "Rowing Machine",
+    "Jump Rope",
+    "Running on Treadmill",
+    "Incline Treadmill Walk",
+    "Stationary Bike",
+    "Elliptical",
+    "Burpees",
+    "Medicine Ball Slam",
+  ],
+  Traps: [
+    "Shrugs",
+    "Upright Row",
+  ],
 };
 
-interface Set {
+interface ExerciseSet {
   reps: string;
   weight: string;
 }
 
-interface Workout {
+interface SessionInstance {
   id: number;
   muscleGroup: string | null;
   workout: string | null;
-  sets: Set[];
+  sets: ExerciseSet[];
 }
 
 const AddWorkoutPage = () => {
   const navigation = useNavigation<any>();
   const { setStats } = useWorkoutStats();
-  const [workouts, setWorkouts] = useState<Workout[]>([
+  const [workouts, setWorkouts] = useState<SessionInstance[]>([
     { id: 1, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
     { id: 2, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
     { id: 3, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
@@ -64,63 +174,125 @@ const AddWorkoutPage = () => {
   // Map specific exercises to exact muscles they target (more precise than muscle groups)
   const EXERCISE_TO_MUSCLES: Record<string, { front: string[]; back: string[] }> = {
     // Chest exercises
-    "Bench Press": { front: ["chest", "pecs", "triceps"], back: ["triceps"] },
-    "Push-ups": { front: ["chest", "pecs", "triceps"], back: ["triceps"] },
-    "Dumbbell Flyes": { front: ["chest", "pecs"], back: [] },
-    "Cable Crossovers": { front: ["chest", "pecs"], back: [] },
+    "Barbell Bench Press": { front: ["chest", "pecs", "triceps", "delts"], back: ["triceps"] },
+    "Dumbbell Bench Press": { front: ["chest", "pecs", "triceps", "delts"], back: ["triceps"] },
     "Incline Bench Press": { front: ["chest", "pecs", "delts", "triceps"], back: ["triceps"] },
+    "Decline Bench Press": { front: ["chest", "pecs", "triceps", "delts"], back: ["triceps"] },
+    "Push-Ups": { front: ["chest", "pecs", "triceps", "delts", "abs"], back: ["triceps"] },
+    "Cable Chest Fly": { front: ["chest", "pecs"], back: [] },
+    "Dumbbell Chest Fly": { front: ["chest", "pecs", "delts"], back: [] },
+    "Pec Deck Machine": { front: ["chest", "pecs"], back: [] },
+    "Chest Press Machine": { front: ["chest", "pecs", "triceps", "delts"], back: ["triceps"] },
+    "Pec Fly Machine": { front: ["chest", "pecs"], back: [] },
+    "Lat Pullover Machine": { front: ["chest", "pecs"], back: ["lats", "latissimus"] },
     
-    // Arm exercises
-    "Barbell Curls": { front: ["biceps"], back: [] },
-    "Dumbbell Curls": { front: ["biceps"], back: [] },
-    "Hammer Curls": { front: ["biceps"], back: [] },
-    "Close-Grip Bench Press": { front: ["triceps"], back: ["triceps"] },
-    "Overhead Extensions": { front: ["triceps"], back: ["triceps"] },
-    "Tricep Dips": { front: ["triceps"], back: ["triceps"] },
+    // Bicep exercises
+    "Barbell Bicep Curl": { front: ["biceps"], back: [] },
+    "Dumbbell Bicep Curl": { front: ["biceps"], back: [] },
+    "Hammer Curl": { front: ["biceps", "forearms"], back: [] },
+    "Preacher Curl": { front: ["biceps"], back: [] },
+    "Concentration Curl": { front: ["biceps"], back: [] },
+    "Cable Curl": { front: ["biceps"], back: [] },
+    "Incline Dumbbell Curl": { front: ["biceps"], back: [] },
+    "EZ Bar Curl": { front: ["biceps", "forearms"], back: [] },
+    
+    // Tricep exercises
+    "Overhead Tricep Extension (Dumbbell)": { front: ["triceps"], back: ["triceps"] },
+    "Overhead Tricep Extension (Cable)": { front: ["triceps"], back: ["triceps"] },
+    "Skull Crushers": { front: ["triceps"], back: ["triceps"] },
+    "Tricep Kickbacks": { front: ["triceps"], back: ["triceps"] },
+    "Close-Grip Bench Press": { front: ["triceps", "chest", "pecs", "delts"], back: ["triceps"] },
+    "Dips": { front: ["triceps", "chest", "pecs", "delts"], back: ["triceps"] },
+    "Machine Tricep Pushdown": { front: ["triceps"], back: ["triceps"] },
+    "Rope Tricep Pushdown": { front: ["triceps"], back: ["triceps"] },
     
     // Shoulder exercises
-    "Overhead Press": { front: ["delts", "triceps"], back: ["delts", "triceps"] },
-    "Lateral Raises": { front: ["delts"], back: ["delts"] },
-    "Front Raises": { front: ["delts"], back: [] },
-    "Rear Delt Flyes": { front: [], back: ["delts"] },
+    "Dumbbell Shoulder Press": { front: ["delts", "triceps"], back: ["delts", "triceps"] },
+    "Barbell Shoulder Press (Overhead Press)": { front: ["delts", "triceps"], back: ["delts", "triceps", "traps", "trapezius"] },
+    "Arnold Press": { front: ["delts", "triceps"], back: ["delts", "triceps"] },
+    "Lateral Raise": { front: ["delts"], back: ["delts"] },
+    "Front Raise": { front: ["delts"], back: [] },
+    "Rear Delt Fly": { front: [], back: ["delts"] },
+    "Cable Lateral Raise": { front: ["delts"], back: ["delts"] },
+    "Cable Front Raise": { front: ["delts"], back: [] },
+    "Cable Rear Delt Fly": { front: [], back: ["delts", "traps", "trapezius"] },
+    "Cable Face Pull with Rope": { front: [], back: ["delts", "traps", "trapezius"] },
+    "Shoulder Press Machine": { front: ["delts", "triceps"], back: ["delts", "triceps"] },
     
     // Back exercises
-    "Pull-ups": { front: ["biceps"], back: ["lats", "latissimus", "biceps"] },
-    "Lat Pulldowns": { front: ["biceps"], back: ["lats", "latissimus", "biceps"] },
-    "Barbell Rows": { front: ["biceps"], back: ["lats", "latissimus", "traps", "trapezius"] },
-    "T-Bar Rows": { front: ["biceps"], back: ["lats", "latissimus", "traps", "trapezius"] },
+    "Barbell Row": { front: ["biceps"], back: ["lats", "latissimus", "traps", "trapezius", "biceps"] },
+    "Dumbbell Row": { front: ["biceps"], back: ["lats", "latissimus", "traps", "trapezius", "biceps"] },
+    "T-Bar Row": { front: ["biceps"], back: ["lats", "latissimus", "traps", "trapezius", "biceps"] },
+    "Seated Cable Row": { front: ["biceps"], back: ["lats", "latissimus", "traps", "trapezius", "biceps"] },
+    "Lat Pulldown": { front: ["biceps"], back: ["lats", "latissimus", "biceps"] },
+    "Pull-Ups": { front: ["biceps"], back: ["lats", "latissimus", "biceps", "delts", "abs"] },
+    "Chin-Ups": { front: ["biceps", "forearms"], back: ["lats", "latissimus", "biceps", "abs"] },
+    "Inverted Row": { front: ["biceps"], back: ["lats", "latissimus", "traps", "trapezius", "biceps", "delts"] },
     "Face Pulls": { front: [], back: ["delts", "traps", "trapezius"] },
     
     // Leg exercises
-    "Squats": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
-    "Leg Press": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
-    "Lunges": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
-    "Leg Extensions": { front: ["quads", "quadriceps"], back: [] },
-    "Romanian Deadlifts": { front: [], back: ["hamstrings", "glutes"] },
-    "Leg Curls": { front: [], back: ["hamstrings"] },
+    "Barbell Squat": { front: ["quads", "quadriceps", "abs"], back: ["glutes", "hamstrings"] },
+    "Front Squat": { front: ["quads", "quadriceps", "abs"], back: ["glutes"] },
+    "Goblet Squat": { front: ["quads", "quadriceps", "abs"], back: ["glutes"] },
+    "Sumo Squat": { front: ["quads", "quadriceps"], back: ["glutes"] },
+    "Leg Press Machine": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
+    "Lunges (Walking)": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
+    "Reverse Lunges": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
+    "Step-Ups": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
+    "Bulgarian Split Squat": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings"] },
+    "Leg Extension Machine": { front: ["quads", "quadriceps"], back: [] },
+    "Hamstring Curl Machine": { front: [], back: ["hamstrings"] },
+    "Romanian Deadlift": { front: [], back: ["hamstrings", "glutes"] },
+    "Stiff-Leg Deadlift": { front: [], back: ["hamstrings", "glutes"] },
+    "Conventional Deadlift": { front: [], back: ["hamstrings", "glutes", "traps", "trapezius"] },
+    "Sumo Deadlift": { front: ["quads", "quadriceps"], back: ["glutes", "hamstrings", "traps", "trapezius"] },
+    "Jump Squats": { front: ["quads", "quadriceps", "calves"], back: ["glutes", "hamstrings"] },
+    "Box Jumps": { front: ["quads", "quadriceps", "calves"], back: ["glutes"] },
+    "Leg Curl (Seated)": { front: [], back: ["hamstrings"] },
+    "Leg Curl (Lying)": { front: [], back: ["hamstrings"] },
     
     // Calf exercises
-    "Calf Raises": { front: ["calves"], back: ["calves"] },
-    "Standing Calf Raises": { front: ["calves"], back: ["calves"] },
-    "Seated Calf Raises": { front: ["calves"], back: ["calves"] },
+    "Seated Calf Raise": { front: ["calves"], back: ["calves"] },
+    "Standing Calf Raise": { front: ["calves"], back: ["calves"] },
+    "Donkey Calf Raise": { front: ["calves"], back: ["calves"] },
     
     // Glute exercises
-    "Hip Thrusts": { front: [], back: ["glutes"] },
-    "Glute Bridges": { front: [], back: ["glutes"] },
+    "Hip Thrust": { front: [], back: ["glutes", "hamstrings", "abs"] },
+    "Glute Bridge": { front: [], back: ["glutes", "hamstrings", "abs"] },
     
     // Abs/Core exercises
-    "Crunches": { front: ["abs"], back: [] },
-    "Planks": { front: ["abs"], back: [] },
-    "Leg Raises": { front: ["abs"], back: [] },
-    "Hanging Knee Raises": { front: ["abs"], back: [] },
-    "Russian Twists": { front: ["abs", "obliques"], back: ["obliques"] },
-    "Side Planks": { front: ["obliques"], back: ["obliques"] },
-    "Cable Woodchoppers": { front: ["abs", "obliques"], back: ["obliques"] },
-    "Hanging Oblique Raises": { front: ["obliques"], back: ["obliques"] },
+    "Plank": { front: ["abs"], back: [] },
+    "Side Plank": { front: ["obliques"], back: ["obliques"] },
+    "Hanging Leg Raise": { front: ["abs"], back: [] },
+    "Cable Crunch": { front: ["abs"], back: [] },
+    "Ab Wheel Rollout": { front: ["abs"], back: [] },
+    "Russian Twist": { front: ["abs", "obliques"], back: ["obliques"] },
+    "Bicycle Crunch": { front: ["abs", "obliques"], back: [] },
+    "Mountain Climbers": { front: ["abs"], back: [] },
+    "Reverse Crunch": { front: ["abs"], back: [] },
+    "Sit-Ups": { front: ["abs"], back: [] },
+    "Flutter Kicks": { front: ["abs"], back: [] },
+    "Back Extension": { front: [], back: ["glutes", "hamstrings"] },
+    "Good Mornings": { front: [], back: ["hamstrings", "glutes"] },
+    
+    // Full body/Core exercises
+    "Kettlebell Swing": { front: ["abs"], back: ["glutes", "hamstrings", "delts"] },
+    "Farmer's Carry": { front: ["forearms", "abs"], back: ["traps", "trapezius"] },
+    "Suitcase Carry": { front: ["obliques", "forearms"], back: [] },
+    "Sled Push": { front: ["quads", "quadriceps", "calves", "abs"], back: ["glutes"] },
+    "Sled Pull": { front: [], back: ["hamstrings", "glutes", "calves", "abs"] },
+    "Rowing Machine": { front: ["biceps", "abs"], back: ["lats", "latissimus", "biceps"] },
+    "Jump Rope": { front: ["calves", "quads", "quadriceps", "delts"], back: [] },
+    "Running on Treadmill": { front: ["quads", "quadriceps"], back: ["glutes"] },
+    "Incline Treadmill Walk": { front: ["quads", "quadriceps", "calves"], back: ["glutes"] },
+    "Stationary Bike": { front: ["quads", "quadriceps", "calves"], back: ["hamstrings"] },
+    "Elliptical": { front: ["quads", "quadriceps", "delts"], back: ["glutes"] },
+    "Burpees": { front: ["chest", "pecs", "quads", "quadriceps", "abs", "delts"], back: [] },
+    "Medicine Ball Slam": { front: ["abs", "delts"], back: [] },
     
     // Trap exercises
     "Shrugs": { front: ["traps", "trapezius"], back: ["traps", "trapezius"] },
-    "Upright Rows": { front: ["delts", "traps", "trapezius"], back: ["traps", "trapezius"] },
+    "Upright Row": { front: ["delts", "traps", "trapezius", "biceps"], back: ["traps", "trapezius"] },
   };
 
   // Calculate current max lift weight from all workouts
@@ -230,7 +402,7 @@ const AddWorkoutPage = () => {
     setWorkouts(workouts.map(w => w.id === id ? { ...w, muscleGroup, workout: null } : w));
   };
 
-  const updateWorkoutExercise = (id: number, workout: string) => {
+  const updateSessionInstance = (id: number, workout: string) => {
     setWorkouts(workouts.map(w => w.id === id ? { ...w, workout } : w));
   };
 
@@ -368,7 +540,7 @@ const AddWorkoutPage = () => {
               canRemove={workouts.length > 1}
               onRemove={() => removeWorkout(workoutItem.id)}
               onSelectMuscleGroup={(group) => updateWorkoutMuscleGroup(workoutItem.id, group)}
-              onSelectWorkout={(workout) => updateWorkoutExercise(workoutItem.id, workout)}
+              onSelectWorkout={(workout) => updateSessionInstance(workoutItem.id, workout)}
               onAddSet={() => addSet(workoutItem.id)}
               onRemoveSet={(index) => removeSet(workoutItem.id, index)}
               onUpdateSet={(index, field, value) => updateSet(workoutItem.id, index, field, value)}

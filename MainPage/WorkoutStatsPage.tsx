@@ -31,7 +31,7 @@ const MUSCLE_GROUP_MAP: Record<string, { id: string; side: 'front' | 'back' }[]>
 
 const WorkoutStatsPage = () => {
   const navigation = useNavigation<any>();
-  const { stats, setStats } = useWorkoutStats();
+  const { stats } = useWorkoutStats();
   const { setGlobalFrontWorked, setGlobalBackWorked } = useGlobalWorkedMuscles();
   const [workoutName, setWorkoutName] = useState("");
   // Update global worked muscles when stats load
@@ -100,7 +100,17 @@ const WorkoutStatsPage = () => {
           />
         </View>
       </ScrollView>
-      <PrimaryButton label="Save & Continue" variant="footer" onPress={handleSave} />
+      <View style={styles.footerContainer}>
+        <View style={styles.buttonRow}>
+          <View style={styles.buttonWrapper}>
+             
+            <PrimaryButton label="Save Workout Template" variant="default" onPress={() => {}} />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <PrimaryButton label="Save & Continue" variant="default" onPress={handleSave} />
+          </View>
+        </View>
+      </View>
     </View>
   );
 };
@@ -138,6 +148,21 @@ const styles = StyleSheet.create({
     borderColor: "#e8e8e8",
     minHeight: 120,
     textAlignVertical: "top",
+  },
+  footerContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: "#e8e8e8",
+    backgroundColor: "white",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  buttonWrapper: {
+    flex: 0,
+    marginLeft:20,
   },
 });
 

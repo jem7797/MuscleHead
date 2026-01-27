@@ -8,16 +8,16 @@ import {
 import NavBar from "../Components/NavBar";
 import PageHeader from "../Components/PageHeader";
 
-const AddRoutinePage = () => {
+const AddWorkoutTemplatePage = () => {
 
   return (
     <View style={styles.mainContainer}>
-      <PageHeader title="Add Routine" />
+      <PageHeader title="Add Workout Template" />
 
       {/* Content */}
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <Text style={styles.placeholderText}>Add your routine here</Text>
-        {/* Add your routine input components here */}
+        <Text style={styles.placeholderText}>Add your workout template here</Text>
+        {/* Add your workout template input components here */}
       </ScrollView>
 
       <NavBar />
@@ -46,5 +46,5 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddRoutinePage;
+export default AddWorkoutTemplatePage;
 

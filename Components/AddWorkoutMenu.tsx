@@ -27,10 +27,10 @@ const AddWorkoutMenu: React.FC = () => {
             style={styles.addMenuItem}
             onPress={() => {
               setShowAddMenu(false);
-              navigation.navigate("AddRoutine");
+              navigation.navigate("AddWorkoutTemplate");
             }}
           >
-            <Text style={styles.addMenuText}>Add Routine</Text>
+            <Text style={styles.addMenuText}>Add Workout Template</Text>
           </TouchableOpacity>
         </View>
       )}

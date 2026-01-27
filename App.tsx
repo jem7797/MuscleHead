@@ -12,7 +12,7 @@ import ProfileSetUp from "./MoreInfoScreens/ProfileSetUp";
 import ContinueSignUp from "./InitialLandingScreens/ContinueSignUp"
 import WorkoutInputMainPage from "./MainPage/WorkoutInputMainPage";
 import AddWorkoutPage from "./MainPage/AddWorkoutPage";
-import AddRoutinePage from "./MainPage/AddRoutinePage";
+import AddWorkoutTemplatePage from "./MainPage/AddWorkoutTemplatePage";
 import ConfirmWorkoutPage from "./MainPage/ConfirmWorkoutPage";
 import WorkoutStatsPage from "./MainPage/WorkoutStatsPage";
 import CommunityScreen from "./Community";
@@ -52,7 +52,7 @@ export default function App() {
             <Stack.Screen name="ConfirmWorkout" component={ConfirmWorkoutPage} options={{ animation: "none" }} />
             <Stack.Screen name="AddWorkout" component={AddWorkoutPage} options={{ animation: "none" }} />
             <Stack.Screen name="WorkoutStats" component={WorkoutStatsPage} options={{ animation: "none" }} />
-            <Stack.Screen name="AddRoutine" component={AddRoutinePage} options={{ animation: "none" }} />
+            <Stack.Screen name="AddWorkoutTemplate" component={AddWorkoutTemplatePage} options={{ animation: "none" }} />
             <Stack.Screen name="Community" component={CommunityScreen} options={{ animation: "none" }} />
             <Stack.Screen name="Search" component={SearchScreen} options={{ animation: "none" }} />
             <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ animation: "none" }} />
