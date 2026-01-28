@@ -13,13 +13,17 @@ import PrimaryButton from "../Components/PrimaryButton";
 import { useUser } from "../Contexts/UserContext";
 import { createUser } from "../Services/userApi";
 
+
 // @ts-ignore
 const ConfirmSignUpScreen = ({ route, navigation }) => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // 6-digit array
   const inputs = useRef<(TextInput | null)[]>([]);
   const { username, email, given_name, DOB } = route.params;
   //@ts-ignore
-  const { getAndClearTempPassword } = useUser();
+  const { getAndClearTempPassword, setIsAuth, changeUsername} = useUser();
+
+  
+
 
   const handleChange = (text: string, index: number) => {
     if (text.length > 1) {
@@ -147,8 +151,10 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
           height: defaultHeight,
           weight: defaultWeight,
         });
-        
         console.log("Step 4: User created in backend database:", userData);
+        setIsAuth(true);
+        changeUsername(username);
+       
       } catch (createUserError: any) {
         console.error("Step 4 FAILED - createUser error:", createUserError);
         console.error("Create user error details:", {

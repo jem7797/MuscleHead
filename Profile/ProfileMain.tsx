@@ -11,12 +11,17 @@ import ProgressBar from "./ProfileComponents/ProgressBar";
 import MetricsRow from "./ProfileComponents/MetricsRow";
 import TabSwitcher from "./ProfileComponents/TabSwitcher";
 import ContentSection from "./ProfileComponents/ContentSection";
+import { UserProvider } from "../Contexts/UserContext";
 
 /**
  * ProfileScreen Component
  * Main profile page that displays user information, stats, and content tabs
  * Composed of multiple smaller components for better organization and maintainability
  */
+
+
+const username = UserProvider
+
 const ProfileScreen = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showFullBio, setShowFullBio] = useState(false);

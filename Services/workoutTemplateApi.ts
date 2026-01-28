@@ -11,16 +11,16 @@ import { apiRequest, parseJsonResponse } from "./apiConfig";
  * Creates a new workout template in the backend
  * 
  * @param name - The name of the workout template
- * @param exercises - Array of exercises in the template
+ * @param movements - Array of movements in the template
  * @returns Promise with the created workout template data
  */
 export const createWorkoutTemplate = async (
   name: string,
-  exercises: any[]
+  movements: any[]
 ): Promise<any> => {
   const requestBody = {
     name,
-    exercises,
+    movements,
   };
 
   const response = await apiRequest(
@@ -38,14 +38,14 @@ export const createWorkoutTemplate = async (
  * Updates an existing workout template in the backend
  * 
  * @param templateId - The ID of the workout template to update
- * @param updateData - Object containing fields to update (name, exercises, etc.)
+ * @param updateData - Object containing fields to update (name, movements, etc.)
  * @returns Promise with updated workout template data
  */
 export const updateWorkoutTemplate = async (
   templateId: number | string,
   updateData: {
     name?: string;
-    exercises?: any[];
+    movements?: any[];
   }
 ): Promise<any> => {
   const requestBody = JSON.stringify(updateData);

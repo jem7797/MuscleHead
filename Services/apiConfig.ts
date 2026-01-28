@@ -82,7 +82,9 @@ export const apiRequest = async (
         const preview = idToken.length > 20 
           ? `${idToken.substring(0, 10)}...${idToken.substring(idToken.length - 10)}`
           : idToken;
+
         console.log(`[API] Token preview: ${preview}`);
+      
       } else if (idToken) {
         console.warn(`[API] Token retrieved but format looks invalid (not a JWT): length=${idToken.length}`);
         console.warn(`[API] Token starts with: ${idToken.substring(0, 20)}`);
@@ -90,13 +92,16 @@ export const apiRequest = async (
       } else {
         console.warn("[API] Token exists but could not be converted to string");
       }
+    
     } else {
       console.error("[API] ERROR: No ID token available in session");
       console.error("[API] Session tokens:", session.tokens ? "exists but no idToken" : "null/undefined");
+      
       if (session.tokens) {
         console.error("[API] Available tokens:", Object.keys(session.tokens));
+       
         // Check if accessToken exists but idToken doesn't
-        if (session.tokens.accessToken && !session.tokens.idToken) {
+          if (session.tokens.accessToken && !session.tokens.idToken) {
           console.error("[API] WARNING: accessToken exists but idToken is missing!");
           console.error("[API] This usually means the user needs to sign in again or the session needs to be refreshed.");
         }
