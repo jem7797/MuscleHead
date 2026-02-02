@@ -153,7 +153,7 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         });
         console.log("Step 4: User created in backend database:", userData);
         setIsAuth(true);
-        changeUsername(username);
+        
        
       } catch (createUserError: any) {
         console.error("Step 4 FAILED - createUser error:", createUserError);

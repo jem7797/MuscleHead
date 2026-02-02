@@ -11,7 +11,7 @@ import ProgressBar from "./ProfileComponents/ProgressBar";
 import MetricsRow from "./ProfileComponents/MetricsRow";
 import TabSwitcher from "./ProfileComponents/TabSwitcher";
 import ContentSection from "./ProfileComponents/ContentSection";
-import { UserProvider } from "../Contexts/UserContext";
+import { useUser } from "../Contexts/UserContext";
 
 /**
  * ProfileScreen Component
@@ -19,10 +19,8 @@ import { UserProvider } from "../Contexts/UserContext";
  * Composed of multiple smaller components for better organization and maintainability
  */
 
-
-const username = UserProvider
-
 const ProfileScreen = () => {
+  const { username } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showFullBio, setShowFullBio] = useState(false);
   const [activeTab, setActiveTab] = useState<"posts" | "progress">("posts");
@@ -48,7 +46,7 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       <TopBar onSettingsPress={toggleSettings} />
 
-      <ProfileHeader displayName="Blaster7797" rank="Newbie" />
+      <ProfileHeader displayName={username || "User"} rank="Newbie" />
 
       <StatsRow stats={stats} />
 

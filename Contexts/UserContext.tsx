@@ -1,5 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { getCurrentUserSub } from '../Services/apiConfig';
+import { getUser } from '../Services/userApi';
+
+
+
+
+interface Rank{
+  id: number,
+  level: number,
+  rank: string,
+}
+
+
 
 interface UserContextType {
   // Auth state
@@ -7,12 +19,11 @@ interface UserContextType {
   isAuthenticated: boolean;
   userId: string;
   isLoading: boolean; // Auth loading state
-
   // Profile state
   username: string;
   showRealName: boolean;
-  level: string;
-  xpBars: number;
+  XP: number;
+  rank: Rank | null,
   pfpLink: string | undefined;
   isProfileLoading: boolean; // Profile data loading state 
 
@@ -43,8 +54,8 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
       // Profile state
       const [username, setUsername] = useState<string>(" ");
       const [showRealName, setShowRealName] = useState<boolean>(false);
-      const [level, setLevel] = useState<string>(" ");
-      const [xpBars, setXpBars] = useState<number>(0);
+      const [XP, setXP] = useState<number>(0);
+      const [rank, setRank] = useState<Rank | null>();
       const [pfpLink, setPfpLink] = useState<string | undefined>();
       const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
 
@@ -105,20 +116,45 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         setIsProfileLoading(loadStatus);
       }
 
+
+
+const fetchUserProfile = async() => {
+  if(!userId) return;
+setProfileLoading(true);
+  try{
+    const userData = await getUser(userId);
+    setUsername(userData.username ?? username);
+    setXP(userData.XP ?? 0);
+    setRank(userData.rank);
+  }
+  catch(error){
+    console.log("Failed to fetch user profile: " + userId);
+    
+  }finally{
+    setProfileLoading(false);
+  }
+}
+
       // Check auth status on mount
       useEffect(() => {
         getAndSetUserSubId();
       }, []); // Empty array = runs once on mount
 
-      // Re-check when user becomes authenticated (if userId is missing)
       useEffect(() => {
         if (isAuthenticated && !userId) {
-          // Only re-check if authenticated but userId is missing
           getAndSetUserSubId();
         }
       }, [isAuthenticated, userId]); // Re-run when isAuthenticated or userId changes
 
-    
+     
+    useEffect(()=>{
+      if(isAuthenticated && userId){
+       fetchUserProfile();
+  }
+}, [isAuthenticated, userId])
+
+
+
       return(
         <UserContext.Provider value={{
           // Auth state
@@ -129,25 +165,34 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
           // Profile state
           username,
           showRealName,
-          level,
-          xpBars,
+          XP,
+          rank: rank ?? null, // Ensure 'rank' is never undefined
           pfpLink,
           isProfileLoading,
+
           // Auth methods
           setgiven_name,
           setTempPasswordForSignup,
           getAndClearTempPassword,
           setIsAuth,
           getAndSetUserSubId,
+
           // Profile methods
           changeUsername,
           setShowRealNameValue,
           setProfileLoading
         }}>
             {children}
+            
         </UserContext.Provider>
       )
 }
+
+
+
+
+
+
 
 export const useUser = () => {
   const context = useContext(UserContext);
@@ -155,4 +200,6 @@ export const useUser = () => {
     throw new Error('useUser must be used within a UserProvider');
   }
   return context;
+  
 };
+
