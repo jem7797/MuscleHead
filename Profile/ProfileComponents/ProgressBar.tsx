@@ -1,19 +1,32 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 
+const SEGMENT_COUNT = 5;
+const XP_PER_FULL_BAR = 5;
+
 /**
  * ProgressBar Component
- * Displays a three-segment progress bar showing user progress
- * Currently shows 3 grey segments (can be customized to show completed segments in blue)
+ * Displays 5 segments. Filled based on (XP % 5): 0–4 XP fills 0–4 segments; at 5 XP the bar resets (0 filled), then 6 XP = 1 filled, etc.
  */
-const ProgressBar: React.FC = () => {
+interface ProgressBarProps {
+  xp: number;
+}
+
+const ProgressBar: React.FC<ProgressBarProps> = ({ xp }) => {
+  const filledCount = Math.min(SEGMENT_COUNT, xp % XP_PER_FULL_BAR);
+
   return (
     <View style={styles.progressBarContainer}>
-      <View style={styles.progressBarSegment} />
-      <View style={styles.progressBarDivider} />
-      <View style={styles.progressBarSegmentGrey} />
-      <View style={styles.progressBarDivider} />
-      <View style={styles.progressBarSegmentGrey} />
+      {Array.from({ length: SEGMENT_COUNT }).map((_, i) => (
+        <React.Fragment key={i}>
+          {i > 0 && <View style={styles.progressBarDivider} />}
+          <View
+            style={
+              i < filledCount ? styles.progressBarSegment : styles.progressBarSegmentGrey
+            }
+          />
+        </React.Fragment>
+      ))}
     </View>
   );
 };
@@ -27,6 +40,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginBottom: 14,
     overflow: "hidden",
+    alignItems: "stretch",
   },
   progressBarSegmentGrey: {
     flex: 1,

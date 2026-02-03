@@ -20,10 +20,11 @@ import { useUser } from "../Contexts/UserContext";
  */
 
 const ProfileScreen = () => {
-  const { username } = useUser();
+  const { username, XP } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showFullBio, setShowFullBio] = useState(false);
   const [activeTab, setActiveTab] = useState<"posts" | "progress">("posts");
+  
 
   // User metric data (height, weight, natty status)
   const metricData = [
@@ -46,7 +47,7 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       <TopBar onSettingsPress={toggleSettings} />
 
-      <ProfileHeader displayName={username || "User"} rank="Newbie" />
+      <ProfileHeader />
 
       <StatsRow stats={stats} />
 
@@ -61,7 +62,7 @@ const ProfileScreen = () => {
       <SettingsModal visible={isSettingsOpen} onClose={toggleSettings} />
 
       <View style={styles.highlightsContainer}>
-        <ProgressBar />
+        <ProgressBar xp={XP} />
         <MetricsRow metrics={metricData} />
         <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />
       </View>

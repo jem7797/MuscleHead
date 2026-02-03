@@ -80,6 +80,12 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
       };
 
 
+      const clearProfile = () => {
+        setUsername(" ");
+        setXP(0);
+        setRank(null);
+      };
+
       const getAndSetUserSubId = async() => {
         setIsLoading(true);
         try{
@@ -88,14 +94,17 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         if(userSub){
           setUserId(userSub);
           setIsAuth(true);
+          clearProfile(); // Don't show previous user's profile until we fetch the new one
         }else{
           setUserId("");
           setIsAuth(false);
+          clearProfile();
         }
       }catch(error){
         console.log("Error getting Sub: ", error);
         setUserId("");
         setIsAuth(false);
+        clearProfile();
       }finally{
         setIsLoading(false);
       }
@@ -123,7 +132,7 @@ const fetchUserProfile = async() => {
 setProfileLoading(true);
   try{
     const userData = await getUser(userId);
-    setUsername(userData.username ?? username);
+    setUsername(userData.username ?? " ");
     setXP(userData.XP ?? 0);
     setRank(userData.rank);
   }

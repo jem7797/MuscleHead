@@ -35,6 +35,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }) => {
 
           <View style={styles.settingsList}>
             <TouchableOpacity style={styles.settingsItem}>
+              <Ionicons name="create-outline" size={22} color="#1f2a44" />
+              <Text style={styles.settingsText}>Edit profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.settingsItem}>
               <Ionicons name="person-circle-outline" size={22} color="#1f2a44" />
               <Text style={styles.settingsText}>Account</Text>
             </TouchableOpacity>

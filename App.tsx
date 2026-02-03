@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import { Audio, InterruptionModeIOS } from "expo-av";
 
 import WelcomeScreen from "./InitialLandingScreens/WelcomeScreen";
 import SignUpScreen from "./InitialLandingScreens/SignUp";
@@ -31,6 +33,14 @@ Amplify.configure(awsConfig);
 const Stack = createNativeStackNavigator();
 
 export default function App() {
+  useEffect(() => {
+    Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      interruptionModeIOS: InterruptionModeIOS.MixWithOthers,
+      staysActiveInBackground: false,
+    }).catch(() => {});
+  }, []);
+
   return (
     <UserProvider>
       <OnboardingProvider>

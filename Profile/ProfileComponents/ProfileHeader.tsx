@@ -1,17 +1,18 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useUser } from "../../Contexts/UserContext";
 
 /**
  * ProfileHeader Component
  * Displays the user's profile picture, display name, and rank
  */
-interface ProfileHeaderProps {
-  displayName: string;
-  rank: string;
-}
 
-const ProfileHeader: React.FC<ProfileHeaderProps> = ({ displayName, rank }) => {
+const ProfileHeader = () => {
+  const { username, rank } = useUser();
+  const userName = username ?? "User";
+  const rankName = rank?.rank ?? "Newbie";
+
   return (
     <>
       <View style={styles.profileSection}>
@@ -25,11 +26,11 @@ const ProfileHeader: React.FC<ProfileHeaderProps> = ({ displayName, rank }) => {
             <Ionicons name="add" size={16} color="#fff" />
           </View>
         </TouchableOpacity>
-        <Text style={styles.displayName}>{displayName}</Text>
+        <Text style={styles.displayName}>{userName}</Text>
       </View>
 
       <View>
-        <Text style={styles.rankText}>{rank}</Text>
+        <Text style={styles.rankText}>{rankName}</Text>
       </View>
     </>
   );
