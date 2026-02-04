@@ -19,25 +19,56 @@ import { useUser } from "../Contexts/UserContext";
  * Composed of multiple smaller components for better organization and maintainability
  */
 
+const formatHeight = (totalInches?: number | null) => {
+  if (totalInches === undefined || totalInches === null) {
+    return `0'0"`;
+  }
+  const feet = Math.floor(totalInches / 12);
+  const inches = totalInches % 12;
+  return `${feet}'${inches}"`;
+};
+
 const ProfileScreen = () => {
-  const { username, XP } = useUser();
+  const {
+    XP,
+    numberFollowing,
+    numberOfFollowers,
+    numberOfPosts,
+    weight,
+    height,
+    isNatty,
+  } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [showFullBio, setShowFullBio] = useState(false);
   const [activeTab, setActiveTab] = useState<"posts" | "progress">("posts");
   
 
-  // User metric data (height, weight, natty status)
+  // User metric data (height, weight, natty status) — N/A when null/undefined
   const metricData = [
-    { icon: "ruler", value: `5'8"` },
-    { icon: "weight", value: "180 lb" },
-    { icon: "syringe", value: "Natty" },
+    {
+      icon: "ruler",
+      value: height != null ? formatHeight(height) : "N/A",
+    },
+    {
+      icon: "weight",
+      value: weight != null ? `${weight} lb` : "N/A",
+    },
+    {
+      icon: "syringe",
+      value:
+        isNatty === undefined || isNatty === null
+          ? "Unknown"
+          : isNatty
+            ? "Natty"
+            : "Not Natty",
+    },
   ];
 
   // User statistics (following, posts, followers)
   const stats = [
-    { label: "Following", value: "180" },
-    { label: "Posts", value: "54" },
-    { label: "Followers", value: "200" },
+    { label: "Following", value: String(numberFollowing ?? 0) },
+    { label: "Posts", value: String(numberOfPosts ?? 0) },
+    { label: "Followers", value: String(numberOfFollowers ?? 0) },
   ];
 
   const toggleSettings = () => setIsSettingsOpen((p) => !p);
@@ -49,7 +80,7 @@ const ProfileScreen = () => {
 
       <ProfileHeader />
 
-      <StatsRow stats={stats} />
+      <StatsRow stats={stats}/>
 
       <BioSection
         bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque faucibus ex sapien, vitae pellentesque sem placerat in. Id cursus mi pretium tellus. Duis convallis tempus leo eu, aenean sed diam consequat."

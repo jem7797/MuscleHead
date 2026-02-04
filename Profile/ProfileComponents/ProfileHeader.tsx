@@ -11,7 +11,7 @@ import { useUser } from "../../Contexts/UserContext";
 const ProfileHeader = () => {
   const { username, rank } = useUser();
   const userName = username ?? "User";
-  const rankName = rank?.rank ?? "Newbie";
+  const rankName = rank?.name ?? " ";
 
   return (
     <>

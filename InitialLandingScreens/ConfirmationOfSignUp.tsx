@@ -140,17 +140,8 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         
         console.log("Step 4: User sub retrieved:", sub);
         
-        // Default values: 70 inches (5'10") and 150 lbs
-        // These will be updated when the user completes the HeightWeight screen
-        const defaultHeight = 70; // inches
-        const defaultWeight = 150; // pounds
-        
-        // Create user in backend with all required fields
-        // Now we have an authenticated session, so the ID token will be included
-        const userData = await createUser(username, sub, email, given_name, DOB, {
-          height: defaultHeight,
-          weight: defaultWeight,
-        });
+        // Create user in backend (height/weight stay null until user sets them via update)
+        const userData = await createUser(username, sub, email, given_name, DOB);
         console.log("Step 4: User created in backend database:", userData);
         setIsAuth(true);
         

@@ -8,7 +8,7 @@ import { getUser } from '../Services/userApi';
 interface Rank{
   id: number,
   level: number,
-  rank: string,
+  name: string,
 }
 
 
@@ -22,8 +22,16 @@ interface UserContextType {
   // Profile state
   username: string;
   showRealName: boolean;
+  height: number | undefined | null;
+  weight: number | undefined | null;
+  lifetimeWeightLifted: number | null;
+  lifetimeGymTime: number | null;
+  isNatty: boolean | true;
   XP: number;
   rank: Rank | null,
+  numberOfFollowers: number | undefined,
+  numberFollowing: number | undefined,
+  numberOfPosts: number | undefined,
   pfpLink: string | undefined;
   isProfileLoading: boolean; // Profile data loading state 
 
@@ -54,8 +62,16 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
       // Profile state
       const [username, setUsername] = useState<string>(" ");
       const [showRealName, setShowRealName] = useState<boolean>(false);
+      const [height, setHeight] = useState<number | null>();
+      const [weight, setWeight] = useState<number | null>();
+      const [lifetimeWeightLifted, setLifetimeWeightLifted] = useState<number>();
+      const [lifetimeGymTime, setLifetimeGymTime] = useState<number>();
+      const [isNatty, setIsNatty ] = useState<boolean>();
       const [XP, setXP] = useState<number>(0);
       const [rank, setRank] = useState<Rank | null>();
+      const [numberOfFollowers, setNumberOfFollowers] = useState<number>();
+      const [numberFollowing, setNumberFollowing] = useState<number>();
+      const [numberOfPosts, setNumberOfPosts] = useState<number>();
       const [pfpLink, setPfpLink] = useState<string | undefined>();
       const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
 
@@ -82,8 +98,17 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
 
       const clearProfile = () => {
         setUsername(" ");
+        setHeight(undefined);
+        setWeight(undefined);
+        setLifetimeWeightLifted(undefined);
+        setLifetimeGymTime(undefined);
+        setIsNatty(undefined);
         setXP(0);
         setRank(null);
+        setNumberOfFollowers(undefined);
+        setNumberFollowing(undefined);
+        setNumberOfPosts(undefined);
+        setPfpLink(undefined);
       };
 
       const getAndSetUserSubId = async() => {
@@ -133,8 +158,16 @@ setProfileLoading(true);
   try{
     const userData = await getUser(userId);
     setUsername(userData.username ?? " ");
+    setHeight(userData.height ?? null);
+    setWeight(userData.weight ?? null);
+    setLifetimeWeightLifted(userData.lifetime_weight_lifted);
+    setLifetimeGymTime(userData.lifetime_gym_time);
+    setIsNatty(userData.isNatty);
     setXP(userData.XP ?? 0);
     setRank(userData.rank);
+    setNumberOfFollowers(userData.number_of_followers);
+    setNumberFollowing(userData.number_following);
+    setNumberOfPosts(userData.number_of_posts);
   }
   catch(error){
     console.log("Failed to fetch user profile: " + userId);
@@ -174,8 +207,17 @@ setProfileLoading(true);
           // Profile state
           username,
           showRealName,
+          height: height ?? null,
+          weight: weight ?? null,
+          lifetimeWeightLifted: lifetimeWeightLifted ?? null,
+          lifetimeGymTime: lifetimeGymTime ?? null,
+          isNatty: isNatty ?? true,
+          
           XP,
-          rank: rank ?? null, // Ensure 'rank' is never undefined
+          rank: rank ?? null, 
+          numberOfFollowers,
+          numberFollowing,
+          numberOfPosts,
           pfpLink,
           isProfileLoading,
 
