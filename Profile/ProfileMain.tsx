@@ -56,11 +56,7 @@ const ProfileScreen = () => {
     {
       icon: "syringe",
       value:
-        isNatty === undefined || isNatty === null
-          ? "Unknown"
-          : isNatty
-            ? "Natty"
-            : "Not Natty",
+         isNatty ? "Natty": "Not Natty",
     },
   ];
 

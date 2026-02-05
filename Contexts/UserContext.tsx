@@ -22,8 +22,8 @@ interface UserContextType {
   // Profile state
   username: string;
   showRealName: boolean;
-  height: number | undefined | null;
-  weight: number | undefined | null;
+  height: number | null;
+  weight: number |  null;
   lifetimeWeightLifted: number | null;
   lifetimeGymTime: number | null;
   isNatty: boolean | true;
@@ -43,6 +43,7 @@ interface UserContextType {
   getAndClearTempPassword: () => string | null;
   setIsAuth: (isAuthBoolValue: boolean) => void;
   getAndSetUserSubId: () => Promise<void>;
+  refreshUserProfile: (sub?: string) => Promise<void>;
 
   // Profile methods
   changeUsername: (newUsername: string) => void;
@@ -152,11 +153,13 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
 
 
 
-const fetchUserProfile = async() => {
-  if(!userId) return;
-setProfileLoading(true);
-  try{
-    const userData = await getUser(userId);
+const fetchUserProfile = async (sub?: string) => {
+  const id = sub ?? userId;
+  if (!id) return;
+  setProfileLoading(true);
+  try {
+    const userData = await getUser(id);
+    console.log("[UserContext] getUser response rank:", userData?.rank);
     setUsername(userData.username ?? " ");
     setHeight(userData.height ?? null);
     setWeight(userData.weight ?? null);
@@ -168,14 +171,12 @@ setProfileLoading(true);
     setNumberOfFollowers(userData.number_of_followers);
     setNumberFollowing(userData.number_following);
     setNumberOfPosts(userData.number_of_posts);
-  }
-  catch(error){
-    console.log("Failed to fetch user profile: " + userId);
-    
-  }finally{
+  } catch (error) {
+    console.log("Failed to fetch user profile:", id);
+  } finally {
     setProfileLoading(false);
   }
-}
+};
 
       // Check auth status on mount
       useEffect(() => {
@@ -189,11 +190,11 @@ setProfileLoading(true);
       }, [isAuthenticated, userId]); // Re-run when isAuthenticated or userId changes
 
      
-    useEffect(()=>{
-      if(isAuthenticated && userId){
-       fetchUserProfile();
-  }
-}, [isAuthenticated, userId])
+    useEffect(() => {
+      if (isAuthenticated && userId) {
+        fetchUserProfile(userId);
+      }
+    }, [isAuthenticated, userId]);
 
 
 
@@ -227,6 +228,7 @@ setProfileLoading(true);
           getAndClearTempPassword,
           setIsAuth,
           getAndSetUserSubId,
+          refreshUserProfile: fetchUserProfile,
 
           // Profile methods
           changeUsername,

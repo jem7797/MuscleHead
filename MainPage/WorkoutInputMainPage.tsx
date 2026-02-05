@@ -14,11 +14,13 @@ import AddWorkoutMenu from "../Components/AddWorkoutMenu";
 import RotateButton from "../Components/RotateButton";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useGlobalWorkedMuscles } from "../Contexts/GlobalWorkedMusclesContext";
+import { useUser } from "../Contexts/UserContext";
 
 const { height } = Dimensions.get("window");
 
 const WorkoutInputMainPage = () => {
   const { globalFrontWorked, globalBackWorked } = useGlobalWorkedMuscles();
+  const { lifetimeWeightLifted, lifetimeGymTime } = useUser();
   const [isBack, setIsBack] = useState(false);
   const [showScheduleEditor, setShowScheduleEditor] = useState(false);
   const [schedule, setSchedule] = useState<Record<string, string>>({
@@ -66,8 +68,8 @@ const WorkoutInputMainPage = () => {
   };
 
   const size = height * 0.4;
-  const totalWeightLiftedLbs = 0; // TODO: wire real total weight lifted
-  const totalGymMinutes = 0; // TODO: wire real total time in minutes
+  const totalWeightLiftedLbs = lifetimeWeightLifted ?? 0;
+  const totalGymMinutes = lifetimeGymTime ?? 0;
   const totalHours = Math.floor(totalGymMinutes / 60);
   const totalMinutes = totalGymMinutes % 60;
 
