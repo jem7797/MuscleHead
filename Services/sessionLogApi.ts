@@ -17,7 +17,7 @@ export const createSessionLog = async (
   sessionLogData: any
 ): Promise<any> => {
   const response = await apiRequest(
-    "/session-log/api/",
+    "/sessionLog/api/",
     {
       method: "POST",
       body: JSON.stringify(sessionLogData),

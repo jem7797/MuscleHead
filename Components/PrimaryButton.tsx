@@ -99,8 +99,8 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
     alignItems: "center",
     justifyContent: "center",
     backgroundColor: "#202c76",
@@ -135,7 +135,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
   },
-  buttonTextDefault: {},
+  buttonTextDefault: {
+    fontSize: 15,
+
+  },
   buttonTextFooter: {},
   buttonTextContinue: {
     fontSize: 18,

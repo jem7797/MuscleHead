@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     textAlignVertical: "top",
   },
   footerContainer: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 6,
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: "#e8e8e8",
@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     flexDirection: "row",
-    gap: 12,
+    gap: 7,
   },
   buttonWrapper: {
     flex: 0,

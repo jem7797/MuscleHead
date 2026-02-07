@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#202c76",
     marginBottom: 6,
-    marginTop: 60,
+    marginTop: 70,
   },
   subtitleText: {
     fontSize: 16,
