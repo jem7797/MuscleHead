@@ -10,6 +10,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
+import { useMovements } from "../Contexts/MovementContext";
 import PageHeader from "../Components/PageHeader";
 import PrimaryButton from "../Components/PrimaryButton";
 import WorkoutBox from "./AddWorkoutPage Components/WorkoutBox";
@@ -149,6 +150,7 @@ interface ExerciseSet {
 
 interface SessionInstance {
   id: number;
+  exerciseId: number | null;
   muscleGroup: string | null;
   workout: string | null;
   sets: ExerciseSet[];
@@ -157,10 +159,11 @@ interface SessionInstance {
 const AddWorkoutPage = () => {
   const navigation = useNavigation<any>();
   const { setStats } = useWorkoutStats();
+  const { getMovementId } = useMovements();
   const [workouts, setWorkouts] = useState<SessionInstance[]>([
-    { id: 1, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
-    { id: 2, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
-    { id: 3, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
+    { id: 1, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
+    { id: 2, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
+    { id: 3, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
   ]);
   
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -389,7 +392,7 @@ const AddWorkoutPage = () => {
 
   const addWorkout = () => {
     const newId = Math.max(...workouts.map(w => w.id), 0) + 1;
-    setWorkouts([...workouts, { id: newId, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] }]);
+    setWorkouts([...workouts, { id: newId, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] }]);
   };
 
   const removeWorkout = (id: number) => {
@@ -399,11 +402,12 @@ const AddWorkoutPage = () => {
   };
 
   const updateWorkoutMuscleGroup = (id: number, muscleGroup: string) => {
-    setWorkouts(workouts.map(w => w.id === id ? { ...w, muscleGroup, workout: null } : w));
+    setWorkouts(workouts.map(w => w.id === id ? { ...w, muscleGroup, workout: null, exerciseId: null } : w));
   };
 
   const updateSessionInstance = (id: number, workout: string) => {
-    setWorkouts(workouts.map(w => w.id === id ? { ...w, workout } : w));
+    const exerciseId = getMovementId(workout) ?? null;
+    setWorkouts(workouts.map(w => w.id === id ? { ...w, workout, exerciseId } : w));
   };
 
   const addSet = (workoutId: number) => {

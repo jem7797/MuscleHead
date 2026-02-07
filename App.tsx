@@ -27,6 +27,7 @@ import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";
 import { WorkoutStatsProvider } from "./Contexts/WorkoutStatsContext";
+import { MovementProvider } from "./Contexts/MovementContext";
 import { GlobalWorkedMusclesProvider } from "./Contexts/GlobalWorkedMusclesContext";
 import { OnboardingProvider } from "./Contexts/OnboardingContext";
 //@ts-ignore
@@ -45,6 +46,7 @@ export default function App() {
   return (
     <UserProvider>
       <OnboardingProvider>
+      <MovementProvider>
       <WorkoutStatsProvider>
         <GlobalWorkedMusclesProvider>
           <NavigationContainer>
@@ -74,6 +76,7 @@ export default function App() {
         </NavigationContainer>
         </GlobalWorkedMusclesProvider>
       </WorkoutStatsProvider>
+      </MovementProvider>
       </OnboardingProvider>
     </UserProvider>
   );

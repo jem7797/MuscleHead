@@ -7,6 +7,7 @@ interface Set {
 
 interface Workout {
   id: number;
+  exerciseId: number | null;
   muscleGroup: string | null;
   workout: string | null;
   sets: Set[];

@@ -4,16 +4,19 @@ import {
   View,
   ScrollView,
   TextInput,
-  Text
+  Text,
+  Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
+import { useMovements } from "../Contexts/MovementContext";
 import { useGlobalWorkedMuscles } from "../Contexts/GlobalWorkedMusclesContext";
 import HeaderSection from "./WorkoutStatsPage Components/HeaderSection";
 import WorkoutNameInput from "./WorkoutStatsPage Components/WorkoutNameInput";
 import StatsGrid from "./WorkoutStatsPage Components/StatsGrid";
 import ExercisesSection from "./WorkoutStatsPage Components/ExercisesSection";
 import PrimaryButton from "../Components/PrimaryButton";
+import { createSessionLog } from "../Services/sessionLogApi";
 
 // Map muscle group names to muscle IDs and front/back
 const MUSCLE_GROUP_MAP: Record<string, { id: string; side: 'front' | 'back' }[]> = {
@@ -31,9 +34,12 @@ const MUSCLE_GROUP_MAP: Record<string, { id: string; side: 'front' | 'back' }[]>
 
 const WorkoutStatsPage = () => {
   const navigation = useNavigation<any>();
-  const { stats } = useWorkoutStats();
+  const { stats, setStats } = useWorkoutStats();
+  const { getMovementId } = useMovements();
   const { setGlobalFrontWorked, setGlobalBackWorked } = useGlobalWorkedMuscles();
   const [workoutName, setWorkoutName] = useState("");
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
   // Update global worked muscles when stats load
   useEffect(() => {
     if (!stats) return;
@@ -67,9 +73,61 @@ const WorkoutStatsPage = () => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const handleSave = () => {
-    // TODO: Save workout with name
-    navigation.navigate("WorkoutInputMainPage");
+  const handleSave = async () => {
+    if (!stats) return;
+    setSaving(true);
+    try {
+      const completedWorkouts = stats.workouts.filter(
+        (w) =>
+          w.workout &&
+          w.sets.some((s) => s.reps && s.weight)
+      );
+      const exercises = completedWorkouts
+        .map((w) => {
+          const exerciseId = w.exerciseId ?? (w.workout ? getMovementId(w.workout) : undefined);
+          if (exerciseId == null) return null;
+          const completedSets = w.sets.filter((s) => s.reps && s.weight);
+          const lastSet = completedSets[completedSets.length - 1];
+          return {
+            exerciseId,
+          sets: completedSets.length,
+          reps: lastSet ? parseInt(lastSet.reps, 10) || 0 : 0,
+          weight: lastSet ? parseFloat(lastSet.weight) || 0 : 0,
+          notes: "",
+          };
+        })
+        .filter((e): e is NonNullable<typeof e> => e != null);
+
+      if (completedWorkouts.length > 0 && exercises.length === 0) {
+        Alert.alert(
+          "Could not save exercises",
+          "Your exercises could not be matched to the server. Check that movements loaded (you may be offline) and that exercise names match the server."
+        );
+        setSaving(false);
+        return;
+      }
+
+      const sessionLogData: {
+        notes?: string;
+        routineId?: number;
+        timeSpentInGym: number;
+        exercises: { exerciseId: number; sets: number; reps: number; weight: number; notes?: string }[];
+      } = {
+        timeSpentInGym: stats.totalTime,
+        exercises,
+      };
+      if (notes.trim()) sessionLogData.notes = notes.trim();
+      await createSessionLog(sessionLogData);
+      setStats(null);
+      navigation.navigate("WorkoutInputMainPage");
+    } catch (e) {
+      Alert.alert(
+        "Save failed",
+        "Could not save workout. Please try again."
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   const totalSets = stats.workouts.reduce((total, w) => 
@@ -97,6 +155,9 @@ const WorkoutStatsPage = () => {
             style={styles.workoutNotesInput}
             multiline
             textAlignVertical="top"
+            value={notes}
+            onChangeText={setNotes}
+            editable={!saving}
           />
         </View>
       </ScrollView>
@@ -107,7 +168,12 @@ const WorkoutStatsPage = () => {
             <PrimaryButton label="Save Workout Template" variant="default" onPress={() => {}} />
           </View>
           <View style={styles.buttonWrapper}>
-            <PrimaryButton label="Save & Continue" variant="default" onPress={handleSave} />
+            <PrimaryButton
+              label={saving ? "Saving..." : "Save & Continue"}
+              variant="default"
+              onPress={handleSave}
+              disabled={saving}
+            />
           </View>
         </View>
       </View>
