@@ -8,23 +8,20 @@
 import { apiRequest, parseJsonResponse } from "./apiConfig";
 
 /**
- * Creates a new workout template in the backend
- * 
- * @param name - The name of the workout template
- * @param movements - Array of movements in the template
- * @returns Promise with the created workout template data
+ * Creates a new workout template in the backend.
+ * Matches WorkoutTemplateRequest: name + exercises (List<ExerciseInstanceRequest>).
  */
 export const createWorkoutTemplate = async (
   name: string,
-  movements: any[]
+  exercises: { exerciseId: number; orderIndex: number; targetReps: number; targetSets: number }[]
 ): Promise<any> => {
   const requestBody = {
     name,
-    movements,
+    exercises,
   };
 
   const response = await apiRequest(
-    "/workout-template/api/",
+    "/workoutTemplate/api/",
     {
       method: "POST",
       body: JSON.stringify(requestBody),
@@ -45,7 +42,7 @@ export const updateWorkoutTemplate = async (
   templateId: number | string,
   updateData: {
     name?: string;
-    movements?: any[];
+    exercises?: { exerciseId: number; orderIndex: number; targetReps: number; targetSets: number }[];
   }
 ): Promise<any> => {
   const requestBody = JSON.stringify(updateData);

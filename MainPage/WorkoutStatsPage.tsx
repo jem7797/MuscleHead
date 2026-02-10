@@ -11,6 +11,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
 import { useMovements } from "../Contexts/MovementContext";
 import { useGlobalWorkedMuscles } from "../Contexts/GlobalWorkedMusclesContext";
+import { useUser } from "../Contexts/UserContext";
 import HeaderSection from "./WorkoutStatsPage Components/HeaderSection";
 import WorkoutNameInput from "./WorkoutStatsPage Components/WorkoutNameInput";
 import StatsGrid from "./WorkoutStatsPage Components/StatsGrid";
@@ -37,6 +38,7 @@ const WorkoutStatsPage = () => {
   const { stats, setStats } = useWorkoutStats();
   const { getMovementId } = useMovements();
   const { setGlobalFrontWorked, setGlobalBackWorked } = useGlobalWorkedMuscles();
+  const { addToLifetimeStats } = useUser();
   const [workoutName, setWorkoutName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
@@ -118,6 +120,7 @@ const WorkoutStatsPage = () => {
       };
       if (notes.trim()) sessionLogData.notes = notes.trim();
       await createSessionLog(sessionLogData);
+      addToLifetimeStats(stats.totalWeight, stats.totalTime / 60);
       setStats(null);
       navigation.navigate("WorkoutInputMainPage");
     } catch (e) {

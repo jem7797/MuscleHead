@@ -26,6 +26,8 @@ interface UserContextType {
   weight: number |  null;
   lifetimeWeightLifted: number | null;
   lifetimeGymTime: number | null;
+  /** Add to lifetime stats after a workout (no refetch). Weight in lbs, time in minutes. */
+  addToLifetimeStats: (weightLbs: number, timeMinutes: number) => void;
   isNatty: boolean | true;
   XP: number;
   rank: Rank | null,
@@ -151,6 +153,11 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         setIsProfileLoading(loadStatus);
       }
 
+      const addToLifetimeStats = (weightLbs: number, timeMinutes: number) => {
+        setLifetimeWeightLifted((prev) => (prev ?? 0) + weightLbs);
+        setLifetimeGymTime((prev) => (prev ?? 0) + timeMinutes);
+      }
+
 
 
 const fetchUserProfile = async (sub?: string) => {
@@ -212,6 +219,7 @@ const fetchUserProfile = async (sub?: string) => {
           weight: weight ?? null,
           lifetimeWeightLifted: lifetimeWeightLifted ?? null,
           lifetimeGymTime: lifetimeGymTime ?? null,
+          addToLifetimeStats,
           isNatty: isNatty ?? true,
           
           XP,
