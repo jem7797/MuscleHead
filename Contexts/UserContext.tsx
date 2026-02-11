@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { getCurrentUserSub } from '../Services/apiConfig';
 import { getUser } from '../Services/userApi';
+import { getNameForRank } from '../rankMapping';
 
 
 
@@ -164,7 +165,7 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
           const currentLevel = Math.floor(currentXp / XP_PER_LEVEL) + 1;
           const newLevel = Math.floor(newXp / XP_PER_LEVEL) + 1;
           if (newLevel > currentLevel) {
-            setRank({ id: newLevel, level: newLevel, name: `Level ${newLevel}` });
+            setRank({ id: newLevel, level: newLevel, name: getNameForRank(newLevel) });
           }
           return newXp;
         });

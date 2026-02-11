@@ -30,9 +30,16 @@ const WorkoutInputMainPage = () => {
   const [showScheduleEditor, setShowScheduleEditor] = useState(false);
   const { routines, isLoading: routinesLoading, fetchRoutines } = useRoutines();
 
+ 
   useEffect(() => {
+
+    if(routines.length == 0){
     fetchRoutines();
+    }
   }, [fetchRoutines]);
+
+ 
+
   const [schedule, setSchedule] = useState<Record<string, string>>({
     Monday: "",
     Tuesday: "",
