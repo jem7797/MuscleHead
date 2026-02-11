@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
   fullscreenIcon: {
     position: "absolute",
-    bottom: -120,
+    bottom: 5,
     left: 275,
     padding: 6,
     zIndex: 100,

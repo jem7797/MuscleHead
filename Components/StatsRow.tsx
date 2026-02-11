@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-evenly",
     alignItems: "center",
     paddingHorizontal: 16,
-    marginTop: 130,
+    marginTop: 16,
   },
   statCard: {
     backgroundColor: "#f4f6fa",

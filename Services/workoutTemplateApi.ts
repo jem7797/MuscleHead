@@ -8,6 +8,15 @@
 import { apiRequest, parseJsonResponse } from "./apiConfig";
 
 /**
+ * Fetches all workout templates for the current user
+ */
+export const getWorkoutTemplates = async (): Promise<any[]> => {
+  const response = await apiRequest("/workoutTemplate/api/", { method: "GET" });
+  const data = await parseJsonResponse<unknown>(response);
+  return Array.isArray(data) ? data : [];
+};
+
+/**
  * Creates a new workout template in the backend.
  * Matches WorkoutTemplateRequest: name + exercises (List<ExerciseInstanceRequest>).
  */
