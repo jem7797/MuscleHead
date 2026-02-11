@@ -31,7 +31,7 @@ import { MovementProvider } from "./Contexts/MovementContext";
 import { GlobalWorkedMusclesProvider } from "./Contexts/GlobalWorkedMusclesContext";
 import { OnboardingProvider } from "./Contexts/OnboardingContext";
 import { WorkoutTemplateProvider } from "./Contexts/WorkoutTemplateContext";
-
+import { RoutinesProvider } from "./Contexts/RoutinesContext";
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -49,6 +49,7 @@ export default function App() {
   return (
     <UserProvider>
       <WorkoutTemplateProvider>
+      <RoutinesProvider>
       <OnboardingProvider>
       <MovementProvider>
       <WorkoutStatsProvider>
@@ -82,6 +83,7 @@ export default function App() {
       </WorkoutStatsProvider>
       </MovementProvider>
       </OnboardingProvider>
+      </RoutinesProvider>
       </WorkoutTemplateProvider>
     </UserProvider>
   );

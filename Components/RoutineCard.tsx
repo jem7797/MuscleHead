@@ -19,7 +19,6 @@ interface RoutineCardProps {
 }
 
 const RoutineCard: React.FC<RoutineCardProps> = ({ routine, onPress }) => {
-  const exerciseCount = routine.exercises?.length ?? 0;
 
   return (
     <TouchableOpacity
@@ -28,28 +27,27 @@ const RoutineCard: React.FC<RoutineCardProps> = ({ routine, onPress }) => {
       activeOpacity={0.7}
     >
       <View style={styles.content}>
-        <Text style={styles.name} numberOfLines={1}>
+        <Text style={styles.name} numberOfLines={2}>
           {routine.name}
         </Text>
-        <Text style={styles.subtitle}>
-          {exerciseCount} {exerciseCount === 1 ? "exercise" : "exercises"}
-        </Text>
       </View>
-      <Ionicons name="chevron-forward" size={20} color="#51607a" />
+      <Ionicons name="chevron-forward" size={18} color="#51607a" style={styles.chevron} />
     </TouchableOpacity>
   );
 };
 
+const CARD_WIDTH = 160;
+
 const styles = StyleSheet.create({
   card: {
-    flexDirection: "row",
-    alignItems: "center",
+    width: CARD_WIDTH,
+    flexDirection: "column",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     backgroundColor: "#f4f6fa",
     borderRadius: 12,
     paddingVertical: 14,
-    paddingHorizontal: 16,
-    marginBottom: 10,
+    paddingHorizontal: 14,
   },
   content: {
     flex: 1,
@@ -63,6 +61,9 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 13,
     color: "#51607a",
+  },
+  chevron: {
+    alignSelf: "flex-end",
   },
 });
 

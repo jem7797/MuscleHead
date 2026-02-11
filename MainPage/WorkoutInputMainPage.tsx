@@ -19,8 +19,7 @@ import RotateButton from "../Components/RotateButton";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useGlobalWorkedMuscles } from "../Contexts/GlobalWorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
-import { getWorkoutTemplates } from "../Services/workoutTemplateApi";
-import type { RoutineTemplate } from "../Components/RoutineCard";
+import { useRoutines } from "../Contexts/RoutinesContext";
 
 const { height } = Dimensions.get("window");
 
@@ -29,23 +28,11 @@ const WorkoutInputMainPage = () => {
   const { lifetimeWeightLifted, lifetimeGymTime, isProfileLoading } = useUser();
   const [isBack, setIsBack] = useState(false);
   const [showScheduleEditor, setShowScheduleEditor] = useState(false);
-  const [routines, setRoutines] = useState<RoutineTemplate[]>([]);
-  const [routinesLoading, setRoutinesLoading] = useState(true);
+  const { routines, isLoading: routinesLoading, fetchRoutines } = useRoutines();
 
   useEffect(() => {
-    const fetchRoutines = async () => {
-      try {
-        const templates = await getWorkoutTemplates();
-        setRoutines(templates as RoutineTemplate[]);
-      } catch (e) {
-        console.warn("Failed to fetch routines:", e);
-        setRoutines([]);
-      } finally {
-        setRoutinesLoading(false);
-      }
-    };
     fetchRoutines();
-  }, []);
+  }, [fetchRoutines]);
   const [schedule, setSchedule] = useState<Record<string, string>>({
     Monday: "",
     Tuesday: "",

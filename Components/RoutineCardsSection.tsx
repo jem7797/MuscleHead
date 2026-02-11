@@ -41,9 +41,10 @@ const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
     <View style={styles.container}>
       <Text style={styles.sectionTitle}>Your Routines</Text>
       <ScrollView
+        horizontal
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+        showsHorizontalScrollIndicator={false}
       >
         {routines.map((routine) => (
           <RoutineCard
@@ -69,10 +70,13 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   scrollView: {
-    maxHeight: 220,
+    marginHorizontal: -16,
   },
   scrollContent: {
-    paddingBottom: 8,
+    flexDirection: "row",
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingRight: 24,
   },
   loadingContainer: {
     flexDirection: "row",

@@ -16,6 +16,7 @@ import PageHeader from "../Components/PageHeader";
 import PrimaryButton from "../Components/PrimaryButton";
 import { useWorkoutTemplate } from "../Contexts/WorkoutTemplateContext";
 import { useMovements } from "../Contexts/MovementContext";
+import { useRoutines } from "../Contexts/RoutinesContext";
 import { createWorkoutTemplate } from "../Services/workoutTemplateApi";
 
 const DEFAULT_TARGET_SETS = 3;
@@ -24,6 +25,7 @@ const DEFAULT_TARGET_REPS = 10;
 const AddWorkoutTemplatePage = () => {
   const navigation = useNavigation<any>();
   const { state, setName, addExercise, removeExercise, updateExercise, resetState } = useWorkoutTemplate();
+  const { addRoutineOptimistically } = useRoutines();
   const { movements } = useMovements();
   const [showPicker, setShowPicker] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -97,7 +99,12 @@ const AddWorkoutTemplatePage = () => {
     }
     setSaving(true);
     try {
-      await createWorkoutTemplate(trimmedName, state.exercises);
+      const created = await createWorkoutTemplate(trimmedName, state.exercises);
+      addRoutineOptimistically({
+        id: created?.id,
+        name: trimmedName,
+        exercises: state.exercises,
+      });
       resetState();
       navigation.goBack();
     } catch (e) {
