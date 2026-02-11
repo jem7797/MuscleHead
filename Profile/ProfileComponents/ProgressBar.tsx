@@ -1,19 +1,21 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
+import { useUser } from "../../Contexts/UserContext";
 
 const SEGMENT_COUNT = 5;
-const XP_PER_FULL_BAR = 5;
+const xp_PER_FULL_BAR = 5;
 
 /**
  * ProgressBar Component
- * Displays 5 segments. Filled based on (XP % 5): 0–4 XP fills 0–4 segments; at 5 XP the bar resets (0 filled), then 6 XP = 1 filled, etc.
+ * Displays 5 segments. Filled based on (xp % 5): 0–4 xp fills 0–4 segments; at 5 xp the bar resets (0 filled), then 6 xp = 1 filled, etc.
  */
-interface ProgressBarProps {
-  xp: number;
-}
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ xp }) => {
-  const filledCount = Math.min(SEGMENT_COUNT, xp % XP_PER_FULL_BAR);
+
+const ProgressBar = () => {
+
+  const {xp} = useUser();
+
+  const filledCount = Math.min(SEGMENT_COUNT, xp % xp_PER_FULL_BAR);
 
   return (
     <View style={styles.progressBarContainer}>

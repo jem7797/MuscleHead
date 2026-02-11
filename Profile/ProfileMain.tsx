@@ -30,7 +30,7 @@ const formatHeight = (totalInches?: number | null) => {
 
 const ProfileScreen = () => {
   const {
-    XP,
+    xp,
     numberFollowing,
     numberOfFollowers,
     numberOfPosts,
@@ -89,7 +89,7 @@ const ProfileScreen = () => {
       <SettingsModal visible={isSettingsOpen} onClose={toggleSettings} />
 
       <View style={styles.highlightsContainer}>
-        <ProgressBar xp={XP} />
+        <ProgressBar />
         <MetricsRow metrics={metricData} />
         <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />
       </View>

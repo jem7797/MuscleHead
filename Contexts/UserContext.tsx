@@ -26,10 +26,10 @@ interface UserContextType {
   weight: number |  null;
   lifetimeWeightLifted: number | null;
   lifetimeGymTime: number | null;
-  /** Add to lifetime stats after a workout (no refetch). Weight in lbs, time in minutes. */
-  addToLifetimeStats: (weightLbs: number, timeMinutes: number) => void;
+  /** Add to lifetime stats after a workout (no refetch). Weight in lbs, time in minutes. Optimistically updates xp (+1) and rank if leveled up. */
+  addToLifetimeStats: (weightLbs: number, timeMinutes: number, xpGain?: number) => void;
   isNatty: boolean | true;
-  XP: number;
+  xp: number;
   rank: Rank | null,
   numberOfFollowers: number | undefined,
   numberFollowing: number | undefined,
@@ -70,7 +70,7 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
       const [lifetimeWeightLifted, setLifetimeWeightLifted] = useState<number>();
       const [lifetimeGymTime, setLifetimeGymTime] = useState<number>();
       const [isNatty, setIsNatty ] = useState<boolean>();
-      const [XP, setXP] = useState<number>(0);
+      const [xp, setXp] = useState<number>(0);
       const [rank, setRank] = useState<Rank | null>();
       const [numberOfFollowers, setNumberOfFollowers] = useState<number>();
       const [numberFollowing, setNumberFollowing] = useState<number>();
@@ -106,7 +106,7 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         setLifetimeWeightLifted(undefined);
         setLifetimeGymTime(undefined);
         setIsNatty(undefined);
-        setXP(0);
+        setXp(0);
         setRank(null);
         setNumberOfFollowers(undefined);
         setNumberFollowing(undefined);
@@ -153,9 +153,21 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         setIsProfileLoading(loadStatus);
       }
 
-      const addToLifetimeStats = (weightLbs: number, timeMinutes: number) => {
+      const XP_PER_LEVEL = 5;
+
+      const addToLifetimeStats = (weightLbs: number, timeMinutes: number, xpGain: number = 1) => {
         setLifetimeWeightLifted((prev) => (prev ?? 0) + weightLbs);
-        setLifetimeGymTime((prev) => (prev ?? 0) + timeMinutes);
+        setLifetimeGymTime((prev) => (prev ?? 0) + Math.floor(timeMinutes));
+        setXp((prev) => {
+          const currentXp = prev ?? 0;
+          const newXp = currentXp + xpGain;
+          const currentLevel = Math.floor(currentXp / XP_PER_LEVEL) + 1;
+          const newLevel = Math.floor(newXp / XP_PER_LEVEL) + 1;
+          if (newLevel > currentLevel) {
+            setRank({ id: newLevel, level: newLevel, name: `Level ${newLevel}` });
+          }
+          return newXp;
+        });
       }
 
 
@@ -166,14 +178,19 @@ const fetchUserProfile = async (sub?: string) => {
   setProfileLoading(true);
   try {
     const userData = await getUser(id);
-    console.log("[UserContext] getUser response rank:", userData?.rank);
+    console.log("[UserContext] User loaded:", {
+      subId: id,
+      name: userData.username ?? userData.first_name ?? "—",
+      rank: userData.rank,
+      lifetimeWeightLifted: userData.lifetime_weight_lifted,
+    });
     setUsername(userData.username ?? " ");
     setHeight(userData.height ?? null);
     setWeight(userData.weight ?? null);
     setLifetimeWeightLifted(userData.lifetime_weight_lifted);
     setLifetimeGymTime(userData.lifetime_gym_time);
-    setIsNatty(userData.isNatty);
-    setXP(userData.XP ?? 0);
+    setIsNatty(userData.nattyStatus);
+    setXp(userData.xp ?? 0);
     setRank(userData.rank);
     setNumberOfFollowers(userData.number_of_followers);
     setNumberFollowing(userData.number_following);
@@ -222,7 +239,7 @@ const fetchUserProfile = async (sub?: string) => {
           addToLifetimeStats,
           isNatty: isNatty ?? true,
           
-          XP,
+          xp,
           rank: rank ?? null, 
           numberOfFollowers,
           numberFollowing,

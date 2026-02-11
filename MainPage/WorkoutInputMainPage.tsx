@@ -4,6 +4,8 @@ import {
   View,
   Dimensions,
   Animated,
+  ActivityIndicator,
+  Text,
 } from "react-native";
 import NavBar from "../Components/NavBar";
 import ScheduleBuilderModal from "../Components/ScheduleBuilderModal";
@@ -20,7 +22,7 @@ const { height } = Dimensions.get("window");
 
 const WorkoutInputMainPage = () => {
   const { globalFrontWorked, globalBackWorked } = useGlobalWorkedMuscles();
-  const { lifetimeWeightLifted, lifetimeGymTime } = useUser();
+  const { lifetimeWeightLifted, lifetimeGymTime, isProfileLoading } = useUser();
   const [isBack, setIsBack] = useState(false);
   const [showScheduleEditor, setShowScheduleEditor] = useState(false);
   const [schedule, setSchedule] = useState<Record<string, string>>({
@@ -71,7 +73,7 @@ const WorkoutInputMainPage = () => {
   const totalWeightLiftedLbs = lifetimeWeightLifted ?? 0;
   const totalGymMinutes = lifetimeGymTime ?? 0;
   const totalHours = Math.floor(totalGymMinutes / 60);
-  const totalMinutes = totalGymMinutes % 60;
+  const totalMinutes = Math.floor(totalGymMinutes % 60);
 
   const dayName = new Date().toLocaleDateString(undefined, { weekday: "long" });
   const dayIndex = new Date().getDay(); // 0=Sun ... 6=Sat
@@ -115,11 +117,18 @@ const WorkoutInputMainPage = () => {
       <WorkedMusclesProvider frontWorked={globalFrontWorked} backWorked={globalBackWorked}>
         <MuscleManView isBack={isBack} size={size} />
 
-        <StatsRow
-          totalWeightLiftedLbs={totalWeightLiftedLbs}
-          totalHours={totalHours}
-          totalMinutes={totalMinutes}
-        />
+        {isProfileLoading ? (
+          <View style={styles.statsLoading}>
+            <ActivityIndicator size="small" color="#1f2a44" />
+            <Text style={styles.statsLoadingText}>Loading stats...</Text>
+          </View>
+        ) : (
+          <StatsRow
+            totalWeightLiftedLbs={totalWeightLiftedLbs}
+            totalHours={totalHours}
+            totalMinutes={totalMinutes}
+          />
+        )}
 
         <AddWorkoutMenu />
       </WorkedMusclesProvider>
@@ -142,6 +151,18 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
+  },
+  statsLoading: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 130,
+    paddingHorizontal: 16,
+  },
+  statsLoadingText: {
+    fontSize: 14,
+    color: "#51607a",
   },
 });
 

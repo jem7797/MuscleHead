@@ -1,7 +1,7 @@
 import { getCurrentUser, fetchAuthSession } from "aws-amplify/auth";
 
 // API Configuration
-const API_BASE_URL = "http://localhost:8080";
+const API_BASE_URL = "http://192.168.86.241:8080";
 
 // Get the current user's sub ID from AWS Amplify
 export const getCurrentUserSub = async (): Promise<string | null> => {

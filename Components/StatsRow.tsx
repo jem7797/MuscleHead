@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, View, Text } from "react-native";
+import { useUser } from "../Contexts/UserContext";
 
 interface StatsRowProps {
   totalWeightLiftedLbs: number;
@@ -12,11 +13,15 @@ const StatsRow: React.FC<StatsRowProps> = ({
   totalHours,
   totalMinutes,
 }) => {
+
+  const {lifetimeGymTime, lifetimeWeightLifted} = useUser();
+
+
   return (
     <View style={styles.statsRow}>
       <View style={styles.statCard}>
         <Text style={styles.statLabel}>Lifetime Weights Lifted</Text>
-        <Text style={styles.statValue}>{totalWeightLiftedLbs} lbs</Text>
+        <Text style={styles.statValue}>{lifetimeWeightLifted ? lifetimeWeightLifted : totalWeightLiftedLbs} lbs</Text>
       </View>
       <View style={styles.statCard}>
         <Text style={styles.statLabel}>Lifetime Workout Time</Text>
