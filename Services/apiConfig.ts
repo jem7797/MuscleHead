@@ -1,7 +1,11 @@
 import { getCurrentUser, fetchAuthSession } from "aws-amplify/auth";
 
 // API Configuration
-const API_BASE_URL = "http://192.168.86.241:8080";
+const API_BASE_URL = "http://192.168.1.224:8080";
+
+/** CloudFront distribution URL for S3 assets (e.g. profile pictures). Set in env or replace with your distribution URL. */
+export const CLOUDFRONT_BASE_URL =
+  process.env.EXPO_PUBLIC_CLOUDFRONT_URL ?? "dawn6uvaz7dxq.cloudfront.net";
 
 // Get the current user's sub ID from AWS Amplify
 export const getCurrentUserSub = async (): Promise<string | null> => {

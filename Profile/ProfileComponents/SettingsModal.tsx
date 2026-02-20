@@ -9,9 +9,10 @@ import { Ionicons } from "@expo/vector-icons";
 interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
+  onEditProfile?: () => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose, onEditProfile }) => {
   return (
     <Modal
       visible={visible}
@@ -34,7 +35,13 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose }) => {
           </View>
 
           <View style={styles.settingsList}>
-            <TouchableOpacity style={styles.settingsItem}>
+            <TouchableOpacity
+              style={styles.settingsItem}
+              onPress={() => {
+                onClose();
+                onEditProfile?.();
+              }}
+            >
               <Ionicons name="create-outline" size={22} color="#1f2a44" />
               <Text style={styles.settingsText}>Edit profile</Text>
             </TouchableOpacity>

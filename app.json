@@ -14,7 +14,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.jem7797.MuscleHead",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "MuscleHead needs access to your photo library to set your profile picture."
       }
     },
     "android": {

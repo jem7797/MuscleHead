@@ -1,6 +1,7 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useState } from "react";
+import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../../Contexts/UserContext";
 
 /**
@@ -9,7 +10,11 @@ import { useUser } from "../../Contexts/UserContext";
  */
 
 const ProfileHeader = () => {
-  const { username, rank } = useUser();
+  const navigation = useNavigation<any>();
+  const { username, rank, pfpLink } = useUser();
+  const [imgError, setImgError] = useState(false);
+  React.useEffect(() => setImgError(false), [pfpLink]);
+  const showPfp = pfpLink && !imgError;
   const userName = username ?? "User";
   const rankName = rank?.name ?? " ";
 
@@ -18,13 +23,24 @@ const ProfileHeader = () => {
       <View style={styles.profileSection}>
         <TouchableOpacity
           style={styles.profilePicture}
+          onPress={() => navigation.navigate("ProfileEdit")}
           accessibilityRole="button"
           accessibilityLabel="Edit profile picture"
         >
-          <Ionicons name="person" color="#fff" size={44} />
-          <View style={styles.cameraPill}>
-            <Ionicons name="add" size={16} color="#fff" />
-          </View>
+          {showPfp ? (
+            <Image
+              source={{ uri: pfpLink }}
+              style={styles.profileImage}
+              onError={() => setImgError(true)}
+            />
+          ) : (
+            <>
+              <Ionicons name="person" color="#fff" size={44} />
+              <View style={styles.cameraPill}>
+                <Ionicons name="add" size={16} color="#fff" />
+              </View>
+            </>
+          )}
         </TouchableOpacity>
         <Text style={styles.displayName}>{userName}</Text>
       </View>
@@ -45,12 +61,17 @@ const styles = StyleSheet.create({
     width: 72,
     height: 72,
     borderRadius: 36,
+    overflow: "hidden",
     borderWidth: 2,
     borderColor: "#e6eef8",
     backgroundColor: "#708090",
     alignItems: "center",
     justifyContent: "center",
     position: "relative",
+  },
+  profileImage: {
+    width: "100%",
+    height: "100%",
   },
   cameraPill: {
     position: "absolute",

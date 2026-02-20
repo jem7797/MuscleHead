@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet } from "react-native";
+import { useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import TopBar from "./ProfileComponents/TopBar";
 import ProfileHeader from "./ProfileComponents/ProfileHeader";
@@ -29,7 +30,9 @@ const formatHeight = (totalInches?: number | null) => {
 };
 
 const ProfileScreen = () => {
+  const navigation = useNavigation<any>();
   const {
+    bio,
     xp,
     numberFollowing,
     numberOfFollowers,
@@ -39,7 +42,6 @@ const ProfileScreen = () => {
     isNatty,
   } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [showFullBio, setShowFullBio] = useState(false);
   const [activeTab, setActiveTab] = useState<"posts" | "progress">("posts");
   
 
@@ -68,7 +70,6 @@ const ProfileScreen = () => {
   ];
 
   const toggleSettings = () => setIsSettingsOpen((p) => !p);
-  const toggleBio = () => setShowFullBio((p) => !p);
 
   return (
     <View style={styles.container}>
@@ -78,15 +79,15 @@ const ProfileScreen = () => {
 
       <StatsRow stats={stats}/>
 
-      <BioSection
-        bio="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque faucibus ex sapien, vitae pellentesque sem placerat in. Id cursus mi pretium tellus. Duis convallis tempus leo eu, aenean sed diam consequat."
-        showFullBio={showFullBio}
-        onToggleBio={toggleBio}
-      />
+      <BioSection bio={bio || "Add a bio in your profile settings."} />
 
       <ActionButtons />
 
-      <SettingsModal visible={isSettingsOpen} onClose={toggleSettings} />
+      <SettingsModal
+        visible={isSettingsOpen}
+        onClose={toggleSettings}
+        onEditProfile={() => navigation.navigate("ProfileEdit")}
+      />
 
       <View style={styles.highlightsContainer}>
         <ProgressBar />

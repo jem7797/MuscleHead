@@ -1,16 +1,19 @@
 import React from "react";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Image } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation, useRoute } from "@react-navigation/native";
-
+import { useUser } from "../Contexts/UserContext";
 
 const NavBar = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
+  const { pfpLink } = useUser();
+  const [pfpError, setPfpError] = React.useState(false);
+  React.useEffect(() => setPfpError(false), [pfpLink]);
+  const showPfp = pfpLink && !pfpError;
   const active = route.name;
   return (
     <View style={styles.container}>
@@ -36,8 +39,16 @@ const NavBar = () => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}> 
-          <View style={active === "Profile" ? styles.highlightCircle : undefined}>
-            <Ionicons name="person" size={24} color={active === "Profile" ? "#fff" : "black"} />
+          <View style={[styles.profileIconWrap, active === "Profile" && styles.highlightCircle]}>
+            {showPfp ? (
+              <Image
+                source={{ uri: pfpLink }}
+                style={styles.profileIcon}
+                onError={() => setPfpError(true)}
+              />
+            ) : (
+              <Ionicons name="person" size={24} color={active === "Profile" ? "#fff" : "black"} />
+            )}
           </View>
         </TouchableOpacity>
       </View>
@@ -75,6 +86,19 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
+  },
+  profileIconWrap: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    overflow: "hidden",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
   },
 });
 

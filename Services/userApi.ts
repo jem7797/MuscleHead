@@ -106,26 +106,26 @@ export const getUser = async (sub: string): Promise<any> => {
 };
 
 /**
- * Updates user information in the backend
- * 
+ * Updates user information in the backend (partial update)
+ *
+ * Uses PATCH per backend: user/api/{subId}
+ * Send only the fields you want to change.
+ *
  * @param sub - The user's sub ID from AWS Cognito
- * @param updateData - Object containing fields to update
+ * @param updateData - Object containing only the fields to update
  * @returns Promise with updated user data
  */
 export const updateUser = async (
   sub: string,
   updateData: Record<string, any>
 ): Promise<any> => {
-  // Backend expects subId in the URL path, not in the request body
-  const requestBody = JSON.stringify(updateData);
-
   const response = await apiRequest(
-    `/user/api/${sub}`, // Include subId in the URL path
+    `/user/api/${sub}`,
     {
-      method: "PUT",
-      body: requestBody,
+      method: "PATCH",
+      body: JSON.stringify(updateData),
     },
-    false // Don't auto-add sub since it's already in the URL
+    false
   );
 
   return parseJsonResponse(response);

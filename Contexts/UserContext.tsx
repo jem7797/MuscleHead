@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { getCurrentUserSub } from '../Services/apiConfig';
-import { getUser } from '../Services/userApi';
+import { getUser, updateUser } from '../Services/userApi';
 import { getNameForRank } from '../rankMapping';
 
 
@@ -17,11 +17,14 @@ interface Rank{
 interface UserContextType {
   // Auth state
   given_name: string;
+  email: string;
+  birth_year: number | null;
   isAuthenticated: boolean;
   userId: string;
   isLoading: boolean; // Auth loading state
   // Profile state
   username: string;
+  bio: string;
   showRealName: boolean;
   height: number | null;
   weight: number |  null;
@@ -50,6 +53,7 @@ interface UserContextType {
 
   // Profile methods
   changeUsername: (newUsername: string) => void;
+  updateProfile: (updates: { username?: string; bio?: string; height?: number | null; weight?: number | null; nattyStatus?: boolean; profilePicUrl?: string }) => Promise<void>;
   setShowRealNameValue: (revealName: boolean) => void;
   setProfileLoading: (loadStatus: boolean) => void;
 }
@@ -59,12 +63,15 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({children}: {children: ReactNode}) => {
       // Auth state
       const [given_name, setgiven_name] = useState("");
+      const [email, setEmail] = useState("");
+      const [birth_year, setBirthYear] = useState<number | null>(null);
       const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
       const [userId, setUserId] = useState("");
       const [isLoading, setIsLoading] = useState<boolean>(true);
 
       // Profile state
       const [username, setUsername] = useState<string>(" ");
+      const [bio, setBio] = useState<string>("");
       const [showRealName, setShowRealName] = useState<boolean>(false);
       const [height, setHeight] = useState<number | null>();
       const [weight, setWeight] = useState<number | null>();
@@ -102,6 +109,9 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
 
       const clearProfile = () => {
         setUsername(" ");
+        setBio("");
+        setEmail("");
+        setBirthYear(null);
         setHeight(undefined);
         setWeight(undefined);
         setLifetimeWeightLifted(undefined);
@@ -148,6 +158,28 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         setShowRealName(revealNameStatus);
       }
 
+      const updateProfile = async (updates: { username?: string; bio?: string; height?: number | null; weight?: number | null; nattyStatus?: boolean; profilePicUrl?: string }) => {
+        if (!userId) return;
+        // PATCH: send only the fields being changed
+        const payload: Record<string, unknown> = {};
+        if (updates.username !== undefined && updates.username.trim()) payload.username = updates.username.trim();
+        if (updates.bio !== undefined) payload.bio = updates.bio;
+        if (updates.height !== undefined) payload.height = updates.height;
+        if (updates.weight !== undefined) payload.weight = updates.weight;
+        if (updates.nattyStatus !== undefined) payload.natty_status = updates.nattyStatus;
+        if (updates.profilePicUrl !== undefined) payload.profilePicUrl = updates.profilePicUrl;
+        const hasProfileUpdates = updates.username !== undefined || updates.bio !== undefined ||
+          updates.height !== undefined || updates.weight !== undefined || updates.nattyStatus !== undefined || updates.profilePicUrl !== undefined;
+        if (!hasProfileUpdates) return;
+        await updateUser(userId, payload);
+        if (updates.username !== undefined) setUsername(updates.username);
+        if (updates.bio !== undefined) setBio(updates.bio);
+        if (updates.height !== undefined) setHeight(updates.height);
+        if (updates.weight !== undefined) setWeight(updates.weight);
+        if (updates.nattyStatus !== undefined) setIsNatty(updates.nattyStatus);
+        if (updates.profilePicUrl !== undefined) setPfpLink(updates.profilePicUrl);
+      }
+
      
 
       const setProfileLoading = (loadStatus: boolean) => {
@@ -186,6 +218,10 @@ const fetchUserProfile = async (sub?: string) => {
       lifetimeWeightLifted: userData.lifetime_weight_lifted,
     });
     setUsername(userData.username ?? " ");
+    setBio(userData.bio ?? "");
+    setgiven_name(userData.first_name ?? userData.given_name ?? "");
+    setEmail(userData.email ?? "");
+    setBirthYear(userData.birth_year ?? null);
     setHeight(userData.height ?? null);
     setWeight(userData.weight ?? null);
     setLifetimeWeightLifted(userData.lifetime_weight_lifted);
@@ -196,6 +232,8 @@ const fetchUserProfile = async (sub?: string) => {
     setNumberOfFollowers(userData.number_of_followers);
     setNumberFollowing(userData.number_following);
     setNumberOfPosts(userData.number_of_posts);
+    const raw = userData.profile_pic_url ?? userData.profilePicUrl ?? userData.pfp_link;
+    setPfpLink(raw ? (raw.startsWith("http") ? raw : `https://${raw}`) : undefined);
   } catch (error) {
     console.log("Failed to fetch user profile:", id);
   } finally {
@@ -227,11 +265,14 @@ const fetchUserProfile = async (sub?: string) => {
         <UserContext.Provider value={{
           // Auth state
           given_name,
+          email,
+          birth_year,
           isAuthenticated,
           userId,
           isLoading,
           // Profile state
           username,
+          bio,
           showRealName,
           height: height ?? null,
           weight: weight ?? null,
@@ -258,6 +299,7 @@ const fetchUserProfile = async (sub?: string) => {
 
           // Profile methods
           changeUsername,
+          updateProfile,
           setShowRealNameValue,
           setProfileLoading
         }}>
