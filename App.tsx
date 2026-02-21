@@ -23,6 +23,7 @@ import SearchScreen from "./Search/SearchMainPage";
 import LeaderboardScreen from "./Leaderboard/LeaderboardMainPage";
 import ProfileScreen from "./Profile/ProfileMain";
 import ProfileEditPage from "./Profile/ProfileEditPage";
+import UserProfileScreen from "./Profile/UserProfileScreen";
 import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
@@ -78,6 +79,7 @@ export default function App() {
             <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ animation: "none" }} />
             <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
             <Stack.Screen name="ProfileEdit" component={ProfileEditPage} options={{ animation: "none" }} />
+            <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ animation: "none" }} />
             <Stack.Screen name="MuscleDetail" component={MuscleDetailScreen} options={{ animation: "none" }} />
           </Stack.Navigator>
         </NavigationContainer>

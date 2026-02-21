@@ -132,6 +132,51 @@ export const updateUser = async (
 };
 
 /**
+ * Searches users by query string
+ *
+ * GET user/api/search?q={query}&page={page}&size={size}
+ * Queries shorter than 2 characters return 400 Bad Request.
+ *
+ * @param q - Search term (required, min 2 chars)
+ * @param page - Page number (default 0)
+ * @param size - Page size (default 10)
+ * @returns Spring Page: { content, totalElements, totalPages, number, size }
+ */
+export interface SearchUsersResponse {
+  content: Array<{
+    sub_id?: string;
+    username?: string;
+    first_name?: string;
+    profile_pic_url?: string;
+    profilePicUrl?: string;
+    [key: string]: unknown;
+  }>;
+  totalElements: number;
+  totalPages: number;
+  number: number;
+  size: number;
+}
+
+export const searchUsers = async (
+  q: string,
+  page: number = 0,
+  size: number = 10
+): Promise<SearchUsersResponse> => {
+  if (q.trim().length < 2) {
+    throw new Error("Search query must be at least 2 characters");
+  }
+  const params = new URLSearchParams({
+    q: q.trim(),
+    page: String(page),
+    size: String(size),
+  });
+  const response = await apiRequest(`/user/api/search?${params}`, {
+    method: "GET",
+  });
+  return parseJsonResponse<SearchUsersResponse>(response);
+};
+
+/**
  * Deletes a user from the backend
  * 
  * @param sub - The user's sub ID from AWS Cognito

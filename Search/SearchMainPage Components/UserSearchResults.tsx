@@ -1,0 +1,175 @@
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+
+export interface SearchUser {
+  sub_id?: string;
+  username?: string;
+  first_name?: string;
+  profile_pic_url?: string;
+  profilePicUrl?: string;
+  [key: string]: unknown;
+}
+
+interface UserSearchResultsProps {
+  users: SearchUser[];
+  isLoading: boolean;
+  hasMore: boolean;
+  onLoadMore: () => void;
+  onUserPress?: (user: SearchUser) => void;
+  emptyMessage?: string;
+}
+
+const getPfpUrl = (user: SearchUser): string | undefined => {
+  const raw = user.profile_pic_url ?? user.profilePicUrl ?? (user as { pfp_link?: string }).pfp_link;
+  return raw ? (String(raw).startsWith("http") ? raw : `https://${raw}`) : undefined;
+};
+
+const UserSearchResults: React.FC<UserSearchResultsProps> = ({
+  users,
+  isLoading,
+  hasMore,
+  onLoadMore,
+  onUserPress,
+  emptyMessage = "No users found",
+}) => {
+  if (isLoading && users.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.sectionTitle}>Users</Text>
+        <View style={styles.empty}>
+          <ActivityIndicator size="large" color="#1f2a44" />
+        </View>
+      </View>
+    );
+  }
+
+  if (users.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.sectionTitle}>Users</Text>
+        <View style={styles.empty}>
+          <Ionicons name="people-outline" size={48} color="#a2a2a2" />
+          <Text style={styles.emptyText}>{emptyMessage}</Text>
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.sectionTitle}>Users</Text>
+      {users.map((user, index) => {
+        const displayName = user.username ?? user.first_name ?? "User";
+        const pfpUrl = getPfpUrl(user);
+        const key = user.sub_id ? `${user.sub_id}-${index}` : `user-${index}`;
+
+        return (
+          <TouchableOpacity
+            key={key}
+            style={styles.userRow}
+            onPress={() => onUserPress?.(user)}
+            activeOpacity={0.7}
+          >
+            <View style={styles.avatar}>
+              {pfpUrl ? (
+                <Image source={{ uri: pfpUrl }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarText}>
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              )}
+            </View>
+            <Text style={styles.username}>{displayName}</Text>
+            <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
+          </TouchableOpacity>
+        );
+      })}
+      {hasMore && (
+        <TouchableOpacity
+          style={styles.loadMore}
+          onPress={onLoadMore}
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <ActivityIndicator size="small" color="#1f2a44" />
+          ) : (
+            <Text style={styles.loadMoreText}>Load more</Text>
+          )}
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#0f1724",
+    marginBottom: 12,
+  },
+  userRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e8ecf4",
+  },
+  avatar: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#708090",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  username: {
+    flex: 1,
+    marginLeft: 14,
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#0f1724",
+  },
+  loadMore: {
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  loadMoreText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#1f2a44",
+  },
+  empty: {
+    paddingVertical: 48,
+    alignItems: "center",
+  },
+  emptyText: {
+    marginTop: 12,
+    fontSize: 15,
+    color: "#5a6a7e",
+  },
+});
+
+export default UserSearchResults;

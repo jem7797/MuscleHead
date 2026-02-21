@@ -1,5 +1,5 @@
-import React from "react";
-import { View, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import React, { useRef } from "react";
+import { TextInput, TouchableOpacity, Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
 interface SearchBarProps {
@@ -8,6 +8,8 @@ interface SearchBarProps {
   isFocused: boolean;
   onFocus: () => void;
   onBlur: () => void;
+  onSubmit?: () => void;
+  placeholder?: string;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
@@ -16,9 +18,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
   isFocused,
   onFocus,
   onBlur,
+  onSubmit,
+  placeholder = "Search users",
 }) => {
+  const inputRef = useRef<TextInput>(null);
+
   return (
-    <View
+    <Pressable
+      onPress={() => inputRef.current?.focus()}
       style={[
         styles.searchBar,
         isFocused && styles.searchBarFocused,
@@ -30,21 +37,27 @@ const SearchBar: React.FC<SearchBarProps> = ({
         color={isFocused ? "#1f2a44" : "#5a6a7e"}
       />
       <TextInput
+        ref={inputRef}
         style={styles.searchInput}
-        placeholder="Search MuscleHead"
+        placeholder={placeholder}
         placeholderTextColor="#9aa6bd"
         value={value}
         onChangeText={onChangeText}
         onFocus={onFocus}
         onBlur={onBlur}
         returnKeyType="search"
+        onSubmitEditing={onSubmit}
+        blurOnSubmit={false}
       />
       {value.length > 0 && (
-        <TouchableOpacity onPress={() => onChangeText("")}>
+        <TouchableOpacity
+          onPress={() => onChangeText("")}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
           <Ionicons name="close-circle" size={18} color="#9aa6bd" />
         </TouchableOpacity>
       )}
-    </View>
+    </Pressable>
   );
 };
 
@@ -72,8 +85,10 @@ const styles = StyleSheet.create({
   },
   searchInput: {
     flex: 1,
+    minHeight: 24,
     fontSize: 15,
     color: "#0f1724",
+    paddingVertical: 4,
   },
 });
 

@@ -1,7 +1,7 @@
 import { getCurrentUser, fetchAuthSession } from "aws-amplify/auth";
 
 // API Configuration
-const API_BASE_URL = "http://192.168.1.224:8080";
+const API_BASE_URL = "http://10.149.237.213:8080";
 
 /** CloudFront distribution URL for S3 assets (e.g. profile pictures). Set in env or replace with your distribution URL. */
 export const CLOUDFRONT_BASE_URL =
