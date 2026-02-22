@@ -10,7 +10,6 @@ import {
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import SearchBar from "./SearchMainPage Components/SearchBar";
-import SavedCollections from "./SearchMainPage Components/SavedCollections";
 import UserSearchResults, { SearchUser } from "./SearchMainPage Components/UserSearchResults";
 import { searchUsers } from "../Services/userApi";
 
@@ -75,12 +74,6 @@ const SearchScreen = () => {
     }
   };
 
-  const savedCollections = [
-    { title: "Strength Building", icon: "dumbbell" },
-    { title: "Beginner Friendly", icon: "leaf" },
-    { title: "At Home", icon: "home" },
-  ];
-
   const showSearchResults = canSearch;
   const showMinCharsHint = trimmedQuery.length === 1;
 
@@ -111,21 +104,19 @@ const SearchScreen = () => {
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
       >
-          {showSearchResults ? (
-            <UserSearchResults
-              users={users}
-              isLoading={isLoading}
-              hasMore={page + 1 < totalPages}
-              onLoadMore={handleLoadMore}
-              onUserPress={(user) => {
-                const subId = user.sub_id ?? (user as { subId?: string }).subId;
-                if (subId) {
-                  navigation.navigate("UserProfile", { subId });
-                }
-              }}
-            />
-          ) : (
-          <SavedCollections collections={savedCollections} />
+        {showSearchResults && (
+          <UserSearchResults
+            users={users}
+            isLoading={isLoading}
+            hasMore={page + 1 < totalPages}
+            onLoadMore={handleLoadMore}
+            onUserPress={(user) => {
+              const subId = user.sub_id ?? (user as { subId?: string }).subId;
+              if (subId) {
+                navigation.navigate("UserProfile", { subId });
+              }
+            }}
+          />
         )}
       </ScrollView>
       <NavBar />

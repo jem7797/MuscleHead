@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Button,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signUp, signOut, getCurrentUser } from "aws-amplify/auth";
@@ -20,13 +21,12 @@ import PrimaryButton from "../Components/PrimaryButton";
 // Note: createUser will be called after email confirmation and sign-in
 // when we have an authenticated session
 
-
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
   //@ts-ignore
-  const {given_name, setgiven_name, setTempPasswordForSignup} = useUser();
+  const { given_name, setgiven_name, setTempPasswordForSignup } = useUser();
   const [email, setEmail] = useState("");
   const [DOB, setDOB] = useState("");
   const [alias, setAlias] = useState("");
@@ -47,8 +47,11 @@ const SignUpScreen = () => {
       } catch (error: any) {
         // If getCurrentUser throws, no user is signed in - that's fine
         // Only log if it's an unexpected error
-        if (error.name !== 'UserUnAuthenticatedException') {
-          console.log("[SignUp] No existing user session (or error checking):", error.name);
+        if (error.name !== "UserUnAuthenticatedException") {
+          console.log(
+            "[SignUp] No existing user session (or error checking):",
+            error.name,
+          );
         }
       }
     };
@@ -56,146 +59,157 @@ const SignUpScreen = () => {
     clearExistingSession();
   }, []); // Run once when component mounts
 
-/**
- * handleSignUp - Main sign up flow handler
- * 
- * This function orchestrates the complete sign up process:
- * 
- * STEP 1: Validate user input
- *   - Check that all required fields are filled
- * 
- * STEP 2: Sign up with AWS Cognito
- *   - Create the user account in AWS Cognito (authentication service)
- *   - Cognito handles password security, email verification, etc.
- *   - Returns a userId which is the "sub" (subject identifier)
- *   - This sub becomes our primary key in the database
- * 
- * STEP 3: Create user in our backend database
- *   - Send the username/alias to our backend API
- *   - Include the sub from Cognito as the primary key
- *   - Backend stores this in the database
- * 
- * STEP 4: Navigate to next screen
- *   - Move to email confirmation screen
- */
-const handleSignUp = async () => {
-  // STEP 1: Validate that all required fields are filled
-  if (!given_name || !email || !DOB || !alias || !password) {
-    Alert.alert("Error", "Please fill out all fields.");
-    return;
-  }
+  /**
+   * handleSignUp - Main sign up flow handler
+   *
+   * This function orchestrates the complete sign up process:
+   *
+   * STEP 1: Validate user input
+   *   - Check that all required fields are filled
+   *
+   * STEP 2: Sign up with AWS Cognito
+   *   - Create the user account in AWS Cognito (authentication service)
+   *   - Cognito handles password security, email verification, etc.
+   *   - Returns a userId which is the "sub" (subject identifier)
+   *   - This sub becomes our primary key in the database
+   *
+   * STEP 3: Create user in our backend database
+   *   - Send the username/alias to our backend API
+   *   - Include the sub from Cognito as the primary key
+   *   - Backend stores this in the database
+   *
+   * STEP 4: Navigate to next screen
+   *   - Move to email confirmation screen
+   */
+  const handleSignUp = async () => {
+    // STEP 1: Validate that all required fields are filled
+    if (!given_name || !email || !DOB || !alias || !password) {
+      Alert.alert("Error", "Please fill out all fields.");
+      return;
+    }
 
-  try {
-    // STEP 1.5: Ensure no user is signed in before attempting signup
-    // This prevents "already signed in user" errors during testing
     try {
-      const existingUser = await getCurrentUser();
-      if (existingUser) {
-        console.log("[SignUp] User already signed in, signing out before signup...");
-        await signOut();
-        console.log("[SignUp] Successfully signed out before signup");
-        // Small delay to ensure sign-out completes
-        await new Promise(resolve => setTimeout(resolve, 500));
-      }
-    } catch (checkError: any) {
-      // If getCurrentUser throws, no user is signed in - that's fine
-      if (checkError.name !== 'UserUnAuthenticatedException') {
-        console.log("[SignUp] Error checking for existing user:", checkError.name);
-      }
-    }
-
-    // STEP 2: Sign up with AWS Cognito
-    // This creates the user account in AWS Cognito
-    // IMPORTANT: When Cognito is configured with email alias (loginWith: { email: true }),
-    // the username field CANNOT be an email format. We must use a unique username (alias)
-    // and provide the email in userAttributes instead.
-    // The response includes userId which is the "sub" (subject identifier from Cognito)
-    const signUpResult = await signUp({
-      username: alias, // Use alias as username (NOT email - email alias config prevents email in username field)
-      password,
-      options: {
-        userAttributes: {
-          email: email, // Email goes in userAttributes, not as username
-          given_name: given_name,
-          preferred_username: alias, // Also store alias as preferred_username attribute
-        },
-      },
-    });
-
-    // Extract userId and nextStep from the sign up result
-    // userId from Cognito is the "sub" - this is our primary key
-    // The sub is a unique identifier that AWS Cognito assigns to each user
-    const sub = signUpResult.userId;
-    const nextStep = signUpResult.nextStep;
-
-    // Validate that we got a userId (sub) - this should always be present after sign up
-    if (!sub) {
-      throw new Error("Failed to get user ID from Cognito. Please try again.");
-    }
-
-    console.log("Cognito sign up successful. User ID (sub):", sub);
-    console.log("Next step:", nextStep);
-
-    // STEP 3: Store password temporarily in context for auto-login after email confirmation
-    // Note: User creation in backend will happen after email confirmation and sign-in
-    // when we have an authenticated session (ID token available)
-    // This is more secure than passing it through navigation params
-    setTempPasswordForSignup(password);
-    
-    // STEP 4: Navigate to email confirmation screen
-    // The user needs to verify their email with the code Cognito sent
-    // Password is stored in context, not passed through navigation params for security
-    // Pass required data for user creation (will happen after sign-in)
-    // @ts-ignore
-    navigation.navigate("ConfirmSignUp", { 
-      username: alias, 
-      email, 
-      given_name, 
-      DOB 
-    });
-  } catch (error: any) {
-    // Handle any errors during the sign up process
-    console.error("Error during sign up:", error);
-    console.error("Error name:", error?.name);
-    console.error("Error message:", error?.message);
-    console.error("Full error:", JSON.stringify(error, null, 2));
-    
-    // Special handling for "already signed in" error
-    // Check multiple possible error formats
-    const errorMessage = (error?.message || "").toLowerCase();
-    const errorName = error?.name || "";
-    const isAlreadySignedIn = 
-      (errorMessage.includes("already") && errorMessage.includes("signed in")) ||
-      errorMessage.includes("already a signed in user") ||
-      errorName === "UserAlreadyAuthenticatedException" ||
-      errorName === "AlreadyAuthenticatedException";
-    
-    if (isAlreadySignedIn) {
-      console.log("[SignUp] User already signed in error detected, signing out...");
+      // STEP 1.5: Ensure no user is signed in before attempting signup
+      // This prevents "already signed in user" errors during testing
       try {
-        // Sign out the existing user
-        await signOut();
-        console.log("[SignUp] Successfully signed out, please try signing up again");
-        Alert.alert(
-          "Already Signed In",
-          "You were already signed in. We've signed you out. Please try signing up again.",
-          [{ text: "OK" }]
-        );
-      } catch (signOutError: any) {
-        console.error("[SignUp] Failed to sign out:", signOutError);
-        Alert.alert(
-          "Sign Up Failed",
-          "You are already signed in. Please sign out first, then try again."
+        const existingUser = await getCurrentUser();
+        if (existingUser) {
+          console.log(
+            "[SignUp] User already signed in, signing out before signup...",
+          );
+          await signOut();
+          console.log("[SignUp] Successfully signed out before signup");
+          // Small delay to ensure sign-out completes
+          await new Promise((resolve) => setTimeout(resolve, 500));
+        }
+      } catch (checkError: any) {
+        // If getCurrentUser throws, no user is signed in - that's fine
+        if (checkError.name !== "UserUnAuthenticatedException") {
+          console.log(
+            "[SignUp] Error checking for existing user:",
+            checkError.name,
+          );
+        }
+      }
+
+      // STEP 2: Sign up with AWS Cognito
+      // This creates the user account in AWS Cognito
+      // IMPORTANT: When Cognito is configured with email alias (loginWith: { email: true }),
+      // the username field CANNOT be an email format. We must use a unique username (alias)
+      // and provide the email in userAttributes instead.
+      // The response includes userId which is the "sub" (subject identifier from Cognito)
+      const signUpResult = await signUp({
+        username: alias, // Use alias as username (NOT email - email alias config prevents email in username field)
+        password,
+        options: {
+          userAttributes: {
+            email: email, // Email goes in userAttributes, not as username
+            given_name: given_name,
+            preferred_username: alias, // Also store alias as preferred_username attribute
+          },
+        },
+      });
+
+      // Extract userId and nextStep from the sign up result
+      // userId from Cognito is the "sub" - this is our primary key
+      // The sub is a unique identifier that AWS Cognito assigns to each user
+      const sub = signUpResult.userId;
+      const nextStep = signUpResult.nextStep;
+
+      // Validate that we got a userId (sub) - this should always be present after sign up
+      if (!sub) {
+        throw new Error(
+          "Failed to get user ID from Cognito. Please try again.",
         );
       }
-      return; // Don't show the generic error message
-    }
-    
-    // For all other errors, show the error message
-    Alert.alert("Sign Up Failed", error.message || "An error has occurred");
-  }
-};
 
+      console.log("Cognito sign up successful. User ID (sub):", sub);
+      console.log("Next step:", nextStep);
+
+      // STEP 3: Store password temporarily in context for auto-login after email confirmation
+      // Note: User creation in backend will happen after email confirmation and sign-in
+      // when we have an authenticated session (ID token available)
+      // This is more secure than passing it through navigation params
+      setTempPasswordForSignup(password);
+
+      // STEP 4: Navigate to email confirmation screen
+      // The user needs to verify their email with the code Cognito sent
+      // Password is stored in context, not passed through navigation params for security
+      // Pass required data for user creation (will happen after sign-in)
+      // @ts-ignore
+      navigation.navigate("ConfirmSignUp", {
+        username: alias,
+        email,
+        given_name,
+        DOB,
+      });
+    } catch (error: any) {
+      // Handle any errors during the sign up process
+      console.error("Error during sign up:", error);
+      console.error("Error name:", error?.name);
+      console.error("Error message:", error?.message);
+      console.error("Full error:", JSON.stringify(error, null, 2));
+
+      // Special handling for "already signed in" error
+      // Check multiple possible error formats
+      const errorMessage = (error?.message || "").toLowerCase();
+      const errorName = error?.name || "";
+      const isAlreadySignedIn =
+        (errorMessage.includes("already") &&
+          errorMessage.includes("signed in")) ||
+        errorMessage.includes("already a signed in user") ||
+        errorName === "UserAlreadyAuthenticatedException" ||
+        errorName === "AlreadyAuthenticatedException";
+
+      if (isAlreadySignedIn) {
+        console.log(
+          "[SignUp] User already signed in error detected, signing out...",
+        );
+        try {
+          // Sign out the existing user
+          await signOut();
+          console.log(
+            "[SignUp] Successfully signed out, please try signing up again",
+          );
+          Alert.alert(
+            "Already Signed In",
+            "You were already signed in. We've signed you out. Please try signing up again.",
+            [{ text: "OK" }],
+          );
+        } catch (signOutError: any) {
+          console.error("[SignUp] Failed to sign out:", signOutError);
+          Alert.alert(
+            "Sign Up Failed",
+            "You are already signed in. Please sign out first, then try again.",
+          );
+        }
+        return; // Don't show the generic error message
+      }
+
+      // For all other errors, show the error message
+      Alert.alert("Sign Up Failed", error.message || "An error has occurred");
+    }
+  };
 
   return (
     <KeyboardAvoidingView
@@ -207,7 +221,7 @@ const handleSignUp = async () => {
         keyboardShouldPersistTaps="handled"
       >
         <LinearGradient
-      colors={["#0c1525", "#182c54ff", "#020b1f"]}
+          colors={["#0c1525", "#182c54ff", "#020b1f"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.mainContainer}
@@ -245,7 +259,7 @@ const handleSignUp = async () => {
               keyboardType="email-address"
             />
 
-<Text style={styles.label}>Birth Year</Text>
+            <Text style={styles.label}>Birth Year</Text>
             <TextInput
               style={styles.input}
               placeholder="YYYY"
@@ -253,7 +267,7 @@ const handleSignUp = async () => {
               value={DOB}
               onChangeText={(text) => {
                 // Only allow numeric input and limit to 4 digits
-                const numericText = text.replace(/[^0-9]/g, '');
+                const numericText = text.replace(/[^0-9]/g, "");
                 if (numericText.length <= 4) {
                   setDOB(numericText);
                 }
@@ -288,6 +302,16 @@ const handleSignUp = async () => {
               onPress={handleSignUp}
               containerStyle={styles.button}
             />
+
+              <TouchableOpacity 
+              onPress={() => navigation.navigate("LogIn" as never)}
+              activeOpacity={0.8}
+              >
+            <Text style={styles.signInLinkText}>
+              Already have an account?{" "}
+              <Text style={styles.signUpLinkBold}>Log In here</Text>
+            </Text>
+            </TouchableOpacity>
           </View>
         </LinearGradient>
       </ScrollView>
@@ -308,7 +332,7 @@ const styles = StyleSheet.create({
     top: -20,
   },
   headerContainer: {
-    marginBottom: 100,
+    marginBottom: 70,
     top: -50,
     paddingHorizontal: 10,
     alignItems: "center",
@@ -346,6 +370,15 @@ const styles = StyleSheet.create({
   button: {
     backgroundColor: "#2255a7ff",
     marginTop: 24,
+  },
+  signInLinkText: {
+    color: "rgba(255, 255, 255, 0.85)",
+    fontSize: 15,
+    marginTop: 25,
+  },
+  signUpLinkBold: {
+    color: "#5b9aff",
+    fontWeight: "600",
   },
 });
 

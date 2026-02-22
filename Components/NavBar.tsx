@@ -39,7 +39,7 @@ const NavBar = () => {
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}> 
-          <View style={[styles.profileIconWrap, active === "Profile" && styles.highlightCircle]}>
+          <View style={active === "Profile" ? styles.highlightCircle : undefined}>
             {showPfp ? (
               <Image
                 source={{ uri: pfpLink }}
@@ -86,11 +86,6 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.5,
     shadowRadius: 4,
-  },
-  profileIconWrap: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
     overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
