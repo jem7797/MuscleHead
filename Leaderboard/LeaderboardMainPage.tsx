@@ -1,204 +1,194 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   StyleSheet,
-  ScrollView,
-  Platform,
+  FlatList,
   Text,
   TouchableOpacity,
-  TextInput,
+  Image,
+  ActivityIndicator,
+  RefreshControl,
 } from "react-native";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../Components/NavBar";
-import PageHeader from "../Components/PageHeader";
+import {
+  getNotifications,
+  markNotificationAsRead,
+  Notification,
+} from "../Services/notificationsApi";
 
-interface Nemesis {
-  id: string;
-  username: string;
-  notificationsEnabled: boolean;
-}
+const formatTimeAgo = (dateStr?: string): string => {
+  if (!dateStr) return "";
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  if (diffMins < 1) return "Just now";
+  if (diffMins < 60) return `${diffMins}m ago`;
+  if (diffHours < 24) return `${diffHours}h ago`;
+  if (diffDays < 7) return `${diffDays}d ago`;
+  return date.toLocaleDateString();
+};
 
-const LeaderboardScreen = () => {
-  const [nemeses, setNemeses] = useState<Nemesis[]>([
-    { id: "1", username: "BeastMode99", notificationsEnabled: true },
-    { id: "2", username: "IronWill", notificationsEnabled: false },
-  ]);
-  const [isAdding, setIsAdding] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+const getNotificationMessage = (n: Notification): string => {
+  const actor = n.actor?.username ?? "Someone";
+  const type = (n.type ?? "").toUpperCase();
+  switch (type) {
+    case "FOLLOW":
+      return `${actor} started following you`;
+    case "LIKE":
+      return `${actor} liked your post`;
+    case "COMMENT":
+      return `${actor} commented on your post`;
+    case "WORKOUT":
+      return `${actor} logged a new workout`;
+    default:
+      return `${actor} interacted with you`;
+  }
+};
 
-  const MAX_NEMESES = 3;
+const getPfpUrl = (url?: string): string | undefined => {
+  if (!url) return undefined;
+  return url.startsWith("http") ? url : `https://${url}`;
+};
 
-  const handleToggleNotifications = (id: string) => {
-    setNemeses((prev) =>
-      prev.map((n) =>
-        n.id === id ? { ...n, notificationsEnabled: !n.notificationsEnabled } : n
-      )
+const PAGE_SIZE = 20;
+
+const NotificationCenterScreen = () => {
+  const navigation = useNavigation<any>();
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [totalElements, setTotalElements] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [page, setPage] = useState(0);
+
+  const fetchNotifications = useCallback(async (pageNum: number = 0, append: boolean = false) => {
+    const result = await getNotifications(pageNum, PAGE_SIZE);
+    setNotifications((prev) => (append ? [...prev, ...result.content] : result.content));
+    setTotalElements(result.totalElements);
+    setPage(pageNum);
+    return result;
+  }, []);
+
+  const loadInitial = useCallback(async () => {
+    setLoading(true);
+    await fetchNotifications(0, false);
+    setLoading(false);
+  }, [fetchNotifications]);
+
+  useEffect(() => {
+    loadInitial();
+  }, [loadInitial]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchNotifications(0, false);
+    setRefreshing(false);
+  };
+
+  const onEndReached = async () => {
+    const hasMore = notifications.length < totalElements;
+    if (loadingMore || !hasMore || totalElements === 0) return;
+    setLoadingMore(true);
+    await fetchNotifications(page + 1, true);
+    setLoadingMore(false);
+  };
+
+  const handleNotificationPress = async (n: Notification) => {
+    const subId = n.actor?.subId;
+    if (!n.read) {
+      try {
+        await markNotificationAsRead(n.id);
+        setNotifications((prev) =>
+          prev.map((x) => (x.id === n.id ? { ...x, read: true } : x))
+        );
+      } catch {}
+    }
+    if (subId) navigation.navigate("UserProfile", { subId });
+  };
+
+  const renderItem = ({ item }: { item: Notification }) => {
+    const actor = item.actor?.username ?? "User";
+    const pfpUrl = getPfpUrl(item.actor?.profilePicUrl);
+    const message = getNotificationMessage(item);
+    const timeAgo = formatTimeAgo(item.createdAt);
+
+    return (
+      <TouchableOpacity
+        style={[styles.notificationCard, item.read && styles.notificationRead]}
+        onPress={() => handleNotificationPress(item)}
+        activeOpacity={0.7}
+      >
+        <View style={styles.avatar}>
+          {pfpUrl ? (
+            <Image source={{ uri: pfpUrl }} style={styles.avatarImage} />
+          ) : (
+            <Text style={styles.avatarText}>{actor.charAt(0).toUpperCase()}</Text>
+          )}
+        </View>
+        <View style={styles.content}>
+          <Text style={styles.message}>{message}</Text>
+          <Text style={styles.timeAgo}>{timeAgo}</Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
+      </TouchableOpacity>
     );
   };
 
-  const handleRemoveNemesis = (id: string) => {
-    setNemeses((prev) => prev.filter((n) => n.id !== id));
-  };
-
-  const handleAddNemesis = (username: string) => {
-    if (nemeses.length < MAX_NEMESES && username.trim()) {
-      const newNemesis: Nemesis = {
-        id: Date.now().toString(),
-        username: username.trim(),
-        notificationsEnabled: true,
-      };
-      setNemeses((prev) => [...prev, newNemesis]);
-      setSearchQuery("");
-      setIsAdding(false);
-    }
-  };
-
-  const canAddMore = nemeses.length < MAX_NEMESES;
+  if (loading && notifications.length === 0) {
+    return (
+      <View style={[styles.container, styles.centered]}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Notifications</Text>
+        </View>
+        <ActivityIndicator size="large" color="#202c76" style={styles.loader} />
+        <NavBar />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-
-        
-      
-
-      <ScrollView
-
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Description */}
-        <View style={styles.descriptionContainer} >
-          <MaterialCommunityIcons name="sword-cross" size={32} color="#202c76" />
-          <Text style={styles.descriptionTitle}>Track Your Rivals</Text>
-          <Text style={styles.descriptionText}>
-            Choose up to {MAX_NEMESES} users as your nemeses. Get notified when they log workouts and track their progress to stay motivated.
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Notifications</Text>
+      </View>
+      {notifications.length === 0 ? (
+        <View style={styles.emptyState}>
+          <Ionicons name="notifications-outline" size={64} color="#a2a2a2" />
+          <Text style={styles.emptyTitle}>No notifications yet</Text>
+          <Text style={styles.emptySubtext}>
+            When someone follows you or interacts with your content, you'll see it here.
           </Text>
         </View>
-
-        {/* Current Nemeses */}
-        <View style={styles.section} >
-          <Text style={styles.sectionTitle}>
-            Your Nemeses ({nemeses.length}/{MAX_NEMESES})
-          </Text>
-
-          {nemeses.length === 0 ? (
-            <View style={styles.emptyState}>
-              <Ionicons name="people-outline" size={48} color="#a2a2a2" />
-              <Text style={styles.emptyStateText}>No nemeses yet</Text>
-              <Text style={styles.emptyStateSubtext}>
-                Add users to track their progress
-              </Text>
-            </View>
-          ) : (
-            nemeses.map((nemesis) => (
-              <View key={nemesis.id} style={styles.nemesisCard}>
-                <View style={styles.nemesisLeft}>
-                  <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>
-                      {nemesis.username.charAt(0).toUpperCase()}
-                    </Text>
-                  </View>
-                  <View style={styles.nemesisInfo}>
-                    <Text style={styles.nemesisUsername}>{nemesis.username}</Text>
-                    <Text style={styles.nemesisStatus}>
-                      {nemesis.notificationsEnabled
-                        ? "Notifications ON"
-                        : "Notifications OFF"}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.nemesisActions}>
-                  <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => handleToggleNotifications(nemesis.id)}
-                  >
-                    <Ionicons
-                      name={
-                        nemesis.notificationsEnabled
-                          ? "notifications"
-                          : "notifications-off"
-                      }
-                      size={22}
-                      color={nemesis.notificationsEnabled ? "#202c76" : "#a2a2a2"}
-                    />
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.actionButton}
-                    onPress={() => handleRemoveNemesis(nemesis.id)}
-                  >
-                    <Ionicons name="close-circle" size={22} color="#e74c3c" />
-                  </TouchableOpacity>
-                </View>
+      ) : (
+        <FlatList
+          data={notifications}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={renderItem}
+          contentContainerStyle={styles.listContent}
+          showsVerticalScrollIndicator={false}
+          onEndReached={onEndReached}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            loadingMore ? (
+              <View style={styles.footerLoader}>
+                <ActivityIndicator size="small" color="#202c76" />
               </View>
-            ))
-          )}
-        </View>
-
-        {/* Add Nemesis Section */}
-        {canAddMore && (
-          <View style={styles.section}>
-            {!isAdding ? (
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={() => setIsAdding(true)}
-              >
-                <Ionicons name="add-circle" size={24} color="#202c76" />
-                <Text style={styles.addButtonText}>Add Nemesis</Text>
-              </TouchableOpacity>
-            ) : (
-              <View style={styles.addNemesisCard}>
-                <Text style={styles.addNemesisTitle}>Add New Nemesis</Text>
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="Enter username..."
-                  placeholderTextColor="#a2a2a2"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  autoFocus
-                />
-                <View style={styles.addNemesisActions}>
-                  <TouchableOpacity
-                    style={[styles.addNemesisButton, styles.cancelButton]}
-                    onPress={() => {
-                      setIsAdding(false);
-                      setSearchQuery("");
-                    }}
-                  >
-                    <Text style={styles.cancelButtonText}>Cancel</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={[
-                      styles.addNemesisButton,
-                      styles.confirmButton,
-                      !searchQuery.trim() && styles.confirmButtonDisabled,
-                    ]}
-                    onPress={() => handleAddNemesis(searchQuery)}
-                    disabled={!searchQuery.trim()}
-                  >
-                    <Text style={styles.confirmButtonText}>Add</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            )}
-          </View>
-        )}
-
-        {/* Max Limit Reached */}
-        {!canAddMore && (
-          <View style={styles.limitReached}>
-            <Ionicons name="information-circle" size={20} color="#202c76" />
-            <Text style={styles.limitReachedText}>
-              You've reached the maximum of {MAX_NEMESES} nemeses
-            </Text>
-          </View>
-        )}
-
-        {/* Spacer for bottom nav */}
-        <View style={{ height: 100 }} />
-      </ScrollView>
-
+            ) : null
+          }
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor="#202c76"
+            />
+          }
+        />
+      )}
       <NavBar />
     </View>
   );
@@ -209,195 +199,100 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
   },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: 24,
-    paddingTop: 16,
-  },
-  descriptionContainer: {
+  centered: {
+    justifyContent: "center",
     alignItems: "center",
-    paddingVertical: 24,
-    paddingHorizontal: 20,
-    marginBottom: 8,
-    paddingTop: 60,
-
   },
-  descriptionTitle: {
-    fontSize: 22,
+  header: {
+    paddingTop: 56,
+    paddingBottom: 16,
+    paddingHorizontal: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e8ecf4",
+  },
+  headerTitle: {
+    fontSize: 24,
     fontWeight: "700",
     color: "#1f2a44",
-    marginTop: 12,
-    marginBottom: 8,
   },
-  descriptionText: {
-    fontSize: 14,
-    color: "#666",
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  section: {
+  loader: {
     marginTop: 24,
   },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: "700",
-    color: "#1f2a44",
-    marginBottom: 16,
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 48,
+  listContent: {
     paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 120,
   },
-  emptyStateText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#666",
-    marginTop: 16,
-    marginBottom: 4,
-  },
-  emptyStateSubtext: {
-    fontSize: 14,
-    color: "#a2a2a2",
-    textAlign: "center",
-  },
-  nemesisCard: {
+  notificationCard: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 12,
+    marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#e0e6f0",
+    borderColor: "#e8ecf4",
   },
-  nemesisLeft: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
+  notificationRead: {
+    backgroundColor: "#f8f9fa",
+    opacity: 0.9,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: "#202c76",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 12,
+    marginRight: 14,
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
   },
   avatarText: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "700",
   },
-  nemesisInfo: {
+  footerLoader: {
+    paddingVertical: 16,
+    alignItems: "center",
+  },
+  content: {
     flex: 1,
   },
-  nemesisUsername: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1f2a44",
-    marginBottom: 4,
-  },
-  nemesisStatus: {
-    fontSize: 12,
-    color: "#666",
-  },
-  nemesisActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  actionButton: {
-    padding: 8,
-  },
-  addButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f0f4ff",
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: "#202c76",
-    borderStyle: "dashed",
-  },
-  addButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#202c76",
-    marginLeft: 8,
-  },
-  addNemesisCard: {
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: "#e0e6f0",
-  },
-  addNemesisTitle: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#1f2a44",
-    marginBottom: 12,
-  },
-  searchInput: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    color: "#1f2a44",
-    borderWidth: 1,
-    borderColor: "#e0e6f0",
-    marginBottom: 12,
-  },
-  addNemesisActions: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  addNemesisButton: {
-    flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  cancelButton: {
-    backgroundColor: "#f0f0f0",
-  },
-  cancelButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#666",
-  },
-  confirmButton: {
-    backgroundColor: "#202c76",
-  },
-  confirmButtonDisabled: {
-    backgroundColor: "#a2a2a2",
-    opacity: 0.5,
-  },
-  confirmButtonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
-  },
-  limitReached: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f0f4ff",
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 16,
-    gap: 8,
-  },
-  limitReachedText: {
-    fontSize: 14,
-    color: "#202c76",
+  message: {
+    fontSize: 15,
     fontWeight: "500",
+    color: "#1f2a44",
+    marginBottom: 2,
+  },
+  timeAgo: {
+    fontSize: 12,
+    color: "#5a6a7e",
+  },
+  emptyState: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 40,
+    paddingBottom: 120,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#1f2a44",
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: "#5a6a7e",
+    textAlign: "center",
+    lineHeight: 20,
   },
 });
 
-export default LeaderboardScreen;
+export default NotificationCenterScreen;

@@ -20,7 +20,7 @@ import ConfirmWorkoutPage from "./MainPage/ConfirmWorkoutPage";
 import WorkoutStatsPage from "./MainPage/WorkoutStatsPage";
 import CommunityScreen from "./Community";
 import SearchScreen from "./Search/SearchMainPage";
-import LeaderboardScreen from "./Leaderboard/LeaderboardMainPage";
+import NotificationCenterScreen from "./Leaderboard/LeaderboardMainPage";
 import ProfileScreen from "./Profile/ProfileMain";
 import ProfileEditPage from "./Profile/ProfileEditPage";
 import UserProfileScreen from "./Profile/UserProfileScreen";
@@ -77,7 +77,7 @@ export default function App() {
             <Stack.Screen name="AddWorkoutTemplate" component={AddWorkoutTemplatePage} options={{ animation: "none" }} />
             <Stack.Screen name="Community" component={CommunityScreen} options={{ animation: "none" }} />
             <Stack.Screen name="Search" component={SearchScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ animation: "none" }} />
+            <Stack.Screen name="Notifications" component={NotificationCenterScreen} options={{ animation: "none" }} />
             <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
             <Stack.Screen name="ProfileEdit" component={ProfileEditPage} options={{ animation: "none" }} />
             <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ animation: "none" }} />

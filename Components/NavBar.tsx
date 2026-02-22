@@ -1,7 +1,6 @@
 import React from "react";
 import { StyleSheet, View, TouchableOpacity, Image } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation, useRoute } from "@react-navigation/native";
@@ -33,9 +32,9 @@ const NavBar = () => {
             <Ionicons name="barbell-sharp" size={30} color={active === "WorkoutInputMainPage" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Leaderboard")}> 
-          <View style={active === "Leaderboard" ? styles.highlightCircle : undefined}>
-            <MaterialCommunityIcons name="sword-cross" size={24} color={active === "Leaderboard" ? "#fff" : "black"} />
+        <TouchableOpacity onPress={() => navigation.navigate("Notifications")}> 
+          <View style={active === "Notifications" ? styles.highlightCircle : undefined}>
+            <Ionicons name="notifications" size={24} color={active === "Notifications" ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}> 
