@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { getCurrentUserSub } from '../Services/apiConfig';
-import { getUser, updateUser } from '../Services/userApi';
+import { getUser, getCurrentUserProfile, updateUser } from '../Services/userApi';
 import { getNameForRank } from '../rankMapping';
+import { setNemesisSubIds as persistNemesisSubIds, clearNemesisSubIds } from '../Services/nemesisStorage';
 
 
 
@@ -41,7 +42,9 @@ interface UserContextType {
   numberFollowing: number | undefined,
   numberOfPosts: number | undefined,
   pfpLink: string | undefined;
-  isProfileLoading: boolean; // Profile data loading state 
+  isProfileLoading: boolean; // Profile data loading state
+  nemesisSubIds: string[];
+  setNemesisSubIds: (ids: string[] | ((prev: string[]) => string[])) => void;
 
 
 
@@ -87,6 +90,15 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
       const [numberOfPosts, setNumberOfPosts] = useState<number>();
       const [pfpLink, setPfpLink] = useState<string | undefined>();
       const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
+      const [nemesisSubIds, setNemesisSubIdsInternal] = useState<string[]>([]);
+
+      const setNemesisSubIds = useCallback((idsOrUpdater: string[] | ((prev: string[]) => string[])) => {
+        setNemesisSubIdsInternal((prev) => {
+          const next = typeof idsOrUpdater === "function" ? idsOrUpdater(prev) : idsOrUpdater;
+          persistNemesisSubIds(next).catch(() => {});
+          return next;
+        });
+      }, []);
 
       // Temporary password storage for signup flow - cleared after one-time use
       const [tempPassword, setTempPassword] = useState<string | null>(null);
@@ -121,10 +133,12 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         setIsNatty(undefined);
         setXp(0);
         setRank(null);
-        setNumberOfFollowers(undefined);
-        setNumberFollowing(undefined);
-        setNumberOfPosts(undefined);
-        setPfpLink(undefined);
+    setNumberOfFollowers(undefined);
+    setNumberFollowing(undefined);
+    setNumberOfPosts(undefined);
+    setPfpLink(undefined);
+    setNemesisSubIdsInternal([]);
+    clearNemesisSubIds().catch(() => {});
       };
 
       const getAndSetUserSubId = async() => {
@@ -216,13 +230,7 @@ const fetchUserProfile = async (sub?: string) => {
   if (!id) return;
   setProfileLoading(true);
   try {
-    const userData = await getUser(id);
-    console.log("[UserContext] User loaded:", {
-      subId: id,
-      name: userData.username ?? userData.first_name ?? "—",
-      rank: userData.rank,
-      lifetimeWeightLifted: userData.lifetime_weight_lifted,
-    });
+    const userData = id === userId ? await getCurrentUserProfile() : await getUser(id);
     setUsername(userData.username ?? " ");
     setBio(userData.bio ?? "");
     setgiven_name(userData.first_name ?? userData.given_name ?? "");
@@ -238,6 +246,12 @@ const fetchUserProfile = async (sub?: string) => {
     setNumberOfFollowers(userData.number_of_followers);
     setNumberFollowing(userData.number_following);
     setNumberOfPosts(userData.number_of_posts);
+    const nemesisRaw = userData.nemesis ?? userData.nemesisSubIds ?? userData.nemesis_sub_ids ?? [];
+    const ids = Array.isArray(nemesisRaw)
+      ? nemesisRaw.map((item: unknown) => (typeof item === "string" ? item : (item as { subId?: string })?.subId ?? "")).filter(Boolean)
+      : [];
+    setNemesisSubIdsInternal(ids);
+    persistNemesisSubIds(ids).catch(() => {});
     const raw = userData.profile_pic_url ?? userData.profilePicUrl ?? userData.pfp_link;
     setPfpLink(raw ? (raw.startsWith("http") ? raw : `https://${raw}`) : undefined);
   } catch (error) {
@@ -295,6 +309,8 @@ const fetchUserProfile = async (sub?: string) => {
           numberOfPosts,
           pfpLink,
           isProfileLoading,
+          nemesisSubIds,
+          setNemesisSubIds,
 
           // Auth methods
           setgiven_name,

@@ -91,13 +91,28 @@ export const createUser = async (
 };
 
 /**
+ * Gets the current user's profile from the backend (uses JWT, no subId needed)
+ * Use for pull-to-refresh or when returning to profile screen.
+ *
+ * GET user/api/me
+ * Authorization: Bearer <jwt>
+ *
+ * @returns Promise with full user data (nemesis, stats, etc.)
+ */
+export const getCurrentUserProfile = async (): Promise<any> => {
+  const response = await apiRequest("/user/api/me", { method: "GET" });
+  return parseJsonResponse(response);
+};
+
+/**
  * Gets user information from the backend
  * 
  * @param sub - The user's sub ID from AWS Cognito
  * @returns Promise with user data from the backend
  */
 export const getUser = async (sub: string): Promise<any> => {
-  // Backend expects subId as a query parameter (not sub)
+  // Backend expects subId as query param: GET /user/api/?subId={sub}
+  // Some backends use path param: GET /user/api/{sub} - try that if you get 404
   const response = await apiRequest(`/user/api/?subId=${sub}`, {
     method: "GET",
   });
@@ -128,6 +143,39 @@ export const updateUser = async (
     false
   );
 
+  return parseJsonResponse(response);
+};
+
+/**
+ * Updates the current user's nemesis list (add)
+ * PATCH user/api/{subId} with { nemesisSubIds: string[] }
+ *
+ * @param userSubId - The current user's sub ID
+ * @param nemesisSubIds - Array of nemesis sub IDs
+ */
+export const updateUserNemesis = async (
+  userSubId: string,
+  nemesisSubIds: string[]
+): Promise<any> => {
+  return updateUser(userSubId, { nemesisSubIds });
+};
+
+/**
+ * Removes a nemesis from the current user's list
+ * DELETE user/api/{subId}/nemesis/{nemesisSubId}
+ *
+ * @param userSubId - The current user's sub ID
+ * @param nemesisSubId - The nemesis sub ID to remove
+ */
+export const removeNemesis = async (
+  userSubId: string,
+  nemesisSubId: string
+): Promise<any> => {
+  const response = await apiRequest(
+    `/user/api/${userSubId}/nemesis/${nemesisSubId}`,
+    { method: "DELETE" },
+    false
+  );
   return parseJsonResponse(response);
 };
 
