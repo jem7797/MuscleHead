@@ -7,13 +7,15 @@ import {
   Alert,
   Keyboard,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import { useUser } from "../Contexts/UserContext";
 import SearchBar from "./SearchMainPage Components/SearchBar";
 import UserSearchResults, { SearchUser } from "./SearchMainPage Components/UserSearchResults";
+import RecentSearches from "./SearchMainPage Components/RecentSearches";
 import { searchUsers } from "../Services/userApi";
 import { follow, unfollow } from "../Services/followApi";
+import { getRecentSearches, addRecentSearch, clearRecentSearches } from "../Services/recentSearchesService";
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 10;
@@ -25,6 +27,7 @@ const SearchScreen = () => {
   const [followedUserIds, setFollowedUserIds] = useState<Set<string>>(new Set());
   const [isFocused, setIsFocused] = useState(false);
   const [users, setUsers] = useState<SearchUser[]>([]);
+  const [recentSearches, setRecentSearches] = useState<SearchUser[]>([]);
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
@@ -61,6 +64,12 @@ const SearchScreen = () => {
     [trimmedQuery, canSearch]
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      getRecentSearches().then(setRecentSearches);
+    }, [])
+  );
+
   useEffect(() => {
     if (!canSearch) {
       setUsers([]);
@@ -71,6 +80,13 @@ const SearchScreen = () => {
     const t = setTimeout(() => runSearch(0, false), SEARCH_DEBOUNCE_MS);
     return () => clearTimeout(t);
   }, [trimmedQuery, canSearch, runSearch]);
+
+  const handleUserPress = async (user: SearchUser) => {
+    await addRecentSearch(user);
+    setRecentSearches(await getRecentSearches());
+    const subId = user.sub_id ?? (user as { subId?: string }).subId;
+    if (subId) navigation.navigate("UserProfile", { subId });
+  };
 
   const handleLoadMore = () => {
     if (page + 1 < totalPages && !loadMoreLoading) {
@@ -136,7 +152,7 @@ const SearchScreen = () => {
         keyboardDismissMode="on-drag"
         showsVerticalScrollIndicator={false}
       >
-        {showSearchResults && (
+        {showSearchResults ? (
           <UserSearchResults
             users={users}
             isLoading={isLoading}
@@ -146,11 +162,15 @@ const SearchScreen = () => {
             followedUserIds={followedUserIds}
             onFollowPress={handleFollowPress}
             onUnfollowPress={handleUnfollowPress}
-            onUserPress={(user) => {
-              const subId = user.sub_id ?? (user as { subId?: string }).subId;
-              if (subId) {
-                navigation.navigate("UserProfile", { subId });
-              }
+            onUserPress={handleUserPress}
+          />
+        ) : (
+          <RecentSearches
+            users={recentSearches}
+            onUserPress={handleUserPress}
+            onClearPress={async () => {
+              await clearRecentSearches();
+              setRecentSearches([]);
             }}
           />
         )}
