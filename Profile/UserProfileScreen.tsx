@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
@@ -14,6 +15,8 @@ import StatsRow from "./ProfileComponents/StatsRow";
 import BioSection from "./ProfileComponents/BioSection";
 import MetricsRow from "./ProfileComponents/MetricsRow";
 import { getUser } from "../Services/userApi";
+import { follow, unfollow, checkFollow } from "../Services/followApi";
+import { useUser } from "../Contexts/UserContext";
 
 const formatHeight = (totalInches?: number | null) => {
   if (totalInches === undefined || totalInches === null) return "N/A";
@@ -30,10 +33,13 @@ const getPfpUrl = (raw: string | undefined): string | undefined => {
 const UserProfileScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+  const { userId: currentUserId, addToFollowingCount } = useUser();
   const subId = route.params?.subId ?? route.params?.sub_id;
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [followLoading, setFollowLoading] = useState(false);
 
   useEffect(() => {
     if (!subId) {
@@ -54,6 +60,40 @@ const UserProfileScreen = () => {
       });
     return () => { cancelled = true; };
   }, [subId]);
+
+  useEffect(() => {
+    if (!subId || !currentUserId || subId === currentUserId) return;
+    let cancelled = false;
+    checkFollow(currentUserId, subId)
+      .then((following) => {
+        if (!cancelled) setIsFollowing(following);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [subId, currentUserId]);
+
+  const handleFollowPress = async () => {
+    if (!subId || followLoading) return;
+    setFollowLoading(true);
+    try {
+      if (isFollowing) {
+        addToFollowingCount(-1);
+        setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: Math.max(0, (prev.number_of_followers ?? 0) - 1) });
+        await unfollow(subId);
+        setIsFollowing(false);
+      } else {
+        addToFollowingCount(1);
+        setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + 1 });
+        await follow(subId);
+        setIsFollowing(true);
+      }
+    } catch {
+      addToFollowingCount(isFollowing ? 1 : -1);
+      setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + (isFollowing ? 1 : -1) });
+    } finally {
+      setFollowLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -77,6 +117,7 @@ const UserProfileScreen = () => {
   const displayName = user.username ?? user.first_name ?? "User";
   const pfpUrl = getPfpUrl(user.profile_pic_url ?? user.profilePicUrl ?? user.pfp_link);
   const bio = user.bio ?? "No bio yet.";
+  const isCurrentUser = subId && currentUserId && subId === currentUserId;
   const stats = [
     { label: "Following", value: String(user.number_following ?? 0) },
     { label: "Posts", value: String(user.number_of_posts ?? 0) },
@@ -112,6 +153,17 @@ const UserProfileScreen = () => {
           <Text style={styles.displayName}>{displayName}</Text>
           {user.rank?.name && (
             <Text style={styles.rankText}>{user.rank.name}</Text>
+          )}
+          {!isCurrentUser && (
+            <TouchableOpacity
+              style={[styles.followButton, isFollowing && styles.followingButton]}
+              onPress={handleFollowPress}
+              disabled={followLoading}
+            >
+              <Text style={styles.followButtonText}>
+                {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
+              </Text>
+            </TouchableOpacity>
           )}
         </View>
         <StatsRow stats={stats} />
@@ -188,6 +240,21 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontSize: 14,
     color: "#5a6a7e",
+  },
+  followButton: {
+    marginTop: 16,
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    backgroundColor: "#1f2a44",
+    borderRadius: 10,
+  },
+  followingButton: {
+    backgroundColor: "#5a6a7e",
+  },
+  followButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
   },
   errorText: {
     fontSize: 16,

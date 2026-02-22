@@ -9,16 +9,20 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
+import { useUser } from "../Contexts/UserContext";
 import SearchBar from "./SearchMainPage Components/SearchBar";
 import UserSearchResults, { SearchUser } from "./SearchMainPage Components/UserSearchResults";
 import { searchUsers } from "../Services/userApi";
+import { follow, unfollow } from "../Services/followApi";
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 10;
 
 const SearchScreen = () => {
   const navigation = useNavigation<any>();
+  const { userId: currentUserId, addToFollowingCount } = useUser();
   const [query, setQuery] = useState("");
+  const [followedUserIds, setFollowedUserIds] = useState<Set<string>>(new Set());
   const [isFocused, setIsFocused] = useState(false);
   const [users, setUsers] = useState<SearchUser[]>([]);
   const [page, setPage] = useState(0);
@@ -74,6 +78,34 @@ const SearchScreen = () => {
     }
   };
 
+  const handleFollowPress = async (user: { sub_id?: string; subId?: string }) => {
+    const subId = user.sub_id ?? user.subId;
+    if (!subId || !currentUserId) return;
+    try {
+      addToFollowingCount(1);
+      await follow(subId);
+      setFollowedUserIds((prev) => new Set(prev).add(subId));
+    } catch {
+      addToFollowingCount(-1);
+    }
+  };
+
+  const handleUnfollowPress = async (user: { sub_id?: string; subId?: string }) => {
+    const subId = user.sub_id ?? user.subId;
+    if (!subId) return;
+    try {
+      addToFollowingCount(-1);
+      await unfollow(subId);
+      setFollowedUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(subId);
+        return next;
+      });
+    } catch {
+      addToFollowingCount(1);
+    }
+  };
+
   const showSearchResults = canSearch;
   const showMinCharsHint = trimmedQuery.length === 1;
 
@@ -110,6 +142,10 @@ const SearchScreen = () => {
             isLoading={isLoading}
             hasMore={page + 1 < totalPages}
             onLoadMore={handleLoadMore}
+            currentUserId={currentUserId}
+            followedUserIds={followedUserIds}
+            onFollowPress={handleFollowPress}
+            onUnfollowPress={handleUnfollowPress}
             onUserPress={(user) => {
               const subId = user.sub_id ?? (user as { subId?: string }).subId;
               if (subId) {

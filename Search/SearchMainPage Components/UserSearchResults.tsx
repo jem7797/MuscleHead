@@ -24,6 +24,10 @@ interface UserSearchResultsProps {
   hasMore: boolean;
   onLoadMore: () => void;
   onUserPress?: (user: SearchUser) => void;
+  onFollowPress?: (user: SearchUser) => void;
+  onUnfollowPress?: (user: SearchUser) => void;
+  followedUserIds?: Set<string>;
+  currentUserId?: string | null;
   emptyMessage?: string;
 }
 
@@ -38,6 +42,10 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
   hasMore,
   onLoadMore,
   onUserPress,
+  onFollowPress,
+  onUnfollowPress,
+  followedUserIds = new Set(),
+  currentUserId,
   emptyMessage = "No users found",
 }) => {
   if (isLoading && users.length === 0) {
@@ -70,26 +78,43 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
         const displayName = user.username ?? user.first_name ?? "User";
         const pfpUrl = getPfpUrl(user);
         const key = user.sub_id ? `${user.sub_id}-${index}` : `user-${index}`;
+        const userSubId = user.sub_id ?? (user as { subId?: string }).subId;
+        const isCurrentUser = currentUserId && userSubId === currentUserId;
+        const isFollowing = userSubId ? followedUserIds.has(userSubId) : false;
 
         return (
-          <TouchableOpacity
-            key={key}
-            style={styles.userRow}
-            onPress={() => onUserPress?.(user)}
-            activeOpacity={0.7}
-          >
-            <View style={styles.avatar}>
-              {pfpUrl ? (
-                <Image source={{ uri: pfpUrl }} style={styles.avatarImage} />
-              ) : (
-                <Text style={styles.avatarText}>
-                  {displayName.charAt(0).toUpperCase()}
+          <View key={key} style={styles.userRow}>
+            <TouchableOpacity
+              style={styles.userRowContent}
+              onPress={() => onUserPress?.(user)}
+              activeOpacity={0.7}
+            >
+              <View style={styles.avatar}>
+                {pfpUrl ? (
+                  <Image source={{ uri: pfpUrl }} style={styles.avatarImage} />
+                ) : (
+                  <Text style={styles.avatarText}>
+                    {displayName.charAt(0).toUpperCase()}
+                  </Text>
+                )}
+              </View>
+              <Text style={styles.username}>{displayName}</Text>
+            </TouchableOpacity>
+            {!isCurrentUser ? (
+              <TouchableOpacity
+                style={[styles.followButton, isFollowing && styles.followingButton]}
+                onPress={() => (isFollowing ? onUnfollowPress?.(user) : onFollowPress?.(user))}
+              >
+                <Text style={styles.followButtonText}>
+                  {isFollowing ? "Following" : "Follow"}
                 </Text>
-              )}
-            </View>
-            <Text style={styles.username}>{displayName}</Text>
-            <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
-          </TouchableOpacity>
+              </TouchableOpacity>
+            ) : (
+              <View style={styles.chevron}>
+                <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
+              </View>
+            )}
+          </View>
         );
       })}
       {hasMore && (
@@ -126,6 +151,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     borderBottomWidth: 1,
     borderBottomColor: "#e8ecf4",
+  },
+  userRowContent: {
+    flex: 1,
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  followButton: {
+    paddingVertical: 5,
+    paddingHorizontal: 12,
+    backgroundColor: "#1f2a44",
+    borderRadius: 8,
+  },
+  followingButton: {
+    backgroundColor: "#5a6a7e",
+  },
+  followButtonText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  chevron: {
+    padding: 4,
   },
   avatar: {
     width: 44,

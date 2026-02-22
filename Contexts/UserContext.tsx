@@ -32,6 +32,8 @@ interface UserContextType {
   lifetimeGymTime: number | null;
   /** Add to lifetime stats after a workout (no refetch). Weight in lbs, time in minutes. Optimistically updates xp (+1) and rank if leveled up. */
   addToLifetimeStats: (weightLbs: number, timeMinutes: number, xpGain?: number) => void;
+  /** Optimistically update following count. delta: +1 for follow, -1 for unfollow. */
+  addToFollowingCount: (delta: number) => void;
   isNatty: boolean | true;
   xp: number;
   rank: Rank | null,
@@ -203,6 +205,10 @@ export const UserProvider = ({children}: {children: ReactNode}) => {
         });
       }
 
+      const addToFollowingCount = (delta: number) => {
+        setNumberFollowing((prev) => Math.max(0, (prev ?? 0) + delta));
+      }
+
 
 
 const fetchUserProfile = async (sub?: string) => {
@@ -279,6 +285,7 @@ const fetchUserProfile = async (sub?: string) => {
           lifetimeWeightLifted: lifetimeWeightLifted ?? null,
           lifetimeGymTime: lifetimeGymTime ?? null,
           addToLifetimeStats,
+          addToFollowingCount,
           isNatty: isNatty ?? true,
           
           xp,
