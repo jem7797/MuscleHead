@@ -1,9 +1,10 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 
 /**
  * StatsRow Component
  * Displays user statistics (Following, Posts, Followers)
+ * Following and Followers are touchable when onFollowingPress/onFollowersPress are provided
  */
 interface Stat {
   label: string;
@@ -12,17 +13,47 @@ interface Stat {
 
 interface StatsRowProps {
   stats: Stat[];
+  onFollowingPress?: () => void;
+  onFollowersPress?: () => void;
 }
 
-const StatsRow: React.FC<StatsRowProps> = ({ stats }) => {
+const StatsRow: React.FC<StatsRowProps> = ({
+  stats,
+  onFollowingPress,
+  onFollowersPress,
+}) => {
+  const getPressHandler = (label: string) => {
+    if (label === "Following" && onFollowingPress) return onFollowingPress;
+    if (label === "Followers" && onFollowersPress) return onFollowersPress;
+    return undefined;
+  };
+
   return (
     <View style={styles.statsRow}>
-      {stats.map((stat) => (
-        <View key={stat.label} style={styles.statItem}>
-          <Text style={styles.statValue}>{stat.value}</Text>
-          <Text style={styles.statLabel}>{stat.label}</Text>
-        </View>
-      ))}
+      {stats.map((stat) => {
+        const onPress = getPressHandler(stat.label);
+        const content = (
+          <>
+            <Text style={styles.statValue}>{stat.value}</Text>
+            <Text style={styles.statLabel}>{stat.label}</Text>
+          </>
+        );
+        return (
+          <View key={stat.label} style={styles.statItem}>
+            {onPress ? (
+              <TouchableOpacity
+                onPress={onPress}
+                activeOpacity={0.6}
+                style={styles.touchable}
+              >
+                {content}
+              </TouchableOpacity>
+            ) : (
+              content
+            )}
+          </View>
+        );
+      })}
     </View>
   );
 };
@@ -36,6 +67,9 @@ const styles = StyleSheet.create({
   statItem: {
     alignItems: "center",
     marginHorizontal: 25,
+  },
+  touchable: {
+    alignItems: "center",
   },
   statValue: {
     fontSize: 17,

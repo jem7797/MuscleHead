@@ -40,6 +40,7 @@ const ProfileScreen = () => {
     weight,
     height,
     isNatty,
+    userId,
   } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"posts" | "progress">("posts");
@@ -77,7 +78,11 @@ const ProfileScreen = () => {
 
       <ProfileHeader />
 
-      <StatsRow stats={stats}/>
+      <StatsRow
+        stats={stats}
+        onFollowingPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "following", displayName: "Your" })}
+        onFollowersPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "followers", displayName: "Your" })}
+      />
 
       <BioSection bio={bio || "Add a bio in your profile settings."} />
 

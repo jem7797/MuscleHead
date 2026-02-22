@@ -166,7 +166,11 @@ const UserProfileScreen = () => {
             </TouchableOpacity>
           )}
         </View>
-        <StatsRow stats={stats} />
+        <StatsRow
+          stats={stats}
+          onFollowingPress={() => subId && navigation.navigate("FollowList", { subId, mode: "following", displayName })}
+          onFollowersPress={() => subId && navigation.navigate("FollowList", { subId, mode: "followers", displayName })}
+        />
         <BioSection bio={bio} />
         <View style={styles.metricsSection}>
           <MetricsRow metrics={metrics} />
