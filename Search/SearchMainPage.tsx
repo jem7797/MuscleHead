@@ -14,7 +14,7 @@ import SearchBar from "./SearchMainPage Components/SearchBar";
 import UserSearchResults, { SearchUser } from "./SearchMainPage Components/UserSearchResults";
 import RecentSearches from "./SearchMainPage Components/RecentSearches";
 import { searchUsers } from "../Services/userApi";
-import { follow, unfollow } from "../Services/followApi";
+import { follow, unfollow, checkFollow } from "../Services/followApi";
 import { getRecentSearches, addRecentSearch, clearRecentSearches } from "../Services/recentSearchesService";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -52,6 +52,26 @@ const SearchScreen = () => {
         }
         setPage(res.number);
         setTotalPages(res.totalPages);
+
+        if (currentUserId && res.content.length > 0) {
+          const followed = await Promise.all(
+            res.content.map(async (u) => {
+              const subId = u.sub_id ?? (u as { subId?: string }).subId;
+              if (!subId || subId === currentUserId) return null;
+              const following = await checkFollow(currentUserId, subId);
+              return following ? subId : null;
+            })
+          );
+          const newIds = followed.filter((id): id is string => id != null);
+          setFollowedUserIds((prev) => {
+            const next = new Set(prev);
+            newIds.forEach((id) => next.add(id));
+            if (!append) return new Set(newIds);
+            return next;
+          });
+        } else if (!append) {
+          setFollowedUserIds(new Set());
+        }
       } catch (e) {
         if (!append) setUsers([]);
         const msg = e instanceof Error ? e.message : "Search failed";
@@ -61,7 +81,7 @@ const SearchScreen = () => {
         setLoadMoreLoading(false);
       }
     },
-    [trimmedQuery, canSearch]
+    [trimmedQuery, canSearch, currentUserId]
   );
 
   useFocusEffect(

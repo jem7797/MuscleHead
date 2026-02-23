@@ -212,7 +212,9 @@ export const parseJsonResponse = async <T>(response: Response): Promise<T> => {
       console.error(`[API]   5. Backend endpoint requires authentication but token wasn't sent`);
     }
     
-    throw new Error(errorMessage);
+    const err = new Error(errorMessage) as Error & { status?: number };
+    err.status = status;
+    throw err;
   }
 
   return response.json();

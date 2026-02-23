@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
+import { signOut } from 'aws-amplify/auth';
 import { getCurrentUserSub } from '../Services/apiConfig';
 import { getUser, getCurrentUserProfile, updateUser } from '../Services/userApi';
 import { getNameForRank } from '../rankMapping';
@@ -254,8 +255,14 @@ const fetchUserProfile = async (sub?: string) => {
     persistNemesisSubIds(ids).catch(() => {});
     const raw = userData.profile_pic_url ?? userData.profilePicUrl ?? userData.pfp_link;
     setPfpLink(raw ? (raw.startsWith("http") ? raw : `https://${raw}`) : undefined);
-  } catch (error) {
+  } catch (error: any) {
     console.log("Failed to fetch user profile:", id);
+    if (error?.status === 403) {
+      await signOut();
+      setUserId("");
+      setIsAuthenticated(false);
+      clearProfile();
+    }
   } finally {
     setProfileLoading(false);
   }

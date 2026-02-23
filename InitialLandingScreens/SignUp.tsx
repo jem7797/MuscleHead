@@ -15,6 +15,7 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signUp, signOut, getCurrentUser } from "aws-amplify/auth";
+import { reportMinorSignupAttempt } from "../Services/userApi";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
 import PrimaryButton from "../Components/PrimaryButton";
@@ -28,7 +29,7 @@ const SignUpScreen = () => {
   //@ts-ignore
   const { given_name, setgiven_name, setTempPasswordForSignup } = useUser();
   const [email, setEmail] = useState("");
-  const [DOB, setDOB] = useState("");
+  const [birthDate, setBirthDate] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
 
@@ -83,8 +84,31 @@ const SignUpScreen = () => {
    */
   const handleSignUp = async () => {
     // STEP 1: Validate that all required fields are filled
-    if (!given_name || !email || !DOB || !alias || !password) {
+    if (!given_name || !email || !birthDate || !alias || !password) {
       Alert.alert("Error", "Please fill out all fields.");
+      return;
+    }
+    const dobMatch = birthDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!dobMatch) {
+      Alert.alert("Error", "Date of birth must be in YYYY-MM-DD format (e.g. 1990-05-15).");
+      return;
+    }
+    const parsed = new Date(birthDate);
+    if (isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== birthDate) {
+      Alert.alert("Error", "Please enter a valid date.");
+      return;
+    }
+    const today = new Date();
+    const bdayThisYear = new Date(today.getFullYear(), parseInt(dobMatch[2], 10) - 1, parseInt(dobMatch[3], 10));
+    const age = today.getFullYear() - parseInt(dobMatch[1], 10) - (today < bdayThisYear ? 1 : 0);
+
+    if (age < 13) {
+      try {
+        await reportMinorSignupAttempt(email, given_name, birthDate, alias);
+      } catch (e: any) {
+        // Backend received the data (or failed) - either way we block
+      }
+      Alert.alert("Error", "You must be at least 13 years old to sign up.");
       return;
     }
 
@@ -161,7 +185,7 @@ const SignUpScreen = () => {
         username: alias,
         email,
         given_name,
-        DOB,
+        birthDate,
       });
     } catch (error: any) {
       // Handle any errors during the sign up process
@@ -259,21 +283,14 @@ const SignUpScreen = () => {
               keyboardType="email-address"
             />
 
-            <Text style={styles.label}>Birth Year</Text>
+            <Text style={styles.label}>Date of Birth</Text>
             <TextInput
               style={styles.input}
-              placeholder="YYYY"
+              placeholder="YYYY-MM-DD (e.g. 1990-05-15)"
               placeholderTextColor="#aaaaaaac"
-              value={DOB}
-              onChangeText={(text) => {
-                // Only allow numeric input and limit to 4 digits
-                const numericText = text.replace(/[^0-9]/g, "");
-                if (numericText.length <= 4) {
-                  setDOB(numericText);
-                }
-              }}
-              keyboardType="numeric"
-              maxLength={4}
+              value={birthDate}
+              onChangeText={setBirthDate}
+              autoCapitalize="none"
             />
 
             <Text style={styles.label}>Username</Text>

@@ -30,7 +30,7 @@ Documentation of changes implemented in this session (chat log).
 
 ## 2. Nemesis from Initial User Mount Request
 
-**Problem:** Nemesis was loaded from AsyncStorage on mount instead of using the API response.
+**Problem:** Nemesis was loaded from AsyncStorage on mount instead of using the API response. 
 
 **Solution:** Removed AsyncStorage preload on mount. Nemesis is now set only from the API response when `fetchUserProfile` runs.
 

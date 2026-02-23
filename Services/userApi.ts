@@ -8,6 +8,36 @@
 import { apiRequest, parseJsonResponse } from "./apiConfig";
 
 /**
+ * Reports a minor (under-13) sign-up attempt to the backend.
+ * Backend bans the email - no Cognito account is created.
+ * Call this BEFORE Cognito signUp when age < 13.
+ *
+ * @param email - The minor's email
+ * @param firstName - First name
+ * @param birthDate - YYYY-MM-DD
+ * @param username - Chosen username/alias
+ */
+export const reportMinorSignupAttempt = async (
+  email: string,
+  firstName: string,
+  birthDate: string,
+  username: string
+): Promise<void> => {
+  const birthYear = parseInt(birthDate.slice(0, 4), 10);
+  const response = await apiRequest("/user/api/minor-signup-attempt", {
+    method: "POST",
+    body: JSON.stringify({
+      email,
+      first_name: firstName,
+      birth_date: birthDate,
+      birth_year: birthYear,
+      username,
+    }),
+  }, false);
+  if (!response.ok) await response.text().catch(() => {});
+};
+
+/**
  * Creates a new user in the backend database
  * 
  * Flow:
@@ -20,7 +50,7 @@ import { apiRequest, parseJsonResponse } from "./apiConfig";
  * @param sub - The user's sub ID from AWS Cognito (UUID format)
  * @param email - The user's email address
  * @param firstName - The user's first name
- * @param birthYear - The user's birth year as a string (e.g., "1990")
+ * @param birthDate - The user's date of birth as YYYY-MM-DD (e.g., "1990-05-15")
  * @param optionalFields - Optional fields like height, weight, etc.
  * @returns Promise with the created user data from the backend
  */
@@ -29,7 +59,7 @@ export const createUser = async (
   sub: string,
   email: string,
   firstName: string,
-  birthYear: string,
+  birthDate: string,
   optionalFields?: {
     height?: number;
     weight?: number;
@@ -41,13 +71,15 @@ export const createUser = async (
   }
 ): Promise<any> => {
   // Step 1: Prepare the request body with all required fields
-  // Backend expects: sub_id, username, email, first_name, birth_year (as integer)
+  // Backend expects: sub_id, username, email, first_name, birth_year (integer), birth_date (YYYY-MM-DD)
+  const birthYear = parseInt(birthDate.slice(0, 4), 10);
   const requestBody: any = {
     sub_id: sub, // Backend expects sub_id (not sub) - must be valid UUID
     username: username, // Cannot be blank
     email: email, // Must be valid email format
     first_name: firstName, // Cannot be blank
-    birth_year: parseInt(birthYear, 10), // Convert to integer, must be 1920+ and user must be at least 16
+    birth_year: birthYear, // Must be 1920+ and user must be at least 16
+    birth_date: birthDate, // YYYY-MM-DD format (e.g. "2010-05-15")
   };
 
   // Step 2: Add optional fields if provided

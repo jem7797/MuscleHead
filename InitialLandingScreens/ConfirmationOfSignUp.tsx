@@ -7,7 +7,7 @@ import {
   Alert,
   Platform,
 } from "react-native";
-import { confirmSignUp, signIn, getCurrentUser } from "aws-amplify/auth";
+import { confirmSignUp, signIn, signOut, getCurrentUser } from "aws-amplify/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import PrimaryButton from "../Components/PrimaryButton";
 import { useUser } from "../Contexts/UserContext";
@@ -18,7 +18,7 @@ import { createUser } from "../Services/userApi";
 const ConfirmSignUpScreen = ({ route, navigation }) => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // 6-digit array
   const inputs = useRef<(TextInput | null)[]>([]);
-  const { username, email, given_name, DOB } = route.params;
+  const { username, email, given_name, birthDate } = route.params;
   //@ts-ignore
   const { getAndClearTempPassword, setIsAuth, changeUsername} = useUser();
 
@@ -141,7 +141,7 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         console.log("Step 4: User sub retrieved:", sub);
         
         // Create user in backend (height/weight stay null until user sets them via update)
-        const userData = await createUser(username, sub, email, given_name, DOB);
+        const userData = await createUser(username, sub, email, given_name, birthDate);
         console.log("Step 4: User created in backend database:", userData);
         setIsAuth(true);
         
@@ -150,17 +150,21 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         console.error("Step 4 FAILED - createUser error:", createUserError);
         console.error("Create user error details:", {
           message: createUserError?.message,
+          status: createUserError?.status,
           stack: createUserError?.stack,
         });
-        
-        // Don't block the flow - user is already authenticated in Cognito
-        // They can still continue, and we can try to create the user later
+
+        await signOut();
+        setIsAuth(false);
+        const is403 = createUserError?.status === 403;
         Alert.alert(
-          "Warning",
-          `Account verified but there was an issue saving your profile: ${createUserError?.message || 'Unknown error'}. You can continue, but some features may not work.`
+          "Account Not Created",
+          is403 ? (createUserError?.message || "You do not meet the age requirements to use this app.") : (createUserError?.message || "We couldn't create your account. Please contact support."),
+          [{ text: "OK", onPress: () => navigation.navigate("SignUp" as never) }]
         );
+        return;
       }
-      
+
       // Step 5: Navigate to continue sign up screen
       console.log("Step 5: Navigating to ContinueSignUp...");
       navigation.navigate("ContinueSignUp", { username, email });

@@ -54,7 +54,19 @@ const LogInScreen = () => {
 
       await getAndSetUserSubId();
       const { userId: sub } = await getCurrentUser();
-      await refreshUserProfile(sub);
+
+      try {
+        await refreshUserProfile(sub);
+      } catch (profileError: any) {
+        await signOut();
+        const is403 = profileError?.status === 403;
+        Alert.alert(
+          "Access Denied",
+          is403 ? (profileError?.message || "You do not meet the age requirements to use this app.") : (profileError?.message || "We couldn't load your profile. Please contact support."),
+        );
+        return;
+      }
+
       navigation.reset({
         index: 0,
         routes: [{ name: "WorkoutInputMainPage" as never }],
