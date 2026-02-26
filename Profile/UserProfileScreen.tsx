@@ -16,6 +16,7 @@ import BackButton from "../Components/BackButton";
 import StatsRow from "./ProfileComponents/StatsRow";
 import BioSection from "./ProfileComponents/BioSection";
 import MetricsRow from "./ProfileComponents/MetricsRow";
+import ProfilePostsSection from "./ProfileComponents/ProfilePostsSection";
 import { getUser, updateUserNemesis, removeNemesis } from "../Services/userApi";
 import { follow, unfollow, checkFollow } from "../Services/followApi";
 import { useUser } from "../Contexts/UserContext";
@@ -236,6 +237,7 @@ const UserProfileScreen = () => {
         <View style={styles.metricsSection}>
           <MetricsRow metrics={metrics} />
         </View>
+        <ProfilePostsSection subId={subId} currentUserId={currentUserId} />
         <View style={{ height: 120 }} />
       </ScrollView>
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import TopBar from "./ProfileComponents/TopBar";
@@ -74,33 +74,39 @@ const ProfileScreen = () => {
     <View style={styles.container}>
       <TopBar onSettingsPress={toggleSettings} />
 
-      <ProfileHeader />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <ProfileHeader />
 
-      <StatsRow
-        stats={stats}
-        onFollowingPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "following", displayName: "Your" })}
-        onFollowersPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "followers", displayName: "Your" })}
-      />
+        <StatsRow
+          stats={stats}
+          onFollowingPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "following", displayName: "Your" })}
+          onFollowersPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "followers", displayName: "Your" })}
+        />
 
-      <BioSection bio={bio || "Add a bio in your profile settings."} />
+        <BioSection bio={bio || "Add a bio in your profile settings."} />
 
-      <ActionButtons />
+        <ActionButtons />
+
+        <View style={styles.highlightsContainer}>
+          <ProgressBar />
+          <MetricsRow metrics={metricData} />
+        </View>
+
+        <ContentSection subId={userId} currentUserId={userId} />
+
+        {/* spacer so content isn't obscured by bottom nav */}
+        <View style={{ height: 24 }} />
+      </ScrollView>
 
       <SettingsModal
         visible={isSettingsOpen}
         onClose={toggleSettings}
         onEditProfile={() => navigation.navigate("ProfileEdit")}
       />
-
-      <View style={styles.highlightsContainer}>
-        <ProgressBar />
-        <MetricsRow metrics={metricData} />
-      </View>
-
-      <ContentSection />
-
-      {/* spacer so content isn't obscured by bottom nav */}
-      <View style={{ height: 24 }} />
 
       <NavBar />
     </View>
@@ -112,6 +118,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#fff",
     alignItems: "center",
+  },
+  scrollView: {
+    flex: 1,
+    width: "100%",
+  },
+  scrollContent: {
+    alignItems: "center",
+    paddingBottom: 8,
   },
   highlightsContainer: {
     width: "90%",

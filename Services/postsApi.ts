@@ -146,6 +146,27 @@ export const deletePost = async (id: number | string): Promise<void> => {
 };
 
 /**
+ * Gets posts by user (for profile page).
+ * GET /posts/api/user/{subId}
+ * Auth: Required
+ */
+export const getPostsByUser = async (
+  subId: string,
+  page: number = 0,
+  size: number = 50
+): Promise<FeedPageResponse> => {
+  const params = new URLSearchParams({
+    page: String(page),
+    size: String(size),
+    sort: "timestamp,desc",
+  });
+  const response = await apiRequest(`/posts/api/user/${subId}?${params}`, {
+    method: "GET",
+  });
+  return parseJsonResponse<FeedPageResponse>(response);
+};
+
+/**
  * Gets the feed (posts from followed users).
  * GET /posts/api/feed
  * Auth: Required
