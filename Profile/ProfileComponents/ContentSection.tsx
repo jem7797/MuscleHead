@@ -3,27 +3,15 @@ import { View, Text, StyleSheet } from "react-native";
 
 /**
  * ContentSection Component
- * Displays content that switches between Posts and Progress Pictures based on active tab
- * This component handles the conditional rendering of different content views
+ * Displays posts content on the profile page
  */
-interface ContentSectionProps {
-  activeTab: "posts" | "progress";
-}
-
-const ContentSection: React.FC<ContentSectionProps> = ({ activeTab }) => {
+const ContentSection: React.FC = () => {
   return (
     <View style={styles.contentSection}>
-      {activeTab === "posts" ? (
-        <View style={styles.postsContent}>
-          <Text style={styles.contentPlaceholder}>Posts </Text>
-          {/* Add your posts grid/list here */}
-        </View>
-      ) : (
-        <View style={styles.progressContent}>
-          <Text style={styles.contentPlaceholder}>Progress Pictures </Text>
-          {/* Add your progress pictures grid here */}
-        </View>
-      )}
+      <View style={styles.postsContent}>
+        <Text style={styles.contentPlaceholder}>Posts</Text>
+        {/* Add your posts grid/list here */}
+      </View>
     </View>
   );
 };
@@ -31,13 +19,10 @@ const ContentSection: React.FC<ContentSectionProps> = ({ activeTab }) => {
 const styles = StyleSheet.create({
   contentSection: {
     width: "90%",
-    marginTop: 20,
+    marginTop: 30,
     minHeight: 200,
   },
   postsContent: {
-    width: "100%",
-  },
-  progressContent: {
     width: "100%",
   },
   contentPlaceholder: {

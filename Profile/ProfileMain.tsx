@@ -10,7 +10,6 @@ import ActionButtons from "./ProfileComponents/ActionButtons";
 import SettingsModal from "./ProfileComponents/SettingsModal";
 import ProgressBar from "./ProfileComponents/ProgressBar";
 import MetricsRow from "./ProfileComponents/MetricsRow";
-import TabSwitcher from "./ProfileComponents/TabSwitcher";
 import ContentSection from "./ProfileComponents/ContentSection";
 import { useUser } from "../Contexts/UserContext";
 
@@ -43,7 +42,6 @@ const ProfileScreen = () => {
     userId,
   } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"posts" | "progress">("posts");
   
 
   // User metric data (height, weight, natty status) — N/A when null/undefined
@@ -97,10 +95,9 @@ const ProfileScreen = () => {
       <View style={styles.highlightsContainer}>
         <ProgressBar />
         <MetricsRow metrics={metricData} />
-        <TabSwitcher activeTab={activeTab} onTabChange={setActiveTab} />
       </View>
 
-      <ContentSection activeTab={activeTab} />
+      <ContentSection />
 
       {/* spacer so content isn't obscured by bottom nav */}
       <View style={{ height: 24 }} />
