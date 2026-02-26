@@ -79,12 +79,19 @@ const CommunityScreen = () => {
     setPosts((prev) => prev.filter((p) => p.postId !== postId));
   };
 
+  const handlePostUpdated = (postId: number, updates: Partial<PostResponse>) => {
+    setPosts((prev) =>
+      prev.map((p) => (p.postId === postId ? { ...p, ...updates } : p))
+    );
+  };
+
   const renderPost = ({ item }: { item: PostResponse }) => (
     <FeedPost
       post={item}
       currentUserId={currentUserId}
       onUserPress={handleUserPress}
       onDeleted={handlePostDeleted}
+      onUpdated={handlePostUpdated}
     />
   );
 

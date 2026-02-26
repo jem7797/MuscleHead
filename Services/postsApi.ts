@@ -27,6 +27,16 @@ export interface PostUser {
   [key: string]: unknown;
 }
 
+export interface PostComment {
+  id?: number;
+  user?: PostUser;
+  username?: string;
+  text?: string;
+  content?: string;
+  timestamp?: string;
+  [key: string]: unknown;
+}
+
 export interface PostResponse {
   postId: number;
   user: PostUser;
@@ -36,8 +46,14 @@ export interface PostResponse {
   timestamp: string;
   likeCount: number;
   commentCount: number;
-  comments?: unknown[];
+  userLiked?: boolean;
+  comments?: PostComment[];
   [key: string]: unknown;
+}
+
+export interface PostPatchRequest {
+  like?: boolean;
+  comment?: string;
 }
 
 export interface FeedPageResponse {
@@ -128,6 +144,22 @@ export const createPost = async (
  */
 export const getPost = async (id: number | string): Promise<PostResponse> => {
   const response = await apiRequest(`/posts/api/${id}`, { method: "GET" });
+  return parseJsonResponse<PostResponse>(response);
+};
+
+/**
+ * Patches a post (like/unlike, add comment).
+ * PATCH /posts/api/{id}
+ * Auth: Required
+ */
+export const patchPost = async (
+  id: number | string,
+  body: PostPatchRequest
+): Promise<PostResponse> => {
+  const response = await apiRequest(`/posts/api/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+  });
   return parseJsonResponse<PostResponse>(response);
 };
 

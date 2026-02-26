@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,10 +6,11 @@ import {
   Image,
   TouchableOpacity,
   Alert,
+  TextInput,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import type { PostResponse } from "../Services/postsApi";
-import { deletePost } from "../Services/postsApi";
+import type { PostResponse, PostComment } from "../Services/postsApi";
+import { deletePost, patchPost, getPost } from "../Services/postsApi";
 
 const formatTimestamp = (ts: string) => {
   try {
@@ -39,13 +40,85 @@ interface FeedPostProps {
   currentUserId?: string | null;
   onUserPress?: (subId: string) => void;
   onDeleted?: (postId: number) => void;
+  onUpdated?: (postId: number, updates: Partial<PostResponse>) => void;
 }
 
-const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, onDeleted }) => {
+const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, onDeleted, onUpdated }) => {
   const [imgError, setImgError] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [liked, setLiked] = useState(!!post.userLiked);
+  const [likeCount, setLikeCount] = useState(post.likeCount);
+  const [commentCount, setCommentCount] = useState(post.commentCount);
+  const [patching, setPatching] = useState(false);
+  const [showComments, setShowComments] = useState(false);
+  const [commentDraft, setCommentDraft] = useState("");
+  const [comments, setComments] = useState<PostComment[]>(post.comments ?? []);
+  const [loadingComments, setLoadingComments] = useState(false);
+
+  useEffect(() => {
+    if (patching) return; // Don't overwrite during our own like/unlike - prevents flash
+    setLiked(!!post.userLiked);
+    setLikeCount(post.likeCount);
+    setCommentCount(post.commentCount);
+    setComments(post.comments ?? []);
+  }, [post.postId, post.userLiked, post.likeCount, post.commentCount, post.comments, patching]);
+
   const postOwnerSubId = post.user?.subId ?? (post.user as { sub_id?: string })?.sub_id;
   const isOwnPost = !!currentUserId && postOwnerSubId === currentUserId;
+
+  const handleLike = async () => {
+    if (!currentUserId || patching) return;
+    const newLiked = !liked;
+    setLiked(newLiked);
+    setLikeCount((c) => c + (newLiked ? 1 : -1));
+    setPatching(true);
+    try {
+      const updated = await patchPost(post.postId, { like: newLiked });
+      setLikeCount(updated.likeCount);
+
+      setLiked(updated.userLiked !== undefined ? !!updated.userLiked : newLiked);
+      onUpdated?.(post.postId, { likeCount: updated.likeCount, userLiked: updated.userLiked ?? newLiked });
+    } catch {
+      setLiked(liked);
+      setLikeCount(post.likeCount);
+    } finally {
+      setPatching(false);
+    }
+  };
+
+  const handleCommentButtonPress = async () => {
+    const next = !showComments;
+    setShowComments(next);
+    if (next && comments.length === 0 && commentCount > 0) {
+      setLoadingComments(true);
+      try {
+        const fullPost = await getPost(post.postId);
+        setComments(fullPost.comments ?? []);
+        onUpdated?.(post.postId, { comments: fullPost.comments });
+      } catch {
+        // keep comments empty
+      } finally {
+        setLoadingComments(false);
+      }
+    }
+  };
+
+  const handleCommentSubmit = async () => {
+    const text = commentDraft.trim();
+    if (!currentUserId || patching || !text) return;
+    setPatching(true);
+    try {
+      const updated = await patchPost(post.postId, { comment: text });
+      setCommentCount(updated.commentCount);
+      setCommentDraft("");
+      if (updated.comments) setComments(updated.comments);
+      onUpdated?.(post.postId, { commentCount: updated.commentCount, comments: updated.comments });
+    } catch {
+      Alert.alert("Error", "Failed to add comment.");
+    } finally {
+      setPatching(false);
+    }
+  };
 
   const handleDelete = () => {
     Alert.alert("Delete post", "Are you sure you want to delete this post?", [
@@ -72,6 +145,36 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
   const displayName = post.user?.username ?? "User";
   const pfpUrl = getPfpUrl(post.user?.profilePicUrl);
 
+  const renderActions = () => (
+    <View style={styles.textBubbleActions}>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={handleLike}
+        disabled={!currentUserId || patching}
+      >
+        <Ionicons
+          name={liked ? "heart" : "heart-outline"}
+          size={18}
+          color={liked ? "#e74c3c" : "#5a6a7e"}
+        />
+        <Text style={styles.actionCount}>{likeCount}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.actionButton}
+        onPress={handleCommentButtonPress}
+        disabled={!currentUserId}
+      >
+        <Ionicons name="chatbubble-outline" size={16} color="#5a6a7e" style={styles.commentIcon} />
+        <Text style={styles.actionCount}>{commentCount}</Text>
+      </TouchableOpacity>
+      {isOwnPost && (
+        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} disabled={deleting}>
+          <Ionicons name="trash-outline" size={18} color="#8b0000" />
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+
   if (!hasImage) {
     return (
       <View style={styles.textBubbleCard}>
@@ -93,23 +196,52 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
               <Text style={styles.timestamp}>{formatTimestamp(post.timestamp)}</Text>
             </View>
             {hasCaption && <Text style={styles.bubbleText}>{post.caption}</Text>}
-            <View style={styles.textBubbleActions}>
-              <Ionicons name="heart-outline" size={18} color="#5a6a7e" />
-              <Text style={styles.actionCount}>{post.likeCount}</Text>
-              <Ionicons name="chatbubble-outline" size={16} color="#5a6a7e" style={styles.commentIcon} />
-              <Text style={styles.actionCount}>{post.commentCount}</Text>
-              {isOwnPost && (
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={handleDelete}
-                  disabled={deleting}
-                >
-                  <Ionicons name="trash-outline" size={18} color="#8b0000" />
-                </TouchableOpacity>
-              )}
-            </View>
+            {renderActions()}
           </View>
         </TouchableOpacity>
+        {showComments && (
+          <View style={styles.commentsSection}>
+            {loadingComments ? (
+              <Text style={styles.commentsLoading}>Loading comments...</Text>
+            ) : comments.length > 0 ? (
+              <View style={styles.commentsList}>
+                {comments.map((c, i) => {
+                  const text = c.text ?? c.content ?? "";
+                  const username = c.user?.username ?? c.username ?? "User";
+                  return (
+                    <View key={c.id ?? i} style={styles.commentItem}>
+                      <Text style={styles.commentUsername}>{username}</Text>
+                      <Text style={styles.commentText}>{text}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ) : commentCount === 0 ? (
+              <Text style={styles.commentsEmpty}>No comments yet</Text>
+            ) : null}
+            {currentUserId && (
+              <View style={styles.commentInputRow}>
+            <TextInput
+              style={styles.commentInput}
+              placeholder="Add a comment..."
+              placeholderTextColor="#9aa6bd"
+              value={commentDraft}
+              onChangeText={setCommentDraft}
+              multiline
+              maxLength={500}
+              editable={!patching}
+            />
+            <TouchableOpacity
+              style={[styles.commentPostBtn, (!commentDraft.trim() || patching) && styles.commentPostBtnDisabled]}
+              onPress={handleCommentSubmit}
+              disabled={!commentDraft.trim() || patching}
+            >
+              <Text style={styles.commentPostBtnText}>Post</Text>
+            </TouchableOpacity>
+          </View>
+            )}
+          </View>
+        )}
       </View>
     );
   }
@@ -146,23 +278,52 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
             </View>
           )}
           {hasCaption && <Text style={styles.bubbleText}>{post.caption}</Text>}
-          <View style={styles.textBubbleActions}>
-            <Ionicons name="heart-outline" size={18} color="#5a6a7e" />
-            <Text style={styles.actionCount}>{post.likeCount}</Text>
-            <Ionicons name="chatbubble-outline" size={16} color="#5a6a7e" style={styles.commentIcon} />
-            <Text style={styles.actionCount}>{post.commentCount}</Text>
-            {isOwnPost && (
-              <TouchableOpacity
-                style={styles.deleteButton}
-                onPress={handleDelete}
-                disabled={deleting}
-              >
-                <Ionicons name="trash-outline" size={18} color="#8b0000" />
-              </TouchableOpacity>
-            )}
-          </View>
+          {renderActions()}
         </View>
       </TouchableOpacity>
+      {showComments && (
+        <View style={styles.commentsSection}>
+          {loadingComments ? (
+            <Text style={styles.commentsLoading}>Loading comments...</Text>
+          ) : comments.length > 0 ? (
+            <View style={styles.commentsList}>
+              {comments.map((c, i) => {
+                const text = c.text ?? c.content ?? "";
+                const username = c.user?.username ?? c.username ?? "User";
+                return (
+                  <View key={c.id ?? i} style={styles.commentItem}>
+                    <Text style={styles.commentUsername}>{username}</Text>
+                    <Text style={styles.commentText}>{text}</Text>
+                  </View>
+                );
+              })}
+            </View>
+          ) : commentCount === 0 ? (
+            <Text style={styles.commentsEmpty}>No comments yet</Text>
+          ) : null}
+          {currentUserId && (
+            <View style={styles.commentInputRow}>
+          <TextInput
+            style={styles.commentInput}
+            placeholder="Add a comment..."
+            placeholderTextColor="#9aa6bd"
+            value={commentDraft}
+            onChangeText={setCommentDraft}
+            multiline
+            maxLength={500}
+            editable={!patching}
+          />
+          <TouchableOpacity
+            style={[styles.commentPostBtn, (!commentDraft.trim() || patching) && styles.commentPostBtnDisabled]}
+            onPress={handleCommentSubmit}
+            disabled={!commentDraft.trim() || patching}
+          >
+            <Text style={styles.commentPostBtnText}>Post</Text>
+          </TouchableOpacity>
+        </View>
+          )}
+        </View>
+      )}
     </View>
   );
 };
@@ -237,8 +398,76 @@ const styles = StyleSheet.create({
     gap: 4,
     paddingRight: 4,
   },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    padding: 4,
+  },
   commentIcon: {
     marginLeft: 16,
+  },
+  commentsSection: {
+    marginTop: 8,
+    marginLeft: 52,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "#e8ecf4",
+  },
+  commentsList: {
+    marginBottom: 8,
+  },
+  commentItem: {
+    marginBottom: 6,
+  },
+  commentUsername: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#0f1724",
+  },
+  commentText: {
+    fontSize: 14,
+    color: "#0f1724",
+    lineHeight: 20,
+    marginTop: 2,
+  },
+  commentsLoading: {
+    fontSize: 13,
+    color: "#9aa6bd",
+    marginBottom: 8,
+  },
+  commentsEmpty: {
+    fontSize: 13,
+    color: "#9aa6bd",
+    marginBottom: 8,
+  },
+  commentInputRow: {
+    flexDirection: "row",
+    alignItems: "flex-end",
+    gap: 8,
+  },
+  commentInput: {
+    flex: 1,
+    minHeight: 36,
+    maxHeight: 80,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: "#f5f6f8",
+    borderRadius: 12,
+    fontSize: 14,
+    color: "#0f1724",
+  },
+  commentPostBtn: {
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  commentPostBtnDisabled: {
+    opacity: 0.5,
+  },
+  commentPostBtnText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1f2a44",
   },
   actionCount: {
     fontSize: 13,
