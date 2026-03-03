@@ -11,6 +11,8 @@ export interface WorkoutSession {
   id?: number;
   name: string;
   subtitle?: string;
+  /** ISO date string for sorting/graphing */
+  date?: string;
 }
 
 interface WorkoutCardProps {

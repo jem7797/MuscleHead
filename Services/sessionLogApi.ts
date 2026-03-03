@@ -216,3 +216,44 @@ export const getSessionLogsForUser = async (
     empty: data.content.length === 0,
   };
 };
+
+/** Response from GET /sessionLog/api/{id}/max-lift */
+export interface MaxLiftResponse {
+  sessionId: number;
+  maxLift: number;
+}
+
+/**
+ * Gets max lift for a workout session. Computes and stores if missing.
+ * GET /sessionLog/api/{id}/max-lift
+ */
+export const getSessionMaxLift = async (
+  sessionId: number | string
+): Promise<MaxLiftResponse> => {
+  const response = await apiRequest(
+    `/sessionLog/api/${sessionId}/max-lift`,
+    { method: "GET" },
+    false
+  );
+  return parseJsonResponse<MaxLiftResponse>(response);
+};
+
+/** Response from GET /sessionLog/api/user/{subId}/sync-max-lifts */
+export interface SyncMaxLiftsResponse {
+  workoutsUpdated: number;
+}
+
+/**
+ * Syncs max lift for all of the user's workouts.
+ * GET /sessionLog/api/user/{subId}/sync-max-lifts
+ */
+export const syncMaxLifts = async (): Promise<SyncMaxLiftsResponse> => {
+  const sub = await getCurrentUserSub();
+  if (!sub) throw new Error("Not authenticated");
+  const response = await apiRequest(
+    `/sessionLog/api/user/${sub}/sync-max-lifts`,
+    { method: "GET" },
+    false
+  );
+  return parseJsonResponse<SyncMaxLiftsResponse>(response);
+};

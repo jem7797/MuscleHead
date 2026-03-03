@@ -16,8 +16,9 @@ import PrimaryButton from "./PrimaryButton";
 interface ScheduleBuilderModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (schedule: Record<string, string>) => void;
+  onSave: (schedule: Record<string, string>) => void | Promise<void>;
   initialSchedule?: Record<string, string>;
+  saving?: boolean;
 }
 
 const dayKeys = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
@@ -37,6 +38,7 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
   onClose,
   onSave,
   initialSchedule,
+  saving = false,
 }) => {
   const [schedule, setSchedule] = useState<Record<string, string>>(
     initialSchedule || {
@@ -64,8 +66,8 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
     }));
   };
 
-  const handleSave = () => {
-    onSave(schedule);
+  const handleSave = async () => {
+    await onSave(schedule);
     onClose();
   };
 
@@ -108,9 +110,10 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
             </View>
 
             <PrimaryButton
-              label="Save"
+              label={saving ? "Saving..." : "Save"}
               variant="default"
               onPress={handleSave}
+              disabled={saving}
               containerStyle={styles.saveButton}
             />
           </ScrollView>

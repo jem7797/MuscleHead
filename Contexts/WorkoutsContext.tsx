@@ -50,6 +50,7 @@ function mapLogsToWorkouts(logs: SessionLogApiResponse[]): WorkoutSession[] {
     id: log.id,
     name: formatDate(log.date),
     subtitle: formatSubtitle(log),
+    date: log.date,
   }));
 }
 

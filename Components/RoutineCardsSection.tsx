@@ -57,11 +57,9 @@ const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
     <View style={styles.container}>
       <View style={styles.titleRow}>
         <Text style={styles.sectionTitle}>Your Routines</Text>
-        {totalElements > 0 && (
-          <Text style={styles.countText}>
-            {routines.length} of {totalElements}
-          </Text>
-        )}
+        <Text style={styles.countText}>
+          {totalElements > 0 ? `${routines.length} of ${totalElements}` : `${routines.length} routine${routines.length === 1 ? "" : "s"}`}
+        </Text>
       </View>
       <ScrollView
         horizontal

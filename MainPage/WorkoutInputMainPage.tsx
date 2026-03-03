@@ -15,6 +15,7 @@ import MuscleManView from "../Components/MuscleManView";
 import StatsRow from "../Components/StatsRow";
 import RoutineCardsSection from "../Components/RoutineCardsSection";
 import WorkoutCardsSection from "../Components/WorkoutCardsSection";
+import MaxLiftGraph from "../Components/MaxLiftGraph";
 import AddWorkoutMenu from "../Components/AddWorkoutMenu";
 import RotateButton from "../Components/RotateButton";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
@@ -23,6 +24,15 @@ import { useUser } from "../Contexts/UserContext";
 import { useRoutines } from "../Contexts/RoutinesContext";
 import { useWorkouts } from "../Contexts/WorkoutsContext";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
+import {
+  getWorkoutSchedules,
+  createWorkoutSchedule,
+  updateWorkoutSchedule,
+  entriesToSchedule,
+  DAY_TO_NUMBER,
+  DAY_KEYS,
+  type WorkoutScheduleEntry,
+} from "../Services/workoutScheduleApi";
 
 const { height } = Dimensions.get("window");
 
@@ -49,12 +59,6 @@ const WorkoutInputMainPage = () => {
     }
   }, [fetchRoutines]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      fetchRoutines();
-      fetchWorkouts();
-    }, [fetchRoutines, fetchWorkouts]),
-  );
 
   const [schedule, setSchedule] = useState<Record<string, string>>({
     Monday: "",
@@ -65,11 +69,63 @@ const WorkoutInputMainPage = () => {
     Saturday: "",
     Sunday: "",
   });
+  const [scheduleEntries, setScheduleEntries] = useState<Map<number, WorkoutScheduleEntry>>(new Map());
+  const [scheduleSaving, setScheduleSaving] = useState(false);
+
+  const fetchSchedule = React.useCallback(async () => {
+    try {
+      const entries = await getWorkoutSchedules();
+      const byDay = new Map<number, WorkoutScheduleEntry>();
+      entries.forEach((e) => byDay.set(e.day_of_the_week, e));
+      setScheduleEntries(byDay);
+      setSchedule(entriesToSchedule(entries));
+    } catch {
+      setScheduleEntries(new Map());
+    }
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRoutines();
+      fetchWorkouts();
+      fetchSchedule();
+    }, [fetchRoutines, fetchWorkouts, fetchSchedule]),
+  );
 
   const toggleScheduleEditor = () => setShowScheduleEditor((s) => !s);
 
-  const handleScheduleSave = (newSchedule: Record<string, string>) => {
-    setSchedule(newSchedule);
+  const handleScheduleSave = async (newSchedule: Record<string, string>) => {
+    setScheduleSaving(true);
+    try {
+      for (const day of DAY_KEYS) {
+        const dayNum = DAY_TO_NUMBER[day];
+        const newLabel = (newSchedule[day] ?? "").trim();
+        const existing = scheduleEntries.get(dayNum);
+
+        if (existing) {
+          if (existing.label !== newLabel) {
+            await updateWorkoutSchedule(existing.id, { label: newLabel });
+            setScheduleEntries((prev) => {
+              const next = new Map(prev);
+              next.set(dayNum, { ...existing, label: newLabel });
+              return next;
+            });
+          }
+        } else if (newLabel) {
+          const created = await createWorkoutSchedule(dayNum, newLabel);
+          setScheduleEntries((prev) => {
+            const next = new Map(prev);
+            next.set(dayNum, created);
+            return next;
+          });
+        }
+      }
+      setSchedule(newSchedule);
+    } catch (e) {
+      console.warn("Failed to save schedule:", e);
+    } finally {
+      setScheduleSaving(false);
+    }
   };
 
   const spinVal = useRef(new Animated.Value(0)).current;
@@ -201,6 +257,12 @@ const WorkoutInputMainPage = () => {
             }}
             onLoadMore={loadMoreWorkouts}
           />
+
+          <MaxLiftGraph
+            workouts={workouts}
+            hasMore={workoutsHasMore}
+            loadMoreWorkouts={loadMoreWorkouts}
+          />
         </WorkedMusclesProvider>
       </ScrollView>
 
@@ -209,6 +271,7 @@ const WorkoutInputMainPage = () => {
         onClose={toggleScheduleEditor}
         onSave={handleScheduleSave}
         initialSchedule={schedule}
+        saving={scheduleSaving}
       />
 
       <NavBar />
