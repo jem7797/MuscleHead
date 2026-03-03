@@ -146,6 +146,7 @@ const WORKOUT_BY_MUSCLE_GROUP: Record<string, string[]> = {
 interface ExerciseSet {
   reps: string;
   weight: string;
+  completed: boolean;
 }
 
 interface SessionInstance {
@@ -161,9 +162,9 @@ const AddWorkoutPage = () => {
   const { setStats } = useWorkoutStats();
   const { getMovementId } = useMovements();
   const [workouts, setWorkouts] = useState<SessionInstance[]>([
-    { id: 1, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
-    { id: 2, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
-    { id: 3, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] },
+    { id: 1, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }] },
+    { id: 2, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }] },
+    { id: 3, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }] },
   ]);
   
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -392,7 +393,7 @@ const AddWorkoutPage = () => {
 
   const addWorkout = () => {
     const newId = Math.max(...workouts.map(w => w.id), 0) + 1;
-    setWorkouts([...workouts, { id: newId, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "" }, { reps: "", weight: "" }, { reps: "", weight: "" }] }]);
+    setWorkouts([...workouts, { id: newId, exerciseId: null, muscleGroup: null, workout: null, sets: [{ reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }, { reps: "", weight: "", completed: false }] }]);
   };
 
   const removeWorkout = (id: number) => {
@@ -412,7 +413,7 @@ const AddWorkoutPage = () => {
 
   const addSet = (workoutId: number) => {
     setWorkouts(workouts.map(w => 
-      w.id === workoutId ? { ...w, sets: [...w.sets, { reps: "", weight: "" }] } : w
+      w.id === workoutId ? { ...w, sets: [...w.sets, { reps: "", weight: "", completed: false }] } : w
     ));
   };
 
@@ -424,11 +425,18 @@ const AddWorkoutPage = () => {
     ));
   };
 
-  const updateSet = (workoutId: number, setIndex: number, field: "reps" | "weight", value: string) => {
+  const updateSet = (workoutId: number, setIndex: number, field: "reps" | "weight" | "completed", value: string | boolean) => {
     setWorkouts(workouts.map(w => {
       if (w.id === workoutId) {
         const newSets = [...w.sets];
-        newSets[setIndex][field] = value;
+        const s = newSets[setIndex];
+        if (s) {
+          if (field === "completed") {
+            newSets[setIndex] = { ...s, completed: value as boolean };
+          } else {
+            newSets[setIndex] = { ...s, [field]: value as string };
+          }
+        }
         return { ...w, sets: newSets };
       }
       return w;
@@ -547,7 +555,7 @@ const AddWorkoutPage = () => {
               onSelectWorkout={(workout) => updateSessionInstance(workoutItem.id, workout)}
               onAddSet={() => addSet(workoutItem.id)}
               onRemoveSet={(index) => removeSet(workoutItem.id, index)}
-              onUpdateSet={(index, field, value) => updateSet(workoutItem.id, index, field, value)}
+              onUpdateSet={(index, field, value) => updateSet(workoutItem.id, index, field, value as string | boolean)}
             />
           );
         })}

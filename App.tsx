@@ -9,15 +9,18 @@ import WelcomeScreen from "./InitialLandingScreens/WelcomeScreen";
 import SignUpScreen from "./InitialLandingScreens/SignUp";
 import LogInScreen from "./InitialLandingScreens/LogIn";
 import ConfirmSignUpScreen from "./InitialLandingScreens/ConfirmationOfSignUp";
-import IdentityBasics from "./MoreInfoScreens/IdentityBasics"
+import IdentityBasics from "./MoreInfoScreens/IdentityBasics";
 import HeightWeight from "./MoreInfoScreens/HeightWeight";
 import ProfileSetUp from "./MoreInfoScreens/ProfileSetUp";
-import ContinueSignUp from "./InitialLandingScreens/ContinueSignUp"
+import ContinueSignUp from "./InitialLandingScreens/ContinueSignUp";
 import WorkoutInputMainPage from "./MainPage/WorkoutInputMainPage";
 import AddWorkoutPage from "./MainPage/AddWorkoutPage";
 import AddWorkoutTemplatePage from "./MainPage/AddWorkoutTemplatePage";
+import RoutineDetailPage from "./MainPage/RoutineDetailPage";
+import ActiveWorkoutPage from "./MainPage/ActiveWorkoutPage";
 import ConfirmWorkoutPage from "./MainPage/ConfirmWorkoutPage";
 import WorkoutStatsPage from "./MainPage/WorkoutStatsPage";
+import WorkoutDetailPage from "./MainPage/WorkoutDetailPage";
 import CommunityScreen from "./Community";
 import CreatePostScreen from "./Community/CreatePostScreen";
 import SearchScreen from "./Search/SearchMainPage";
@@ -36,6 +39,7 @@ import { GlobalWorkedMusclesProvider } from "./Contexts/GlobalWorkedMusclesConte
 import { OnboardingProvider } from "./Contexts/OnboardingContext";
 import { WorkoutTemplateProvider } from "./Contexts/WorkoutTemplateContext";
 import { RoutinesProvider } from "./Contexts/RoutinesContext";
+import { WorkoutsProvider } from "./Contexts/WorkoutsContext";
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -53,45 +57,136 @@ export default function App() {
   return (
     <UserProvider>
       <WorkoutTemplateProvider>
-      <RoutinesProvider>
-      <OnboardingProvider>
-      <MovementProvider>
-      <WorkoutStatsProvider>
-        <GlobalWorkedMusclesProvider>
-          <NavigationContainer>
-          <Stack.Navigator
-            screenOptions={{ headerShown: false }}
-            initialRouteName="Welcome"
-          >
-            <Stack.Screen name="Welcome" component={WelcomeScreen} />
-            <Stack.Screen name="SignUp" component={SignUpScreen} />
-            <Stack.Screen name="LogIn" component={LogInScreen} />
-            <Stack.Screen name="ConfirmSignUp" component={ConfirmSignUpScreen} />
-            <Stack.Screen name = "ContinueSignUp" component={ContinueSignUp}/> 
-            <Stack.Screen name = "IdentityBasics" component= {IdentityBasics}/>
-            <Stack.Screen name="HeightWeight" component={HeightWeight}/>
-            <Stack.Screen name="ProfileSetUp" component={ProfileSetUp}/>
-            <Stack.Screen name= "WorkoutInputMainPage" component={WorkoutInputMainPage} options={{ animation: "none" }} />
-            <Stack.Screen name="ConfirmWorkout" component={ConfirmWorkoutPage} options={{ animation: "none" }} />
-            <Stack.Screen name="AddWorkout" component={AddWorkoutPage} options={{ animation: "none" }} />
-            <Stack.Screen name="WorkoutStats" component={WorkoutStatsPage} options={{ animation: "none" }} />
-            <Stack.Screen name="AddWorkoutTemplate" component={AddWorkoutTemplatePage} options={{ animation: "none" }} />
-            <Stack.Screen name="Community" component={CommunityScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="CreatePost" component={CreatePostScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="Search" component={SearchScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="Notifications" component={NotificationCenterScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="Profile" component={ProfileScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="ProfileEdit" component={ProfileEditPage} options={{ animation: "none" }} />
-            <Stack.Screen name="UserProfile" component={UserProfileScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="FollowList" component={FollowListScreen} options={{ animation: "none" }} />
-            <Stack.Screen name="MuscleDetail" component={MuscleDetailScreen} options={{ animation: "none" }} />
-          </Stack.Navigator>
-        </NavigationContainer>
-        </GlobalWorkedMusclesProvider>
-      </WorkoutStatsProvider>
-      </MovementProvider>
-      </OnboardingProvider>
-      </RoutinesProvider>
+        <RoutinesProvider>
+          <WorkoutsProvider>
+            <OnboardingProvider>
+              <MovementProvider>
+                <WorkoutStatsProvider>
+                  <GlobalWorkedMusclesProvider>
+                    <NavigationContainer>
+                      <Stack.Navigator
+                        screenOptions={{ headerShown: false }}
+                        initialRouteName="Welcome"
+                      >
+                        <Stack.Screen
+                          name="Welcome"
+                          component={WelcomeScreen}
+                        />
+                        <Stack.Screen name="SignUp" component={SignUpScreen} />
+                        <Stack.Screen name="LogIn" component={LogInScreen} />
+                        <Stack.Screen
+                          name="ConfirmSignUp"
+                          component={ConfirmSignUpScreen}
+                        />
+                        <Stack.Screen
+                          name="ContinueSignUp"
+                          component={ContinueSignUp}
+                        />
+                        <Stack.Screen
+                          name="IdentityBasics"
+                          component={IdentityBasics}
+                        />
+                        <Stack.Screen
+                          name="HeightWeight"
+                          component={HeightWeight}
+                        />
+                        <Stack.Screen
+                          name="ProfileSetUp"
+                          component={ProfileSetUp}
+                        />
+                        <Stack.Screen
+                          name="WorkoutInputMainPage"
+                          component={WorkoutInputMainPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="ConfirmWorkout"
+                          component={ConfirmWorkoutPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="AddWorkout"
+                          component={AddWorkoutPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="WorkoutStats"
+                          component={WorkoutStatsPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="WorkoutDetail"
+                          component={WorkoutDetailPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="AddWorkoutTemplate"
+                          component={AddWorkoutTemplatePage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="RoutineDetail"
+                          component={RoutineDetailPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="ActiveWorkout"
+                          component={ActiveWorkoutPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="Community"
+                          component={CommunityScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="CreatePost"
+                          component={CreatePostScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="Search"
+                          component={SearchScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="Notifications"
+                          component={NotificationCenterScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="Profile"
+                          component={ProfileScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="ProfileEdit"
+                          component={ProfileEditPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="UserProfile"
+                          component={UserProfileScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="FollowList"
+                          component={FollowListScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="MuscleDetail"
+                          component={MuscleDetailScreen}
+                          options={{ animation: "none" }}
+                        />
+                      </Stack.Navigator>
+                    </NavigationContainer>
+                  </GlobalWorkedMusclesProvider>
+                </WorkoutStatsProvider>
+              </MovementProvider>
+            </OnboardingProvider>
+          </WorkoutsProvider>
+        </RoutinesProvider>
       </WorkoutTemplateProvider>
     </UserProvider>
   );

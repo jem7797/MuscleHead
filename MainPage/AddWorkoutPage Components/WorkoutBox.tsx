@@ -7,6 +7,7 @@ import SetsInput from "./SetsInput";
 interface Set {
   reps: string;
   weight: string;
+  completed?: boolean;
 }
 
 interface Workout {
@@ -26,7 +27,7 @@ interface WorkoutBoxProps {
   onSelectWorkout: (workout: string) => void;
   onAddSet: () => void;
   onRemoveSet: (index: number) => void;
-  onUpdateSet: (index: number, field: "reps" | "weight", value: string) => void;
+  onUpdateSet: (index: number, field: "reps" | "weight" | "completed", value: string | boolean) => void;
 }
 
 const WorkoutBox: React.FC<WorkoutBoxProps> = ({

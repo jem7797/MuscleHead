@@ -94,7 +94,7 @@ export const getSessionInstanceById = async (
 
 /**
  * Gets all session instances (workout exercises) for the current user
- * 
+ *
  * @returns Promise with array of session instances for the user
  */
 export const getSessionInstancesForUser = async (): Promise<any> => {
@@ -106,4 +106,47 @@ export const getSessionInstancesForUser = async (): Promise<any> => {
   );
 
   return parseJsonResponse(response);
+};
+
+/** Exercise instance from GET /sessionInstance/api/session/{sessionId}
+ * Note: movement is @JsonIgnore on backend - use exercise_id/movement_id + GET /movement/api/ to resolve name */
+export interface SessionExerciseResponse {
+  workout_exercise_id: number;
+  exercise_id?: number;
+  movement_id?: number;
+  area_of_activation?: string[];
+  reps: number;
+  sets: number;
+  duration?: number;
+  total_weight_lifted?: number;
+  workout_highest_lift?: number;
+  movement?: {
+    id: number;
+    name: string;
+    areaOfActivation?: string;
+  };
+  user?: unknown;
+  sessionLog?: unknown;
+}
+
+/**
+ * Gets exercises (movements) for a given workout session
+ * GET /sessionInstance/api/session/{sessionId}
+ *
+ * @param sessionId - The session log ID
+ * @returns Promise with array of exercise instances
+ */
+export const getSessionExercisesBySessionId = async (
+  sessionId: number | string
+): Promise<SessionExerciseResponse[]> => {
+  const response = await apiRequest(
+    `/sessionInstance/api/session/${sessionId}`,
+    {
+      method: "GET",
+    },
+    false
+  );
+
+  const data = await parseJsonResponse<SessionExerciseResponse[]>(response);
+  return Array.isArray(data) ? data : [];
 };

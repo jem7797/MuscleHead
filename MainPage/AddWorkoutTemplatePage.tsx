@@ -19,12 +19,12 @@ import { useMovements } from "../Contexts/MovementContext";
 import { useRoutines } from "../Contexts/RoutinesContext";
 import { createWorkoutTemplate } from "../Services/workoutTemplateApi";
 
-const DEFAULT_TARGET_SETS = 3;
-const DEFAULT_TARGET_REPS = 10;
+const DEFAULT_SETS = 3;
+const DEFAULT_REPS = 10;
 
 const AddWorkoutTemplatePage = () => {
   const navigation = useNavigation<any>();
-  const { state, setName, addExercise, removeExercise, updateExercise, resetState } = useWorkoutTemplate();
+  const { state, setName, setDefaultSets, addExercise, removeExercise, updateExercise, resetState } = useWorkoutTemplate();
   const { addRoutineOptimistically } = useRoutines();
   const { movements } = useMovements();
   const [showPicker, setShowPicker] = useState(false);
@@ -75,8 +75,8 @@ const AddWorkoutTemplatePage = () => {
     addExercise({
       exerciseId,
       orderIndex: state.exercises.length,
-      targetSets: DEFAULT_TARGET_SETS,
-      targetReps: DEFAULT_TARGET_REPS,
+      sets: state.sets,
+      reps: DEFAULT_REPS,
     });
     setShowPicker(false);
     setPickerSearch("");
@@ -99,7 +99,7 @@ const AddWorkoutTemplatePage = () => {
     }
     setSaving(true);
     try {
-      const created = await createWorkoutTemplate(trimmedName, state.exercises);
+      const created = await createWorkoutTemplate(trimmedName, state.sets, state.exercises);
       addRoutineOptimistically({
         id: created?.id,
         name: trimmedName,
@@ -130,6 +130,22 @@ const AddWorkoutTemplatePage = () => {
           />
         </View>
 
+        <View style={styles.inputSection}>
+          <Text style={styles.inputLabel}>Default sets (for new exercises)</Text>
+          <TextInput
+            style={styles.textInput}
+            placeholder="e.g. 3"
+            placeholderTextColor="#999"
+            value={String(state.sets)}
+            onChangeText={(t) => {
+              const n = parseInt(t, 10);
+              if (!isNaN(n) && n >= 0) setDefaultSets(n);
+              if (t === "") setDefaultSets(0);
+            }}
+            keyboardType="number-pad"
+          />
+        </View>
+
         <Text style={styles.sectionTitle}>Exercises</Text>
 
         {state.exercises.map((ex) => (
@@ -151,26 +167,11 @@ const AddWorkoutTemplatePage = () => {
                 <Text style={styles.targetLabel}>Sets</Text>
                 <TextInput
                   style={styles.targetInput}
-                  value={String(ex.targetSets)}
+                  value={String(ex.sets)}
                   onChangeText={(t) => {
                     const n = parseInt(t, 10);
-                    if (!isNaN(n) && n >= 0) updateExercise(ex.orderIndex, { targetSets: n });
-                    if (t === "") updateExercise(ex.orderIndex, { targetSets: 0 });
-                  }}
-                  keyboardType="number-pad"
-                  placeholder="0"
-                  placeholderTextColor="#999"
-                />
-              </View>
-              <View style={styles.targetField}>
-                <Text style={styles.targetLabel}>Reps</Text>
-                <TextInput
-                  style={styles.targetInput}
-                  value={String(ex.targetReps)}
-                  onChangeText={(t) => {
-                    const n = parseInt(t, 10);
-                    if (!isNaN(n) && n >= 0) updateExercise(ex.orderIndex, { targetReps: n });
-                    if (t === "") updateExercise(ex.orderIndex, { targetReps: 0 });
+                    if (!isNaN(n) && n >= 0) updateExercise(ex.orderIndex, { sets: n });
+                    if (t === "") updateExercise(ex.orderIndex, { sets: 0 });
                   }}
                   keyboardType="number-pad"
                   placeholder="0"

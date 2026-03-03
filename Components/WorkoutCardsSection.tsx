@@ -7,47 +7,48 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import RoutineCard, { RoutineTemplate } from "./RoutineCard";
+import WorkoutCard, { WorkoutSession } from "./WorkoutCard";
 
-interface RoutineCardsSectionProps {
-  routines: RoutineTemplate[];
+interface WorkoutCardsSectionProps {
+  workouts: WorkoutSession[];
   isLoading: boolean;
   isLoadingMore?: boolean;
   hasMore?: boolean;
   totalElements?: number;
-  onRoutinePress: (routine: RoutineTemplate) => void;
+  onWorkoutPress: (workout: WorkoutSession) => void;
   onLoadMore?: () => void;
 }
 
-const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
-  routines,
+const WorkoutCardsSection: React.FC<WorkoutCardsSectionProps> = ({
+  workouts,
   isLoading,
   isLoadingMore = false,
   hasMore = false,
   totalElements = 0,
-  onRoutinePress,
+  onWorkoutPress,
   onLoadMore,
 }) => {
   if (isLoading) {
     return (
       <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Your Routines</Text>
+        <Text style={styles.sectionTitle}>Your Workouts</Text>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="small" color="#202c76" />
-          <Text style={styles.loadingText}>Loading routines...</Text>
+          <Text style={styles.loadingText}>Loading workouts...</Text>
         </View>
       </View>
     );
   }
 
-  if (routines.length === 0) {
+  if (workouts.length === 0) {
     return (
       <View style={styles.container}>
-        <Text style={styles.sectionTitle}>Your Routines</Text>
+        <Text style={styles.sectionTitle}>Your Workouts</Text>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>No routines yet</Text>
-          <Text style={styles.emptySubtext}>Add a workout template to get started</Text>
+          <Text style={styles.emptyText}>No workouts yet</Text>
+          <Text style={styles.emptySubtext}>
+            Complete a workout to see it here
+          </Text>
         </View>
       </View>
     );
@@ -56,10 +57,10 @@ const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.titleRow}>
-        <Text style={styles.sectionTitle}>Your Routines</Text>
+        <Text style={styles.sectionTitle}>Your Workouts</Text>
         {totalElements > 0 && (
           <Text style={styles.countText}>
-            {routines.length} of {totalElements}
+            {workouts.length} of {totalElements}
           </Text>
         )}
       </View>
@@ -69,11 +70,11 @@ const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
         contentContainerStyle={styles.scrollContent}
         showsHorizontalScrollIndicator={false}
       >
-        {routines.map((routine) => (
-          <RoutineCard
-            key={routine.id ?? routine.name}
-            routine={routine}
-            onPress={() => onRoutinePress(routine)}
+        {workouts.map((workout) => (
+          <WorkoutCard
+            key={workout.id ?? workout.name}
+            workout={workout}
+            onPress={() => onWorkoutPress(workout)}
           />
         ))}
         {hasMore && (
@@ -85,10 +86,9 @@ const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
             {isLoadingMore ? (
               <ActivityIndicator size="small" color="#202c76" />
             ) : (
-              <>
-                <Ionicons name="add-circle-outline" size={28} color="#51607a" />
-                <Text style={styles.loadMoreText}>Load more</Text>
-              </>
+              <Text style={styles.loadMoreCardText}>
+                Load more
+              </Text>
             )}
           </TouchableOpacity>
         )}
@@ -118,18 +118,19 @@ const styles = StyleSheet.create({
     color: "#8a9bb5",
   },
   loadMoreCard: {
-    width: 100,
-    minHeight: 80,
-    backgroundColor: "#f4f6fa",
+    width: 160,
+    backgroundColor: "#202c76",
     borderRadius: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
     alignItems: "center",
     justifyContent: "center",
-    padding: 12,
   },
-  loadMoreText: {
-    fontSize: 13,
-    color: "#51607a",
-    marginTop: 6,
+  loadMoreCardText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#FFF",
+    textAlign: "center",
   },
   scrollView: {
     marginHorizontal: -16,
@@ -167,4 +168,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default RoutineCardsSection;
+export default WorkoutCardsSection;

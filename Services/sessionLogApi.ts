@@ -5,7 +5,7 @@
  * It uses the apiConfig utilities to make requests to the backend.
  */
 
-import { apiRequest, parseJsonResponse } from "./apiConfig";
+import { apiRequest, parseJsonResponse, getCurrentUserSub } from "./apiConfig";
 
 /**
  * Creates a new session log (workout session) in the backend
@@ -41,7 +41,7 @@ export const updateSessionLog = async (
   const requestBody = JSON.stringify(updateData);
 
   const response = await apiRequest(
-    `/session-log/api/${logId}`,
+    `/sessionLog/api/${logId}`,
     {
       method: "PUT",
       body: requestBody,
@@ -62,7 +62,7 @@ export const deleteSessionLog = async (
   logId: number | string
 ): Promise<any> => {
   const response = await apiRequest(
-    `/session-log/api/${logId}`,
+    `/sessionLog/api/${logId}`,
     {
       method: "DELETE",
     },
@@ -74,36 +74,145 @@ export const deleteSessionLog = async (
 
 /**
  * Gets a session log (workout session) by ID from the backend
- * 
+ * GET /sessionLog/api/{id}
+ *
  * @param logId - The ID of the session log to retrieve
- * @returns Promise with the session log data
+ * @returns Promise with the session log data including sessionInstances
  */
 export const getSessionLogById = async (
   logId: number | string
-): Promise<any> => {
+): Promise<SessionLogApiResponse> => {
   const response = await apiRequest(
-    `/session-log/api/${logId}`,
+    `/sessionLog/api/${logId}`,
     {
       method: "GET",
     },
     false
   );
 
-  return parseJsonResponse(response);
+  return parseJsonResponse<SessionLogApiResponse>(response);
 };
 
+/** Raw session log from API (GET /sessionLog/api/{id} or user list) */
+export interface SessionLogApiResponse {
+  id: number;
+  date: string;
+  notes?: string | null;
+  total_weight_lifted?: number;
+  session_highest_lift?: number;
+  total_duration?: number;
+  timeSpentInGym?: number;
+  user?: unknown;
+  routine?: { id?: number; name?: string } | null;
+  sessionInstances?: SessionInstanceApiResponse[];
+}
+
+/** Session instance (exercise performed in a workout) - flexible for various API shapes */
+export interface SessionInstanceApiResponse {
+  id?: number;
+  exerciseId?: number;
+  exercise?: { id?: number; name?: string };
+  sets?: number;
+  reps?: number;
+  weight?: number;
+  setInstances?: { reps?: number; weight?: number }[];
+  notes?: string | null;
+}
+
+/** Backend pagination format: page.size, page.number, page.totalElements, page.totalPages */
+interface SessionLogsPageInfo {
+  size: number;
+  number: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+/** Raw API response from GET /sessionLog/api/user/{subId} */
+interface SessionLogsApiResponse {
+  content: SessionLogApiResponse[];
+  page?: SessionLogsPageInfo;
+  totalElements?: number;
+  totalPages?: number;
+  size?: number;
+  number?: number;
+}
+
+/** Normalized paginated response for frontend */
+export interface PaginatedSessionLogsResponse {
+  content: SessionLogApiResponse[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  last: boolean;
+  first: boolean;
+  numberOfElements: number;
+  empty: boolean;
+}
+
+export interface SessionLogsPageParams {
+  page?: number;
+  size?: number;
+  sort?: string;
+}
+
 /**
- * Gets all session logs (workout sessions) for the current user
- * 
- * @returns Promise with array of session logs for the user
+ * Gets paginated session logs (workout sessions) for the current user
+ * GET /sessionLog/api/user/{subId}?page=0&size=10&sort=id,desc
+ *
+ * @param params - Pagination params (page, size, sort)
+ * @returns Promise with paginated session logs
  */
-export const getSessionLogsForUser = async (): Promise<any> => {
+export const getSessionLogsForUser = async (
+  params: SessionLogsPageParams = {}
+): Promise<PaginatedSessionLogsResponse> => {
+  const sub = await getCurrentUserSub();
+  const pageNum = params.page ?? 0;
+  const pageSize = params.size ?? 10;
+  const sort = params.sort ?? "id,desc";
+
+  const emptyResult = (): PaginatedSessionLogsResponse => ({
+    content: [],
+    totalElements: 0,
+    totalPages: 0,
+    size: pageSize,
+    number: pageNum,
+    last: true,
+    first: true,
+    numberOfElements: 0,
+    empty: true,
+  });
+
+  if (!sub) return emptyResult();
+
+  const query = new URLSearchParams({ page: String(pageNum), size: String(pageSize), sort });
   const response = await apiRequest(
-    "/session-log/api/",
-    {
-      method: "GET",
-    }
+    `/sessionLog/api/user/${sub}?${query.toString()}`,
+    { method: "GET" },
+    false
   );
 
-  return parseJsonResponse(response);
+  const data = await parseJsonResponse<SessionLogsApiResponse>(response);
+
+  if (!data || typeof data !== "object" || !Array.isArray(data.content)) {
+    return emptyResult();
+  }
+
+  const page = data.page;
+  const totalElements = page?.totalElements ?? data.totalElements ?? data.content.length;
+  const totalPages = page?.totalPages ?? data.totalPages ?? 1;
+  const size = page?.size ?? data.size ?? pageSize;
+  const number = page?.number ?? data.number ?? pageNum;
+
+  return {
+    content: data.content,
+    totalElements,
+    totalPages,
+    size,
+    number,
+    last: number >= totalPages - 1,
+    first: number === 0,
+    numberOfElements: data.content.length,
+    empty: data.content.length === 0,
+  };
 };

@@ -14,31 +14,47 @@ import DayHeader from "../Components/DayHeader";
 import MuscleManView from "../Components/MuscleManView";
 import StatsRow from "../Components/StatsRow";
 import RoutineCardsSection from "../Components/RoutineCardsSection";
+import WorkoutCardsSection from "../Components/WorkoutCardsSection";
 import AddWorkoutMenu from "../Components/AddWorkoutMenu";
 import RotateButton from "../Components/RotateButton";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useGlobalWorkedMuscles } from "../Contexts/GlobalWorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
 import { useRoutines } from "../Contexts/RoutinesContext";
+import { useWorkouts } from "../Contexts/WorkoutsContext";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 
 const { height } = Dimensions.get("window");
 
 const WorkoutInputMainPage = () => {
+  const navigation = useNavigation<any>();
   const { globalFrontWorked, globalBackWorked } = useGlobalWorkedMuscles();
   const { lifetimeWeightLifted, lifetimeGymTime, isProfileLoading } = useUser();
   const [isBack, setIsBack] = useState(false);
   const [showScheduleEditor, setShowScheduleEditor] = useState(false);
   const { routines, isLoading: routinesLoading, fetchRoutines } = useRoutines();
+  const {
+    workouts,
+    isLoading: workoutsLoading,
+    isLoadingMore: workoutsLoadingMore,
+    hasMore: workoutsHasMore,
+    totalElements: workoutsTotal,
+    fetchWorkouts,
+    loadMoreWorkouts,
+  } = useWorkouts();
 
- 
   useEffect(() => {
-
-    if(routines.length == 0){
-    fetchRoutines();
+    if (routines.length === 0) {
+      fetchRoutines();
     }
   }, [fetchRoutines]);
 
- 
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchRoutines();
+      fetchWorkouts();
+    }, [fetchRoutines, fetchWorkouts]),
+  );
 
   const [schedule, setSchedule] = useState<Record<string, string>>({
     Monday: "",
@@ -56,8 +72,6 @@ const WorkoutInputMainPage = () => {
     setSchedule(newSchedule);
   };
 
-
-
   const spinVal = useRef(new Animated.Value(0)).current;
   const spin = useMemo(
     () =>
@@ -65,7 +79,7 @@ const WorkoutInputMainPage = () => {
         inputRange: [0, 1],
         outputRange: ["0deg", "180deg"],
       }),
-    [spinVal]
+    [spinVal],
   );
 
   const handleRotate = () => {
@@ -92,17 +106,25 @@ const WorkoutInputMainPage = () => {
 
   const dayName = new Date().toLocaleDateString(undefined, { weekday: "long" });
   const dayIndex = new Date().getDay(); // 0=Sun ... 6=Sat
-  
+
   // Get workout plan for current day from schedule, or use default
   const workoutPlanForDay = (() => {
-    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const currentDayName = dayNames[dayIndex];
     const savedPlan = schedule[currentDayName];
-    
+
     if (savedPlan && savedPlan.trim() !== "") {
       return savedPlan;
     }
-    
+
     // Default fallback
     switch (dayIndex) {
       case 1: // Monday
@@ -122,6 +144,10 @@ const WorkoutInputMainPage = () => {
 
   return (
     <View style={styles.mainContainer}>
+      <View style={styles.fixedTopBar} pointerEvents="box-none">
+        <AddWorkoutMenu />
+        <RotateButton spin={spin} onRotate={handleRotate} />
+      </View>
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -133,7 +159,10 @@ const WorkoutInputMainPage = () => {
           onEditPress={toggleScheduleEditor}
         />
 
-        <WorkedMusclesProvider frontWorked={globalFrontWorked} backWorked={globalBackWorked}>
+        <WorkedMusclesProvider
+          frontWorked={globalFrontWorked}
+          backWorked={globalBackWorked}
+        >
           <MuscleManView isBack={isBack} size={size} />
 
           {isProfileLoading ? (
@@ -153,16 +182,27 @@ const WorkoutInputMainPage = () => {
             routines={routines}
             isLoading={routinesLoading}
             onRoutinePress={(routine) => {
-              // TODO: navigate to AddWorkout with routine pre-filled
-              console.log("Routine pressed:", routine.name);
+              if (routine.id != null) {
+                navigation.navigate("RoutineDetail", { routineId: routine.id });
+              }
             }}
           />
 
-          <AddWorkoutMenu />
+          <WorkoutCardsSection
+            workouts={workouts}
+            isLoading={workoutsLoading}
+            isLoadingMore={workoutsLoadingMore}
+            hasMore={workoutsHasMore}
+            totalElements={workoutsTotal}
+            onWorkoutPress={(workout) => {
+              if (workout.id != null) {
+                navigation.navigate("WorkoutDetail", { sessionId: workout.id });
+              }
+            }}
+            onLoadMore={loadMoreWorkouts}
+          />
         </WorkedMusclesProvider>
       </ScrollView>
-
-      <RotateButton spin={spin} onRotate={handleRotate} />
 
       <ScheduleBuilderModal
         visible={showScheduleEditor}
@@ -182,6 +222,14 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: "white",
+  },
+  fixedTopBar: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 100,
+    zIndex: 1000,
   },
   scrollView: {
     flex: 1,

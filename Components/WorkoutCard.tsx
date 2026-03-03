@@ -7,19 +7,18 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export interface RoutineTemplate {
+export interface WorkoutSession {
   id?: number;
   name: string;
-  exercises?: { exerciseId: number; orderIndex: number; reps: number; sets: number }[];
+  subtitle?: string;
 }
 
-interface RoutineCardProps {
-  routine: RoutineTemplate;
+interface WorkoutCardProps {
+  workout: WorkoutSession;
   onPress: () => void;
 }
 
-const RoutineCard: React.FC<RoutineCardProps> = ({ routine, onPress }) => {
-
+const WorkoutCard: React.FC<WorkoutCardProps> = ({ workout, onPress }) => {
   return (
     <TouchableOpacity
       style={styles.card}
@@ -28,10 +27,15 @@ const RoutineCard: React.FC<RoutineCardProps> = ({ routine, onPress }) => {
     >
       <View style={styles.row}>
         <Text style={styles.name} numberOfLines={1}>
-          {routine.name}
+          {workout.name}
         </Text>
         <Ionicons name="chevron-forward" size={18} color="#51607a" />
       </View>
+      {workout.subtitle && (
+        <Text style={styles.subtitle} numberOfLines={1}>
+          {workout.subtitle}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
@@ -59,7 +63,8 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 13,
     color: "#51607a",
+    marginTop: 4,
   },
 });
 
-export default RoutineCard;
+export default WorkoutCard;

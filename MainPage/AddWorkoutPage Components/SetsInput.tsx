@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 interface Set {
   reps: string;
   weight: string;
+  completed?: boolean;
 }
 
 interface SetsInputProps {
@@ -12,7 +13,7 @@ interface SetsInputProps {
   sets: Set[];
   onAddSet: () => void;
   onRemoveSet: (index: number) => void;
-  onUpdateSet: (index: number, field: "reps" | "weight", value: string) => void;
+  onUpdateSet: (index: number, field: "reps" | "weight" | "completed", value: string | boolean) => void;
 }
 
 const SetsInput: React.FC<SetsInputProps> = ({
@@ -25,41 +26,57 @@ const SetsInput: React.FC<SetsInputProps> = ({
   return (
     <View style={styles.section}>
       <Text style={styles.sectionTitle}>{workoutName}</Text>
-      
+
       <View style={styles.setsContainer}>
         <View style={styles.setsHeaderRow}>
-          <Text style={styles.setHeaderText}>Set</Text>
-          <Text style={styles.setHeaderText}>Reps</Text>
-          <Text style={styles.setHeaderText}>Weight (lbs)</Text>
-          <View style={styles.setHeaderText} />
+          <Text style={styles.setHeaderLabel}>Set</Text>
+          <Text style={styles.setHeaderInput}>Reps</Text>
+          <Text style={styles.setHeaderInput}>Weight (lbs)</Text>
+          <View style={styles.checkHeader} />
         </View>
-        
+
         {sets.map((set, index) => (
           <View key={index} style={styles.setRow}>
-            <Text style={styles.setNumber}>{index + 1}</Text>
+            <Text style={styles.setLabel}>Set {index + 1}</Text>
             <TextInput
               style={styles.input}
-              placeholder="0"
+              placeholder="Reps"
+              placeholderTextColor="#8a9bb5"
               value={set.reps}
               onChangeText={(text) => onUpdateSet(index, "reps", text)}
               keyboardType="numeric"
             />
             <TextInput
               style={styles.input}
-              placeholder="0"
+              placeholder="Weight (lbs)"
+              placeholderTextColor="#8a9bb5"
               value={set.weight}
               onChangeText={(text) => onUpdateSet(index, "weight", text)}
               keyboardType="numeric"
             />
+            <TouchableOpacity
+              style={styles.checkButton}
+              onPress={() =>
+                onUpdateSet(index, "completed", !(set.completed ?? false))
+              }
+            >
+              <Ionicons
+                name={set.completed ? "checkmark-circle" : "ellipse-outline"}
+                size={24}
+                color={set.completed ? "#22c55e" : "#8a9bb5"}
+              />
+            </TouchableOpacity>
             {sets.length > 1 && (
-              <TouchableOpacity onPress={() => onRemoveSet(index)} style={styles.removeButton}>
+              <TouchableOpacity
+                onPress={() => onRemoveSet(index)}
+                style={styles.removeButton}
+              >
                 <Ionicons name="close" size={18} color="#888" />
               </TouchableOpacity>
             )}
-            {sets.length === 1 && <View style={styles.removeButton} />}
           </View>
         ))}
-        
+
         <TouchableOpacity onPress={onAddSet} style={styles.addSetButtonBottom}>
           <Ionicons name="add" size={18} color="#202c76" />
           <Text style={styles.addSetText}>Add Set</Text>
@@ -74,50 +91,56 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: "600",
     color: "#1f2a44",
-    marginBottom: 8,
+    marginBottom: 10,
   },
   setsContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#fafafa",
     borderRadius: 8,
-    padding: 10,
+    padding: 12,
     borderWidth: 1,
     borderColor: "#e8e8e8",
   },
   setsHeaderRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 8,
     paddingBottom: 6,
     borderBottomWidth: 1,
     borderBottomColor: "#e8e8e8",
   },
-  setHeaderText: {
+  setHeaderLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#888",
+    width: 56,
+  },
+  setHeaderInput: {
     fontSize: 12,
     fontWeight: "600",
     color: "#888",
     flex: 1,
     textAlign: "center",
   },
+  checkHeader: {
+    width: 32,
+  },
   setRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 6,
+    marginBottom: 8,
   },
-  setNumber: {
+  setLabel: {
     fontSize: 14,
     fontWeight: "500",
     color: "#666",
-    flex: 1,
-    textAlign: "center",
+    width: 56,
   },
   input: {
     flex: 1,
-    backgroundColor: "#fafafa",
+    backgroundColor: "#fff",
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 6,
@@ -128,9 +151,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 4,
     textAlign: "center",
   },
+  checkButton: {
+    width: 32,
+    height: 32,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   removeButton: {
-    width: 20,
-    height: 20,
+    width: 24,
+    height: 24,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 4,
@@ -156,4 +185,3 @@ const styles = StyleSheet.create({
 });
 
 export default SetsInput;
-

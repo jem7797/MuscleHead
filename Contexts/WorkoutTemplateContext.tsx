@@ -2,21 +2,22 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 /**
  * Exercise interface matching backend expectations for workout template creation
- * Each exercise in a workout template has these properties
+ * Backend expects: exerciseId, orderIndex, reps, and optionally sets
  */
 interface TemplateExercise {
   exerciseId: number;
   orderIndex: number;
-  targetReps: number;
-  targetSets: number;
+  reps: number;
+  sets: number;
 }
 
 /**
  * WorkoutTemplateState interface matching backend API structure
- * This represents the data structure for creating a workout template via POST /workout-template/api/
+ * Backend expects: { name, sets, exercises: [{ exerciseId, orderIndex, reps, sets? }] }
  */
 interface WorkoutTemplateState {
   name: string;
+  sets: number;
   exercises: TemplateExercise[];
 }
 
@@ -27,6 +28,7 @@ interface WorkoutTemplateContextType {
   state: WorkoutTemplateState;
   setState: (state: WorkoutTemplateState) => void;
   setName: (name: string) => void;
+  setDefaultSets: (sets: number) => void;
   setExercises: (exercises: TemplateExercise[]) => void;
   addExercise: (exercise: TemplateExercise) => void;
   removeExercise: (orderIndex: number) => void;
@@ -42,19 +44,16 @@ const WorkoutTemplateContext = createContext<WorkoutTemplateContextType | undefi
  * This context manages the state structure expected by the backend API:
  * {
  *   name: "My Workout Template",
+ *   sets: 3,
  *   exercises: [
- *     {
- *       exerciseId: 1,
- *       orderIndex: 0,
- *       targetReps: 12,
- *       targetSets: 3
- *     }
+ *     { exerciseId: 1, orderIndex: 0, reps: 12, sets: 3 }
  *   ]
  * }
  */
 export const WorkoutTemplateProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<WorkoutTemplateState>({
     name: '',
+    sets: 3,
     exercises: [],
   });
 
@@ -91,9 +90,14 @@ export const WorkoutTemplateProvider = ({ children }: { children: ReactNode }) =
     }));
   };
 
+  const setDefaultSets = (sets: number) => {
+    setState((prev) => ({ ...prev, sets }));
+  };
+
   const resetState = () => {
     setState({
       name: '',
+      sets: 3,
       exercises: [],
     });
   };
@@ -104,6 +108,7 @@ export const WorkoutTemplateProvider = ({ children }: { children: ReactNode }) =
         state,
         setState,
         setName,
+        setDefaultSets,
         setExercises,
         addExercise,
         removeExercise,
@@ -125,7 +130,7 @@ export const WorkoutTemplateProvider = ({ children }: { children: ReactNode }) =
  * @example
  * const { state, setName, addExercise } = useWorkoutTemplate();
  * setName("Push Day");
- * addExercise({ exerciseId: 1, orderIndex: 0, targetReps: 12, targetSets: 3 });
+ * addExercise({ exerciseId: 1, orderIndex: 0, reps: 12, sets: 3 });
  */
 export const useWorkoutTemplate = () => {
   const context = useContext(WorkoutTemplateContext);

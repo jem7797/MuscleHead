@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  ReactNode,
+} from "react";
 import { getWorkoutTemplates } from "../Services/workoutTemplateApi";
 import type { RoutineTemplate } from "../Components/RoutineCard";
 
@@ -7,9 +13,12 @@ interface RoutinesContextType {
   isLoading: boolean;
   fetchRoutines: () => Promise<void>;
   addRoutineOptimistically: (routine: RoutineTemplate) => void;
+  removeRoutine: (routineId: number) => void;
 }
 
-const RoutinesContext = createContext<RoutinesContextType | undefined>(undefined);
+const RoutinesContext = createContext<RoutinesContextType | undefined>(
+  undefined,
+);
 
 export const RoutinesProvider = ({ children }: { children: ReactNode }) => {
   const [routines, setRoutines] = useState<RoutineTemplate[]>([]);
@@ -32,6 +41,10 @@ export const RoutinesProvider = ({ children }: { children: ReactNode }) => {
     setRoutines((prev) => [...prev, routine]);
   }, []);
 
+  const removeRoutine = useCallback((routineId: number) => {
+    setRoutines((prev) => prev.filter((r) => r.id !== routineId));
+  }, []);
+
   return (
     <RoutinesContext.Provider
       value={{
@@ -39,6 +52,7 @@ export const RoutinesProvider = ({ children }: { children: ReactNode }) => {
         isLoading,
         fetchRoutines,
         addRoutineOptimistically,
+        removeRoutine,
       }}
     >
       {children}
