@@ -237,7 +237,7 @@ const UserProfileScreen = () => {
         <View style={styles.metricsSection}>
           <MetricsRow metrics={metrics} />
         </View>
-        <ProfilePostsSection subId={subId} currentUserId={currentUserId} />
+        <ProfilePostsSection subId={subId} currentUserId={currentUserId} nemesisSubIds={nemesisSubIds} />
         <View style={{ height: 120 }} />
       </ScrollView>
 

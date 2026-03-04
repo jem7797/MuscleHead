@@ -35,15 +35,20 @@ const getPfpUrl = (raw?: string) => {
   return raw.startsWith("http") ? raw : `https://${raw}`;
 };
 
+const NEMESIS_BG = "#8b0000";
+
 interface FeedPostProps {
   post: PostResponse;
   currentUserId?: string | null;
+  nemesisSubIds?: string[];
   onUserPress?: (subId: string) => void;
   onDeleted?: (postId: number) => void;
   onUpdated?: (postId: number, updates: Partial<PostResponse>) => void;
 }
 
-const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, onDeleted, onUpdated }) => {
+const normalizeId = (id: string) => String(id ?? "").trim().toLowerCase();
+
+const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds = [], onUserPress, onDeleted, onUpdated }) => {
   const [imgError, setImgError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [liked, setLiked] = useState(!!post.userLiked);
@@ -65,6 +70,10 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
 
   const postOwnerSubId = post.user?.subId ?? (post.user as { sub_id?: string })?.sub_id;
   const isOwnPost = !!currentUserId && postOwnerSubId === currentUserId;
+  const isNemesisPost = !!postOwnerSubId && nemesisSubIds.some((id) => normalizeId(id) === normalizeId(postOwnerSubId));
+  const bubbleBg = isNemesisPost ? { backgroundColor: NEMESIS_BG } : undefined;
+  const nemesisText = isNemesisPost ? { color: "#fff" } : undefined;
+  const nemesisMuted = isNemesisPost ? { color: "#f5c6c6" } : undefined;
 
   const handleLike = async () => {
     if (!currentUserId || patching) return;
@@ -145,6 +154,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
   const displayName = post.user?.username ?? "User";
   const pfpUrl = getPfpUrl(post.user?.profilePicUrl);
 
+  const actionColor = isNemesisPost ? "#f5c6c6" : "#5a6a7e";
   const renderActions = () => (
     <View style={styles.textBubbleActions}>
       <TouchableOpacity
@@ -155,21 +165,21 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
         <Ionicons
           name={liked ? "heart" : "heart-outline"}
           size={18}
-          color={liked ? "#e74c3c" : "#5a6a7e"}
+          color={liked ? "#e74c3c" : actionColor}
         />
-        <Text style={styles.actionCount}>{likeCount}</Text>
+        <Text style={[styles.actionCount, isNemesisPost && nemesisMuted]}>{likeCount}</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.actionButton}
         onPress={handleCommentButtonPress}
         disabled={!currentUserId}
       >
-        <Ionicons name="chatbubble-outline" size={16} color="#5a6a7e" style={styles.commentIcon} />
-        <Text style={styles.actionCount}>{commentCount}</Text>
+        <Ionicons name="chatbubble-outline" size={16} color={actionColor} style={styles.commentIcon} />
+        <Text style={[styles.actionCount, isNemesisPost && nemesisMuted]}>{commentCount}</Text>
       </TouchableOpacity>
       {isOwnPost && (
         <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} disabled={deleting}>
-          <Ionicons name="trash-outline" size={18} color="#8b0000" />
+          <Ionicons name="trash-outline" size={18} color={isNemesisPost ? "#fff" : "#8b0000"} />
         </TouchableOpacity>
       )}
     </View>
@@ -179,7 +189,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
     return (
       <View style={styles.textBubbleCard}>
         <TouchableOpacity
-          style={styles.textBubble}
+          style={[styles.textBubble, bubbleBg]}
           onPress={() => post.user?.subId && onUserPress?.(post.user.subId)}
           activeOpacity={0.7}
         >
@@ -192,15 +202,15 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
           )}
           <View style={styles.bubbleContent}>
             <View style={styles.bubbleHeader}>
-              <Text style={styles.username}>{displayName}</Text>
-              <Text style={styles.timestamp}>{formatTimestamp(post.timestamp)}</Text>
+              <Text style={[styles.username, nemesisText]}>{displayName}</Text>
+              <Text style={[styles.timestamp, nemesisMuted]}>{formatTimestamp(post.timestamp)}</Text>
             </View>
-            {hasCaption && <Text style={styles.bubbleText}>{post.caption}</Text>}
+            {hasCaption && <Text style={[styles.bubbleText, nemesisText]}>{post.caption}</Text>}
             {renderActions()}
           </View>
         </TouchableOpacity>
         {showComments && (
-          <View style={styles.commentsSection}>
+          <View style={[styles.commentsSection, isNemesisPost && styles.commentsSectionNemesis]}>
             {loadingComments ? (
               <Text style={styles.commentsLoading}>Loading comments...</Text>
             ) : comments.length > 0 ? (
@@ -249,7 +259,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
   return (
     <View style={styles.textBubbleCard}>
       <TouchableOpacity
-        style={styles.imageBubble}
+        style={[styles.imageBubble, bubbleBg]}
         onPress={() => post.user?.subId && onUserPress?.(post.user.subId)}
         activeOpacity={0.7}
       >
@@ -262,8 +272,8 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
         )}
         <View style={styles.bubbleContent}>
           <View style={styles.bubbleHeader}>
-            <Text style={styles.username}>{displayName}</Text>
-            <Text style={styles.timestamp}>{formatTimestamp(post.timestamp)}</Text>
+            <Text style={[styles.username, nemesisText]}>{displayName}</Text>
+            <Text style={[styles.timestamp, nemesisMuted]}>{formatTimestamp(post.timestamp)}</Text>
           </View>
           {!imgError ? (
             <Image
@@ -277,12 +287,12 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, onUserPress, o
               <Ionicons name="image-outline" size={48} color="#9aa6bd" />
             </View>
           )}
-          {hasCaption && <Text style={styles.bubbleText}>{post.caption}</Text>}
+          {hasCaption && <Text style={[styles.bubbleText, nemesisText]}>{post.caption}</Text>}
           {renderActions()}
         </View>
       </TouchableOpacity>
       {showComments && (
-        <View style={styles.commentsSection}>
+        <View style={[styles.commentsSection, isNemesisPost && styles.commentsSectionNemesis]}>
           {loadingComments ? (
             <Text style={styles.commentsLoading}>Loading comments...</Text>
           ) : comments.length > 0 ? (
@@ -413,6 +423,9 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     borderTopWidth: 1,
     borderTopColor: "#e8ecf4",
+  },
+  commentsSectionNemesis: {
+    borderTopColor: "rgba(255,255,255,0.3)",
   },
   commentsList: {
     marginBottom: 8,

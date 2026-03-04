@@ -20,7 +20,7 @@ const PAGE_SIZE = 20;
 
 const CommunityScreen = () => {
   const navigation = useNavigation<any>();
-  const { userId: currentUserId } = useUser();
+  const { userId: currentUserId, nemesisSubIds } = useUser();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -89,6 +89,7 @@ const CommunityScreen = () => {
     <FeedPost
       post={item}
       currentUserId={currentUserId}
+      nemesisSubIds={nemesisSubIds}
       onUserPress={handleUserPress}
       onDeleted={handlePostDeleted}
       onUpdated={handlePostUpdated}

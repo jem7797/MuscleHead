@@ -5,6 +5,7 @@ import ProfilePostsSection from "./ProfilePostsSection";
 interface ContentSectionProps {
   subId?: string;
   currentUserId?: string | null;
+  nemesisSubIds?: string[];
 }
 
 /**
@@ -14,11 +15,12 @@ interface ContentSectionProps {
 const ContentSection: React.FC<ContentSectionProps> = ({
   subId,
   currentUserId,
+  nemesisSubIds = [],
 }) => {
   if (!subId) return null;
   return (
     <View style={styles.contentSection}>
-      <ProfilePostsSection subId={subId} currentUserId={currentUserId} />
+      <ProfilePostsSection subId={subId} currentUserId={currentUserId} nemesisSubIds={nemesisSubIds} />
     </View>
   );
 };

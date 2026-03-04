@@ -25,6 +25,7 @@ type ProfileTab = "posts" | "texts";
 interface ProfilePostsSectionProps {
   subId: string;
   currentUserId?: string | null;
+  nemesisSubIds?: string[];
 }
 
 const getImageUrl = (raw?: string | null) => {
@@ -35,6 +36,7 @@ const getImageUrl = (raw?: string | null) => {
 const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
   subId,
   currentUserId,
+  nemesisSubIds = [],
 }) => {
   const navigation = useNavigation<any>();
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
@@ -206,6 +208,7 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
     <FeedPost
       post={item}
       currentUserId={currentUserId}
+      nemesisSubIds={nemesisSubIds}
       onUserPress={handleUserPress}
       onDeleted={handlePostDeleted}
       onUpdated={updatePostInState}

@@ -40,6 +40,7 @@ const ProfileScreen = () => {
     height,
     isNatty,
     userId,
+    nemesisSubIds,
   } = useUser();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   
@@ -96,7 +97,7 @@ const ProfileScreen = () => {
           <MetricsRow metrics={metricData} />
         </View>
 
-        <ContentSection subId={userId} currentUserId={userId} />
+        <ContentSection subId={userId} currentUserId={userId} nemesisSubIds={nemesisSubIds} />
 
         {/* spacer so content isn't obscured by bottom nav */}
         <View style={{ height: 24 }} />

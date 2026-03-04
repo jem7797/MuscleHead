@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import {
   View,
   StyleSheet,
   FlatList,
   Text,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   RefreshControl,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../Components/NavBar";
 import {
@@ -33,32 +32,28 @@ const formatTimeAgo = (dateStr?: string): string => {
   return date.toLocaleDateString();
 };
 
-const getNotificationMessage = (n: Notification): string => {
-  const actor = n.actor?.username ?? "Someone";
-  const type = (n.type ?? "").toUpperCase();
-  switch (type) {
-    case "FOLLOW":
-      return `${actor} started following you`;
-    case "LIKE":
-      return `${actor} liked your post`;
-    case "COMMENT":
-      return `${actor} commented on your post`;
+const getIconForType = (type: string): string => {
+  const t = (type ?? "").toUpperCase();
+  switch (t) {
+    case "NEMESIS_POST":
     case "WORKOUT":
-      return `${actor} logged a new workout`;
+      return "fitness";
+    case "LEVEL_UP":
+      return "trophy";
+    case "FOLLOW":
+      return "person-add";
+    case "LIKE":
+      return "heart";
+    case "COMMENT":
+      return "chatbubble";
     default:
-      return `${actor} interacted with you`;
+      return "notifications";
   }
-};
-
-const getPfpUrl = (url?: string): string | undefined => {
-  if (!url) return undefined;
-  return url.startsWith("http") ? url : `https://${url}`;
 };
 
 const PAGE_SIZE = 20;
 
 const NotificationCenterScreen = () => {
-  const navigation = useNavigation<any>();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -80,9 +75,11 @@ const NotificationCenterScreen = () => {
     setLoading(false);
   }, [fetchNotifications]);
 
-  useEffect(() => {
-    loadInitial();
-  }, [loadInitial]);
+  useFocusEffect(
+    useCallback(() => {
+      loadInitial();
+    }, [loadInitial])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -99,7 +96,6 @@ const NotificationCenterScreen = () => {
   };
 
   const handleNotificationPress = async (n: Notification) => {
-    const subId = n.actor?.subId;
     if (!n.read) {
       try {
         await markNotificationAsRead(n.id);
@@ -108,14 +104,11 @@ const NotificationCenterScreen = () => {
         );
       } catch {}
     }
-    if (subId) navigation.navigate("UserProfile", { subId });
   };
 
   const renderItem = ({ item }: { item: Notification }) => {
-    const actor = item.actor?.username ?? "User";
-    const pfpUrl = getPfpUrl(item.actor?.profilePicUrl);
-    const message = getNotificationMessage(item);
     const timeAgo = formatTimeAgo(item.createdAt);
+    const icon = getIconForType(item.type);
 
     return (
       <TouchableOpacity
@@ -123,15 +116,11 @@ const NotificationCenterScreen = () => {
         onPress={() => handleNotificationPress(item)}
         activeOpacity={0.7}
       >
-        <View style={styles.avatar}>
-          {pfpUrl ? (
-            <Image source={{ uri: pfpUrl }} style={styles.avatarImage} />
-          ) : (
-            <Text style={styles.avatarText}>{actor.charAt(0).toUpperCase()}</Text>
-          )}
+        <View style={styles.iconWrapper}>
+          <Ionicons name={icon} size={24} color="#202c76" />
         </View>
         <View style={styles.content}>
-          <Text style={styles.message}>{message}</Text>
+          <Text style={styles.message}>{item.message}</Text>
           <Text style={styles.timeAgo}>{timeAgo}</Text>
         </View>
         <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
@@ -237,24 +226,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f9fa",
     opacity: 0.9,
   },
-  avatar: {
+  iconWrapper: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#202c76",
+    backgroundColor: "#e8ecf4",
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
-    overflow: "hidden",
-  },
-  avatarImage: {
-    width: "100%",
-    height: "100%",
-  },
-  avatarText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "700",
   },
   footerLoader: {
     paddingVertical: 16,
