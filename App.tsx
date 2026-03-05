@@ -40,6 +40,7 @@ import { OnboardingProvider } from "./Contexts/OnboardingContext";
 import { WorkoutTemplateProvider } from "./Contexts/WorkoutTemplateContext";
 import { RoutinesProvider } from "./Contexts/RoutinesContext";
 import { WorkoutsProvider } from "./Contexts/WorkoutsContext";
+import { AchievementProvider } from "./Contexts/AchievementContext";
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -63,6 +64,7 @@ export default function App() {
               <MovementProvider>
                 <WorkoutStatsProvider>
                   <GlobalWorkedMusclesProvider>
+                    <AchievementProvider>
                     <NavigationContainer>
                       <Stack.Navigator
                         screenOptions={{ headerShown: false }}
@@ -181,6 +183,7 @@ export default function App() {
                         />
                       </Stack.Navigator>
                     </NavigationContainer>
+                    </AchievementProvider>
                   </GlobalWorkedMusclesProvider>
                 </WorkoutStatsProvider>
               </MovementProvider>

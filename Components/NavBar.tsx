@@ -5,6 +5,7 @@ import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
+import AchievementToast from "./AchievementToast";
 
 const NavBar = () => {
   const navigation = useNavigation<any>();
@@ -15,7 +16,9 @@ const NavBar = () => {
   const showPfp = pfpLink && !pfpError;
   const active = route.name;
   return (
-    <View style={styles.container}>
+    <>
+      <AchievementToast />
+      <View style={styles.container}>
       <View style={styles.box}>
         <TouchableOpacity onPress={() => navigation.navigate("Community")}> 
           <View style={active === "Community" ? styles.highlightCircle : undefined}>
@@ -52,6 +55,7 @@ const NavBar = () => {
         </TouchableOpacity>
       </View>
     </View>
+    </>
   );
 };
 

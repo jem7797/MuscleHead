@@ -15,6 +15,9 @@ export interface Notification {
   message: string;
   createdAt: string;
   read: boolean;
+  medalId?: number | null;
+  medalName?: string | null;
+  medalDescription?: string | null;
 }
 
 export interface NotificationsPage {
