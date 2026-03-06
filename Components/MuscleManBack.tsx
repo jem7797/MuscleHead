@@ -1,12 +1,18 @@
 import * as React from "react";
 import Svg, { G, Path as RNSVGPath, SvgProps } from "react-native-svg";
 import { useWorkedMuscles } from "../Contexts/WorkedMusclesContext";
+import { WorkedMuscleEntry } from "../Services/workedMusclesApi";
+import { getMuscleColor } from "../utils/muscleColor";
 
 type Props = SvgProps & {
   scale?: number;
-  worked?: string[];
+  worked?: WorkedMuscleEntry[] | string[];
   activeColor?: string;
 };
+
+function isWorkedMuscleEntry(x: unknown): x is WorkedMuscleEntry {
+  return x != null && typeof x === "object" && "muscleId" in x && "expiresAt" in x;
+}
 
 const VB_W = 210;
 const VB_H = 297;
@@ -26,6 +32,8 @@ const MuscleManBack: React.FC<Props> = ({
   const workedList = worked ?? backWorked ?? [];
 
   const canon = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+  const useEntryFormat = workedList.length > 0 && isWorkedMuscleEntry(workedList[0]);
 
   const GROUPS: Record<string, string[]> = {
     delts: ["rightdeltoidback", "leftdeltoidback"],
@@ -58,58 +66,80 @@ const MuscleManBack: React.FC<Props> = ({
   };
 
   const ACTIVE = React.useMemo(() => {
+    if (useEntryFormat) return new Set<string>();
     const set = new Set<string>();
-    workedList.forEach((name) => {
+    (workedList as string[]).forEach((name) => {
       const c = canon(name);
-      if (GROUPS[c]) {
-        GROUPS[c].forEach((m) => set.add(m));
-      } else {
-        set.add(c);
-      }
+      if (GROUPS[c]) GROUPS[c].forEach((m) => set.add(m));
+      else set.add(c);
     });
     return set;
-  }, [workedList]);
+  }, [workedList, useEntryFormat]);
 
-  const isActive = (id?: string) => {
-    if (!id) return false;
+  const ACTIVE_COLOR_MAP = React.useMemo(() => {
+    if (!useEntryFormat) return new Map<string, string>();
+    const map = new Map<string, string>();
+    (workedList as WorkedMuscleEntry[]).forEach((entry) => {
+      const c = canon(entry.muscleId);
+      const paths = GROUPS[c] ?? [c];
+      const color = getMuscleColor(entry.expiresAt);
+      paths.forEach((p) => map.set(p, color));
+    });
+    return map;
+  }, [workedList, useEntryFormat]);
+
+  const alias: Record<string, string[]> = {
+    rightdeltoidback: ["rightdeltoid", "right_delt"],
+    leftdeltoidback: ["leftdeltoid", "left_delt"],
+    righttrapezius: ["righttrap", "right_trap"],
+    lefttrapezius: ["lefttrap", "left_trap"],
+    rightlat: ["rightlatissimus", "right_lat"],
+    leftlat: ["leftlatissimus", "left_lat"],
+    righttricep: ["right_tricep"],
+    lefttricep: ["left_tricep"],
+    rightouterforearm: ["rightforearmouter"],
+    leftouterforearm: ["leftforearmouter"],
+    rightinnerforearm: ["rightforearminner"],
+    leftinnerforearm: ["leftforearminner"],
+    rightglutemaximus: ["rightglute"],
+    leftglutemaximus: ["leftglute"],
+    righthamstring: ["right_hamstring"],
+    lefthamstring: ["left_hamstring"],
+    rightadductor: ["right_adductor"],
+    leftadductor: ["left_adductor"],
+    rightleftcalf: ["right_calf_left"],
+    rightrightcalf: ["right_calf_right"],
+    leftleftcalf: ["left_calf_left"],
+    leftrightcalf: ["left_calf_right"],
+    rightobliqueback: ["rightoblique", "right_oblique"],
+    leftobliqueback: ["leftoblique", "left_oblique"],
+  };
+
+  const getFillForPath = (id?: string) => {
+    if (!id) return undefined;
     const c = canon(id);
-    if (ACTIVE.has(c)) return true;
-    const alias: Record<string, string[]> = {
-      rightdeltoidback: ["rightdeltoid", "right_delt"],
-      leftdeltoidback: ["leftdeltoid", "left_delt"],
-      righttrapezius: ["righttrap", "right_trap"],
-      lefttrapezius: ["lefttrap", "left_trap"],
-      rightlat: ["rightlatissimus", "right_lat"],
-      leftlat: ["leftlatissimus", "left_lat"],
-      righttricep: ["right_tricep"],
-      lefttricep: ["left_tricep"],
-      rightouterforearm: ["rightforearmouter"],
-      leftouterforearm: ["leftforearmouter"],
-      rightinnerforearm: ["rightforearminner"],
-      leftinnerforearm: ["leftforearminner"],
-      rightglutemaximus: ["rightglute"],
-      leftglutemaximus: ["leftglute"],
-      righthamstring: ["right_hamstring"],
-      lefthamstring: ["left_hamstring"],
-      rightadductor: ["right_adductor"],
-      leftadductor: ["left_adductor"],
-      rightleftcalf: ["right_calf_left"],
-      rightrightcalf: ["right_calf_right"],
-      leftleftcalf: ["left_calf_left"],
-      leftrightcalf: ["left_calf_right"],
-      rightobliqueback: ["rightoblique", "right_oblique"],
-      leftobliqueback: ["leftoblique", "left_oblique"],
-    };
-    for (const [canonical, alts] of Object.entries(alias)) {
-      if (alts.includes(c) && ACTIVE.has(canonical)) return true;
+    if (useEntryFormat) {
+      const color = ACTIVE_COLOR_MAP.get(c);
+      if (color) return color;
+      for (const [canonical, alts] of Object.entries(alias)) {
+        if (alts.includes(c) && ACTIVE_COLOR_MAP.has(canonical)) {
+          return ACTIVE_COLOR_MAP.get(canonical);
+        }
+      }
+      return undefined;
     }
-    return false;
+    if (ACTIVE.has(c)) return activeColor;
+    for (const [canonical, alts] of Object.entries(alias)) {
+      if (alts.includes(c) && ACTIVE.has(canonical)) return activeColor;
+    }
+    return undefined;
   };
 
   const Path = (props: React.ComponentProps<typeof RNSVGPath>) => {
     const { id, fill, fillOpacity, ...restProps } = props as any;
-    const active = isActive(id);
-    const computedFill = active ? activeColor : fill ?? "black";
+    const activeFill = getFillForPath(id);
+    const active = activeFill != null;
+    const computedFill = activeFill ?? fill ?? "black";
     const computedFillOpacity = active ? 1 : fillOpacity;
     return (
       <RNSVGPath

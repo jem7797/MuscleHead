@@ -1,8 +1,9 @@
 import React, { createContext, useContext } from "react";
+import { WorkedMuscleEntry } from "../Services/workedMusclesApi";
 
 type WorkedMusclesContextValue = {
-  frontWorked?: string[];
-  backWorked?: string[];
+  frontWorked?: WorkedMuscleEntry[] | string[];
+  backWorked?: WorkedMuscleEntry[] | string[];
 };
 
 const WorkedMusclesContext = createContext<WorkedMusclesContextValue | undefined>(undefined);

@@ -7,9 +7,14 @@
 
 import { apiRequest, parseJsonResponse, getCurrentUserSub } from "./apiConfig";
 
+export interface WorkedMuscleEntry {
+  muscleId: string;
+  expiresAt: string; // ISO 8601 UTC string
+}
+
 export interface WorkedMusclesResponse {
-  frontWorked: string[];
-  backWorked: string[];
+  frontWorked: WorkedMuscleEntry[];
+  backWorked: WorkedMuscleEntry[];
 }
 
 export interface WorkedMusclesPostExercise {
@@ -38,9 +43,17 @@ export const getWorkedMuscles = async (
     });
     const data = await parseJsonResponse<WorkedMusclesResponse>(response);
     console.log("[workedMuscles] GET raw response:", JSON.stringify(data));
+
+    const parseEntries = (arr: unknown): WorkedMuscleEntry[] => {
+      if (!Array.isArray(arr)) return [];
+      return arr
+        .filter((x): x is WorkedMuscleEntry => x != null && typeof x === "object" && "muscleId" in x && "expiresAt" in x)
+        .map((x) => ({ muscleId: String(x.muscleId), expiresAt: String(x.expiresAt) }));
+    };
+
     return {
-      frontWorked: Array.isArray(data?.frontWorked) ? data.frontWorked : [],
-      backWorked: Array.isArray(data?.backWorked) ? data.backWorked : [],
+      frontWorked: parseEntries(data?.frontWorked),
+      backWorked: parseEntries(data?.backWorked),
     };
   } catch (err) {
     console.error("error in getworked muscles", err)

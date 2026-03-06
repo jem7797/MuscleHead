@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useUser } from './UserContext';
-import { getWorkedMuscles } from '../Services/workedMusclesApi';
+import { getWorkedMuscles, WorkedMuscleEntry } from '../Services/workedMusclesApi';
 
 interface GlobalWorkedMusclesContextType {
-  globalFrontWorked: string[];
-  globalBackWorked: string[];
+  globalFrontWorked: WorkedMuscleEntry[];
+  globalBackWorked: WorkedMuscleEntry[];
   refreshWorkedMuscles: () => Promise<void>;
   isLoadingWorkedMuscles: boolean;
 }
@@ -13,8 +13,8 @@ const GlobalWorkedMusclesContext = createContext<GlobalWorkedMusclesContextType 
 
 export const GlobalWorkedMusclesProvider = ({ children }: { children: React.ReactNode }) => {
   const { userId, isAuthenticated } = useUser();
-  const [globalFrontWorked, setGlobalFrontWorked] = useState<string[]>([]);
-  const [globalBackWorked, setGlobalBackWorked] = useState<string[]>([]);
+  const [globalFrontWorked, setGlobalFrontWorked] = useState<WorkedMuscleEntry[]>([]);
+  const [globalBackWorked, setGlobalBackWorked] = useState<WorkedMuscleEntry[]>([]);
   const [isLoadingWorkedMuscles, setIsLoadingWorkedMuscles] = useState(false);
 
   const refreshWorkedMuscles = useCallback(async () => {

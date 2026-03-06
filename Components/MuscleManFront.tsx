@@ -1,15 +1,18 @@
 import * as React from "react";
 import Svg, { G, Path as RNSVGPath, SvgProps } from "react-native-svg";
 import { useWorkedMuscles } from "../Contexts/WorkedMusclesContext";
+import { WorkedMuscleEntry } from "../Services/workedMusclesApi";
+import { getMuscleColor } from "../utils/muscleColor";
 
-
-// Optional: let callers use width/height or a scale factor.
-// Props: same as before, plus worked + activeColor
 type Props = SvgProps & {
-  scale?: number;           // multiplies the original viewBox size
-  worked?: string[];        // muscle IDs you want filled
-  activeColor?: string;     // optional override for highlight color
+  scale?: number;
+  worked?: WorkedMuscleEntry[] | string[];
+  activeColor?: string;
 };
+
+function isWorkedMuscleEntry(x: unknown): x is WorkedMuscleEntry {
+  return x != null && typeof x === "object" && "muscleId" in x && "expiresAt" in x;
+}
 
 const VB_W = 164.33;
 const VB_H = 293.538;
@@ -62,30 +65,61 @@ const MuscleManFront: React.FC<Props> = ({
   const canon = (s: string) =>
     s.toLowerCase().replace(/[^a-z0-9]/g, "");
 
+  const useEntryFormat = workedList.length > 0 && isWorkedMuscleEntry(workedList[0]);
+
   const ACTIVE = React.useMemo(() => {
+    if (useEntryFormat) return new Set<string>();
     const set = new Set<string>();
-  
-    workedList.forEach((name) => {
+    (workedList as string[]).forEach((name) => {
       const c = canon(name);
-  
-      if (GROUPS[c]) {
-        GROUPS[c].forEach((m) => set.add(m));
-      } else {
-        set.add(c);
-      }
+      if (GROUPS[c]) GROUPS[c].forEach((m) => set.add(m));
+      else set.add(c);
     });
-  
     return set;
-  }, [workedList]);
+  }, [workedList, useEntryFormat]);
 
-  
-  const isActive = (id?: string) => {
-    if (!id) return false;
+  const ACTIVE_COLOR_MAP = React.useMemo(() => {
+    if (!useEntryFormat) return new Map<string, string>();
+    const map = new Map<string, string>();
+    (workedList as WorkedMuscleEntry[]).forEach((entry) => {
+      const c = canon(entry.muscleId);
+      const paths = GROUPS[c] ?? [c];
+      const color = getMuscleColor(entry.expiresAt);
+      paths.forEach((p) => map.set(p, color));
+    });
+    return map;
+  }, [workedList, useEntryFormat]);
+
+  const getFillForPath = (id?: string) => {
+    if (!id) return undefined;
     const c = canon(id);
-    if (ACTIVE.has(c)) return true;
-
-    // Light aliasing for common variants you already have in the SVG
-    // e.g., Right_Pectoral vs Right_Pec
+    if (useEntryFormat) {
+      const color = ACTIVE_COLOR_MAP.get(c);
+      if (color) return color;
+      const alias: Record<string, string[]> = {
+        rightpec: ["rightpectoral", "rightpectoralis"],
+        leftpec: ["leftpectoral", "leftpectoralis"],
+        righttricepfront: ["right_tricep", "righttricep"],
+        lefttricepfront: ["left_tricep", "lefttricep"],
+        rightbicep: ["right_biceps", "rightbiceps"],
+        leftbicep: ["left_biceps", "leftbiceps"],
+        rightoblique1: ["rightoblique", "right_oblique"],
+        leftoblique1: ["leftoblique", "left_oblique"],
+        rightquad: ["rightquadriceps", "right_quadriceps"],
+        leftquad: ["leftquadriceps", "left_quadriceps"],
+        rightcalffront: ["rightcalf", "right_calf"],
+        leftcalffront: ["leftcalf", "left_calf"],
+        rightab1: ["rightabs", "right_ab", "rightrectus"],
+        leftab1: ["leftabs", "left_ab", "leftrectus"],
+      };
+      for (const [canonical, alts] of Object.entries(alias)) {
+        if (alts.includes(c) && ACTIVE_COLOR_MAP.has(canonical)) {
+          return ACTIVE_COLOR_MAP.get(canonical);
+        }
+      }
+      return undefined;
+    }
+    if (ACTIVE.has(c)) return activeColor;
     const alias: Record<string, string[]> = {
       rightpec: ["rightpectoral", "rightpectoralis"],
       leftpec: ["leftpectoral", "leftpectoralis"],
@@ -103,18 +137,15 @@ const MuscleManFront: React.FC<Props> = ({
       leftab1: ["leftabs", "left_ab", "leftrectus"],
     };
     for (const [canonical, alts] of Object.entries(alias)) {
-      if (alts.includes(c) && ACTIVE.has(canonical)) return true;
+      if (alts.includes(c) && ACTIVE.has(canonical)) return activeColor;
     }
-    return false;
+    return undefined;
   };
 
-  // 🪄 Wrapper: intercept EVERY <Path> and auto-set its fill if id is active
   const Path = (props: React.ComponentProps<typeof RNSVGPath>) => {
     const { id, fill, ...restProps } = props as any;
-    const computedFill =
-    isActive(id)
-      ? activeColor            // highlighted muscles glow
-      : fill ?? "black";
+    const activeFill = getFillForPath(id);
+    const computedFill = activeFill ?? fill ?? "black";
     return <RNSVGPath id={id} fill={computedFill} {...restProps} />;
   };
   return (
