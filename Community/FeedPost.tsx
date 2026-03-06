@@ -49,6 +49,7 @@ interface FeedPostProps {
 const normalizeId = (id: string) => String(id ?? "").trim().toLowerCase();
 
 const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds = [], onUserPress, onDeleted, onUpdated }) => {
+  console.log('PostCard props:', JSON.stringify(post));
   const [imgError, setImgError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [liked, setLiked] = useState(!!post.userLiked);
@@ -151,6 +152,11 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
   };
   const hasImage = !!(post.imageLink && post.imageLink.trim());
   const hasCaption = !!(post.caption && post.caption.trim());
+  const isTrophy = post.isTrophy === true || post.trophy === true;
+  const medalName = post.medalName ?? (post as { medal_name?: string }).medal_name ?? "";
+  const achievementDesc = post.description ?? (post as { achievement_description?: string }).achievement_description ?? "";
+  const formattedMedal = medalName ? medalName.replace(/_/g, " ").trim() : "";
+  const trophyDisplayName = formattedMedal || (post as { achievementName?: string }).achievementName || "Achievement";
   const displayName = post.user?.username ?? "User";
   const pfpUrl = getPfpUrl(post.user?.profilePicUrl);
 
@@ -184,6 +190,80 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
       )}
     </View>
   );
+
+  if (isTrophy) {
+    return (
+      <View style={[styles.textBubbleCard, styles.trophyCardBorder]}>
+        <TouchableOpacity
+          style={[styles.achievementBubble, bubbleBg]}
+          onPress={() => post.user?.subId && onUserPress?.(post.user.subId)}
+          activeOpacity={0.7}
+        >
+          {pfpUrl ? (
+            <Image source={{ uri: pfpUrl }} style={styles.bubbleAvatar} />
+          ) : (
+            <View style={[styles.bubbleAvatar, styles.avatarPlaceholder]}>
+              <Text style={styles.avatarText}>{displayName.charAt(0)}</Text>
+            </View>
+          )}
+          <View style={styles.bubbleContent}>
+            <View style={styles.bubbleHeader}>
+              <Text style={[styles.username, nemesisText]}>{displayName}</Text>
+              <Text style={[styles.timestamp, nemesisMuted]}>{formatTimestamp(post.timestamp)}</Text>
+            </View>
+            <View style={styles.achievementBanner}>
+              <Ionicons name="trophy" size={24} color="#FFD700" />
+              <Text style={styles.achievementBannerText}>{trophyDisplayName}</Text>
+            </View>
+           
+          </View>
+        </TouchableOpacity>
+        {showComments && (
+          <View style={[styles.commentsSection, isNemesisPost && styles.commentsSectionNemesis]}>
+            {loadingComments ? (
+              <Text style={styles.commentsLoading}>Loading comments...</Text>
+            ) : comments.length > 0 ? (
+              <View style={styles.commentsList}>
+                {comments.map((c, i) => {
+                  const text = c.text ?? c.content ?? "";
+                  const username = c.user?.username ?? c.username ?? "User";
+                  return (
+                    <View key={c.id ?? i} style={styles.commentItem}>
+                      <Text style={styles.commentUsername}>{username}</Text>
+                      <Text style={styles.commentText}>{text}</Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ) : commentCount === 0 ? (
+              <Text style={styles.commentsEmpty}>No comments yet</Text>
+            ) : null}
+            {currentUserId && (
+              <View style={styles.commentInputRow}>
+                <TextInput
+                  style={styles.commentInput}
+                  placeholder="Add a comment..."
+                  placeholderTextColor="#9aa6bd"
+                  value={commentDraft}
+                  onChangeText={setCommentDraft}
+                  multiline
+                  maxLength={500}
+                  editable={!patching}
+                />
+                <TouchableOpacity
+                  style={[styles.commentPostBtn, (!commentDraft.trim() || patching) && styles.commentPostBtnDisabled]}
+                  onPress={handleCommentSubmit}
+                  disabled={!commentDraft.trim() || patching}
+                >
+                  <Text style={styles.commentPostBtnText}>Post</Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </View>
+        )}
+      </View>
+    );
+  }
 
   if (!hasImage) {
     return (
@@ -370,6 +450,30 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 16,
     borderTopLeftRadius: 4,
+  },
+  trophyCardBorder: {
+    borderWidth: 2,
+    borderColor: "#FFD700",
+    borderRadius: 16,
+    overflow: "hidden",
+  },
+  achievementBubble: {
+    flexDirection: "row",
+    backgroundColor: "#faf8f0",
+    padding: 12,
+    borderRadius: 14,
+    borderTopLeftRadius: 2,
+  },
+  achievementBanner: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginTop: 8,
+  },
+  achievementBannerText: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#FFD700",
   },
   bubbleAvatar: {
     width: 36,

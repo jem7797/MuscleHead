@@ -11,6 +11,9 @@ export interface Medal {
   description: string;
   earned: boolean;
   awardedAt: string | null;
+  /** user_medals.id – present when earned; required for trophy posts */
+  achievementId?: number | null;
+  id?: number | null;
 }
 
 export const getAllMedals = async (): Promise<Medal[]> => {

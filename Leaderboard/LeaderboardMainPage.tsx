@@ -10,6 +10,7 @@ import {
   LayoutAnimation,
   Platform,
   UIManager,
+  Alert,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -19,6 +20,7 @@ import {
   markNotificationAsRead,
   Notification,
 } from "../Services/notificationsApi";
+import { createAchievementPost } from "../Services/postsApi";
 
 const formatTimeAgo = (dateStr?: string): string => {
   if (!dateStr) return "";
@@ -72,6 +74,21 @@ const NotificationCenterScreen = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
+  const [postingMedalId, setPostingMedalId] = useState<number | null>(null);
+
+  const handleShareAchievement = async (n: Notification) => {
+    const achievementId = n.medalId;
+    if (achievementId == null || postingMedalId != null) return;
+    setPostingMedalId(n.id);
+    try {
+      await createAchievementPost(achievementId);
+      Alert.alert("Shared!", "Your achievement has been posted to the feed.");
+    } catch (e) {
+      Alert.alert("Could not share", e instanceof Error ? e.message : "Please try again.");
+    } finally {
+      setPostingMedalId(null);
+    }
+  };
 
   const fetchNotifications = useCallback(async (pageNum: number = 0, append: boolean = false) => {
     const result = await getNotifications(pageNum, PAGE_SIZE);
@@ -155,7 +172,7 @@ const NotificationCenterScreen = () => {
             ]}
           >
             <Ionicons
-              name={icon}
+              name={icon as React.ComponentProps<typeof Ionicons>["name"]}
               size={24}
               color={achievement ? "#ffd700" : "#202c76"}
             />
@@ -177,6 +194,18 @@ const NotificationCenterScreen = () => {
         {achievement && expanded && description ? (
           <View style={styles.expandedDescription}>
             <Text style={styles.descriptionText}>{description}</Text>
+            {item.medalId != null && (
+              <TouchableOpacity
+                style={[styles.shareButton, postingMedalId === item.id && styles.shareButtonDisabled]}
+                onPress={() => handleShareAchievement(item)}
+                disabled={postingMedalId != null}
+              >
+                <Ionicons name="share-social-outline" size={16} color="#fff" />
+                <Text style={styles.shareButtonText}>
+                  {postingMedalId === item.id ? "Posting..." : "Share to Feed"}
+                </Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : null}
       </View>
@@ -287,6 +316,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 16,
     paddingTop: 0,
+  },
+  shareButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    backgroundColor: "#202c76",
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    marginTop: 12,
+    alignSelf: "flex-start",
+  },
+  shareButtonDisabled: {
+    opacity: 0.6,
+  },
+  shareButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
   },
   descriptionText: {
     fontSize: 14,

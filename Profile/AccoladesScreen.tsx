@@ -9,12 +9,14 @@ import {
   FlatList,
   useWindowDimensions,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
 import NavBar from "../Components/NavBar";
 import { getAllMedals, type Medal } from "../Services/medalsApi";
+import { createAchievementPost } from "../Services/postsApi";
 
 const TROPHY_COLOR_EARNED = "#ffd700";
 const TROPHY_COLOR_LOCKED = "#4a4a4a";
@@ -39,7 +41,27 @@ const AccoladesScreen = () => {
   const [medals, setMedals] = useState<Medal[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMedal, setSelectedMedal] = useState<Medal | null>(null);
+  const [posting, setPosting] = useState(false);
   const { width } = useWindowDimensions();
+
+  const handleShareAchievement = async () => {
+    if (!selectedMedal?.earned || posting) return;
+    const achievementId = selectedMedal.achievementId ?? selectedMedal.id;
+    if (achievementId == null) {
+      Alert.alert("Cannot share", "Achievement ID is missing. Please try again later.");
+      return;
+    }
+    setPosting(true);
+    try {
+      await createAchievementPost(achievementId);
+      setSelectedMedal(null);
+      Alert.alert("Shared!", "Your achievement has been posted to the feed.");
+    } catch (e) {
+      Alert.alert("Could not share", e instanceof Error ? e.message : "Please try again.");
+    } finally {
+      setPosting(false);
+    }
+  };
   const itemWidth = (width - 48 - (GRID_COLUMNS - 1) * 12) / GRID_COLUMNS;
 
   useFocusEffect(
@@ -133,11 +155,23 @@ const AccoladesScreen = () => {
                     Earned {formatEarnedDate(selectedMedal.awardedAt)}
                   </Text>
                 )}
+                {selectedMedal.earned && (selectedMedal.achievementId != null || selectedMedal.id != null) && (
+                  <TouchableOpacity
+                    style={[styles.shareButton, posting && styles.shareButtonDisabled]}
+                    onPress={handleShareAchievement}
+                    disabled={posting}
+                  >
+                    <Ionicons name="share-social-outline" size={18} color="#fff" />
+                    <Text style={styles.shareButtonText}>{posting ? "Posting..." : "Share to Feed"}</Text>
+                  </TouchableOpacity>
+                )}
                 <TouchableOpacity
-                  style={styles.dismissButton}
+                  style={[styles.dismissButton, selectedMedal.earned && styles.dismissButtonSecondary]}
                   onPress={() => setSelectedMedal(null)}
                 >
-                  <Text style={styles.dismissButtonText}>Close</Text>
+                  <Text style={[styles.dismissButtonText, selectedMedal.earned && styles.dismissButtonTextSecondary]}>
+                    Close
+                  </Text>
                 </TouchableOpacity>
               </>
             )}
@@ -213,7 +247,25 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#8a9bb5",
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 12,
+  },
+  shareButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    backgroundColor: "#202c76",
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 12,
+  },
+  shareButtonDisabled: {
+    opacity: 0.6,
+  },
+  shareButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
   },
   dismissButton: {
     backgroundColor: "#202c76",
@@ -221,10 +273,16 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
+  dismissButtonSecondary: {
+    backgroundColor: "#e8ecf4",
+  },
   dismissButtonText: {
     fontSize: 16,
     fontWeight: "600",
     color: "#fff",
+  },
+  dismissButtonTextSecondary: {
+    color: "#1f2a44",
   },
 });
 

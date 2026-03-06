@@ -8,7 +8,7 @@
  * GET /posts/api/feed - Feed (posts from followed users)
  */
 
-import { apiRequest, parseJsonResponse } from "./apiConfig";
+import { apiRequest, parseJsonResponse, getCurrentUserSub } from "./apiConfig";
 
 export interface PresignedImageUrlResponse {
   uploadUrl: string;
@@ -39,6 +39,7 @@ export interface PostComment {
 
 export interface PostResponse {
   postId: number;
+  userId?: string;
   user: PostUser;
   imageLink: string | null;
   caption: string;
@@ -48,6 +49,14 @@ export interface PostResponse {
   commentCount: number;
   userLiked?: boolean;
   comments?: PostComment[];
+  isTrophy?: boolean;
+  /** Backend may return trophy instead of isTrophy */
+  trophy?: boolean;
+  achievementId?: number | null;
+  /** Enum name for achievement posts (e.g. "BAPTISM") */
+  medalName?: string | null;
+  /** Achievement description for trophy posts (e.g. "Complete your first workout") */
+  description?: string | null;
   [key: string]: unknown;
 }
 
@@ -138,6 +147,31 @@ export const createPost = async (
 };
 
 /**
+ * Creates an achievement/trophy post (share a medal to the feed).
+ * POST /posts/api
+ * Body: { userId, isTrophy: true, achievementId, caption: "" }
+ */
+export const createAchievementPost = async (
+  achievementId: number
+): Promise<CreatePostResponse> => {
+  const userId = await getCurrentUserSub();
+  if (!userId) throw new Error("Not authenticated");
+  const body = {
+    userId,
+    caption: "",
+    isTrophy: true,
+    achievementId,
+  };
+  console.log('CREATE POST body:', JSON.stringify(body));
+  const response = await apiRequest(
+    "/posts/api",
+    { method: "POST", body: JSON.stringify(body) },
+    false
+  );
+  return parseJsonResponse<CreatePostResponse>(response);
+};
+
+/**
  * Gets a single post by ID.
  * GET /posts/api/{id}
  * Auth: Required (JWT in Authorization header)
@@ -195,7 +229,10 @@ export const getPostsByUser = async (
   const response = await apiRequest(`/posts/api/user/${subId}?${params}`, {
     method: "GET",
   });
-  return parseJsonResponse<FeedPageResponse>(response);
+  const data = await parseJsonResponse<FeedPageResponse>(response);
+  const posts = data.content ?? [];
+  console.log('GET posts response:', JSON.stringify(posts));
+  return data;
 };
 
 /**
@@ -216,5 +253,8 @@ export const getFeed = async (
   const response = await apiRequest(`/posts/api/feed?${params}`, {
     method: "GET",
   });
-  return parseJsonResponse<FeedPageResponse>(response);
+  const data = await parseJsonResponse<FeedPageResponse>(response);
+  const posts = data.content ?? [];
+  console.log('GET posts response:', JSON.stringify(posts));
+  return data;
 };
