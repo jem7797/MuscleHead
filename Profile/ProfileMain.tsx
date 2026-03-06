@@ -107,6 +107,7 @@ const ProfileScreen = () => {
         visible={isSettingsOpen}
         onClose={toggleSettings}
         onEditProfile={() => navigation.navigate("ProfileEdit")}
+        onAccoladesPress={() => navigation.navigate("Accolades")}
       />
 
       <NavBar />

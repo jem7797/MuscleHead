@@ -29,7 +29,7 @@ interface DataPoint {
   maxLift: number;
 }
 
-const CHART_HEIGHT = 160;
+const CHART_HEIGHT = 240;
 const LINE_COLOR = "#202c76";
 const POINT_RADIUS = 5;
 const PADDING = { top: 24, right: 16, bottom: 32, left: 64 };
@@ -48,7 +48,7 @@ function formatDateForCallout(dateStr: string): string {
   });
 }
 
-const Y_AXIS_MAX = 700;
+const Y_AXIS_MAX = 1000;
 
 function getYAxisTicks(): { ticks: number[]; scaleMax: number } {
   const step = 100;

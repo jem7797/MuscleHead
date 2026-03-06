@@ -30,6 +30,7 @@ import SearchScreen from "./Search/SearchMainPage";
 import NotificationCenterScreen from "./Leaderboard/LeaderboardMainPage";
 import ProfileScreen from "./Profile/ProfileMain";
 import ProfileEditPage from "./Profile/ProfileEditPage";
+import AccoladesScreen from "./Profile/AccoladesScreen";
 import UserProfileScreen from "./Profile/UserProfileScreen";
 import FollowListScreen from "./Profile/FollowListScreen";
 import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
@@ -170,6 +171,11 @@ export default function App() {
                         <Stack.Screen
                           name="ProfileEdit"
                           component={ProfileEditPage}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="Accolades"
+                          component={AccoladesScreen}
                           options={{ animation: "none" }}
                         />
                         <Stack.Screen

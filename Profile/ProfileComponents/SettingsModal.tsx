@@ -10,9 +10,10 @@ interface SettingsModalProps {
   visible: boolean;
   onClose: () => void;
   onEditProfile?: () => void;
+  onAccoladesPress?: () => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose, onEditProfile }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose, onEditProfile, onAccoladesPress }) => {
   return (
     <Modal
       visible={visible}
@@ -44,6 +45,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose, onEditP
             >
               <Ionicons name="create-outline" size={22} color="#1f2a44" />
               <Text style={styles.settingsText}>Edit profile</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.settingsItem}
+              onPress={() => {
+                onClose();
+                onAccoladesPress?.();
+              }}
+            >
+              <Ionicons name="ribbon-sharp" size={22} color="#1f2a44" />
+              <Text style={styles.settingsText}>Accolades</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.settingsItem}>
