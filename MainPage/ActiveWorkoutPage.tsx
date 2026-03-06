@@ -15,7 +15,9 @@ import PageHeader from "../Components/PageHeader";
 import PrimaryButton from "../Components/PrimaryButton";
 import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
+import MuscleWomanFront from "../Components/MuscleWomanFront";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
+import { useUser } from "../Contexts/UserContext";
 import {
   getWorkoutTemplateById,
   type WorkoutTemplateDetail,
@@ -54,13 +56,19 @@ const MUSCLE_GROUP_MAP: Record<string, { front: string[]; back: string[] }> = {
 /** Normalize template to ExerciseState[]. Handles both routineExercises and exercises formats. */
 const buildInitialState = (
   template: WorkoutTemplateDetail,
-  movementById: Record<number, string>
+  movementById: Record<number, string>,
 ): ExerciseState[] => {
   const defaultSets = template.sets ?? 3;
   const fromRoutine = template.routineExercises ?? [];
   const fromExercises = template.exercises ?? [];
 
-  let items: { exerciseId: number; orderIndex: number; reps: number; sets: number; name: string }[] = [];
+  let items: {
+    exerciseId: number;
+    orderIndex: number;
+    reps: number;
+    sets: number;
+    name: string;
+  }[] = [];
 
   if (fromRoutine.length > 0) {
     items = fromRoutine
@@ -70,7 +78,8 @@ const buildInitialState = (
         orderIndex: re.orderIndex ?? 0,
         reps: re.reps ?? 0,
         sets: re.sets ?? defaultSets,
-        name: re.exercise?.name ?? movementById[re.exerciseId ?? 0] ?? "Unknown",
+        name:
+          re.exercise?.name ?? movementById[re.exerciseId ?? 0] ?? "Unknown",
       }));
   } else if (fromExercises.length > 0) {
     items = fromExercises
@@ -106,6 +115,8 @@ const buildInitialState = (
 const ActiveWorkoutPage = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
+  const { gender } = useUser();
+  const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
   const routineId = route.params?.routineId as number | undefined;
   const templateJson = route.params?.templateJson as string | undefined;
   const { movements } = useMovements();
@@ -138,7 +149,11 @@ const ActiveWorkoutPage = () => {
     if (templateJson) {
       try {
         const parsed = JSON.parse(templateJson) as WorkoutTemplateDetail;
-        if (parsed && ((parsed.routineExercises?.length ?? 0) > 0 || (parsed.exercises?.length ?? 0) > 0)) {
+        if (
+          parsed &&
+          ((parsed.routineExercises?.length ?? 0) > 0 ||
+            (parsed.exercises?.length ?? 0) > 0)
+        ) {
           initFromTemplate(parsed);
           setIsLoading(false);
           return;
@@ -160,7 +175,9 @@ const ActiveWorkoutPage = () => {
         }
       } catch (e) {
         if (!cancelled) {
-          setLoadError(e instanceof Error ? e.message : "Failed to load routine");
+          setLoadError(
+            e instanceof Error ? e.message : "Failed to load routine",
+          );
         }
       } finally {
         if (!cancelled) {
@@ -180,7 +197,7 @@ const ActiveWorkoutPage = () => {
         inputRange: [0, 1],
         outputRange: ["0deg", "180deg"],
       }),
-    [spinVal]
+    [spinVal],
   );
 
   const handleRotate = () => {
@@ -224,7 +241,7 @@ const ActiveWorkoutPage = () => {
     exerciseIndex: number,
     setIndex: number,
     field: "weight" | "reps" | "completed",
-    value: string | boolean
+    value: string | boolean,
   ) => {
     setExercises((prev) => {
       const next = [...prev];
@@ -272,7 +289,9 @@ const ActiveWorkoutPage = () => {
   }, [exercises]);
 
   const exerciseName = (ex: ExerciseState) =>
-    ex.routineExercise.exerciseName ?? ex.routineExercise.exercise?.name ?? "Unknown";
+    ex.routineExercise.exerciseName ??
+    ex.routineExercise.exercise?.name ??
+    "Unknown";
 
   const handleDone = () => {
     let totalWeight = 0;
@@ -293,7 +312,10 @@ const ActiveWorkoutPage = () => {
       }
       return {
         id: idx + 1,
-        exerciseId: ex.routineExercise.exercise?.id ?? ex.routineExercise.exerciseId ?? null,
+        exerciseId:
+          ex.routineExercise.exercise?.id ??
+          ex.routineExercise.exerciseId ??
+          null,
         muscleGroup: ex.routineExercise.exercise?.areaOfActivation ?? null,
         workout: exerciseName(ex),
         sets: ex.sets.map((s) => ({ reps: s.reps, weight: s.weight })),
@@ -402,11 +424,14 @@ const ActiveWorkoutPage = () => {
                 {isBack ? (
                   <MuscleManBack width={130} height={232} />
                 ) : (
-                  <MuscleManFront width={130} height={210} />
+                  <MuscleFront width={130} height={210} />
                 )}
               </WorkedMusclesProvider>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.rotateButton} onPress={handleRotate}>
+            <TouchableOpacity
+              style={styles.rotateButton}
+              onPress={handleRotate}
+            >
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
                 <Ionicons name="swap-horizontal" size={18} color="#202c76" />
               </Animated.View>
@@ -415,10 +440,15 @@ const ActiveWorkoutPage = () => {
         </View>
 
         {exercises.map((ex, exIndex) => (
-          <View key={`ex-${exIndex}-${ex.routineExercise.exerciseId ?? exIndex}`} style={styles.exerciseSection}>
+          <View
+            key={`ex-${exIndex}-${ex.routineExercise.exerciseId ?? exIndex}`}
+            style={styles.exerciseSection}
+          >
             <Text style={styles.exerciseTitle}>{exerciseName(ex)}</Text>
             {ex.targetReps > 0 && (
-              <Text style={styles.targetRepsHint}>Target: {ex.targetReps} reps</Text>
+              <Text style={styles.targetRepsHint}>
+                Target: {ex.targetReps} reps
+              </Text>
             )}
             <View style={styles.setsContainer}>
               <View style={styles.setsHeaderRow}>
@@ -453,16 +483,13 @@ const ActiveWorkoutPage = () => {
                   <TouchableOpacity
                     style={styles.checkButton}
                     onPress={() =>
-                      updateSet(
-                        exIndex,
-                        setIndex,
-                        "completed",
-                        !set.completed
-                      )
+                      updateSet(exIndex, setIndex, "completed", !set.completed)
                     }
                   >
                     <Ionicons
-                      name={set.completed ? "checkmark-circle" : "ellipse-outline"}
+                      name={
+                        set.completed ? "checkmark-circle" : "ellipse-outline"
+                      }
                       size={24}
                       color={set.completed ? "#22c55e" : "#8a9bb5"}
                     />

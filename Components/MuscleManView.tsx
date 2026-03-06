@@ -4,6 +4,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import MuscleManFront from "./MuscleManFront";
 import MuscleManBack from "./MuscleManBack";
+import MuscleWomanFront from "./MuscleWomanFront";
+import { useUser } from "../Contexts/UserContext";
 
 interface MuscleManViewProps {
   isBack: boolean;
@@ -12,6 +14,8 @@ interface MuscleManViewProps {
 
 const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
   const navigation = useNavigation<any>();
+  const { gender } = useUser();
+  const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
 
   if (isBack) {
     return (
@@ -41,7 +45,7 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
         onPress={() => navigation.navigate("MuscleDetail")}
         activeOpacity={0.9}
       >
-        <MuscleManFront width={size} height={size} />
+        <MuscleFront width={size} height={size} />
       </TouchableOpacity>
       <TouchableOpacity
         style={styles.fullscreenIcon}
@@ -82,4 +86,3 @@ const styles = StyleSheet.create({
 });
 
 export default MuscleManView;
-
