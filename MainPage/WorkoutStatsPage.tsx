@@ -18,6 +18,7 @@ import StatsGrid from "./WorkoutStatsPage Components/StatsGrid";
 import ExercisesSection from "./WorkoutStatsPage Components/ExercisesSection";
 import PrimaryButton from "../Components/PrimaryButton";
 import { createSessionLog } from "../Services/sessionLogApi";
+import { useAchievement } from "../Contexts/AchievementContext";
 
 // Map muscle group names to muscle IDs and front/back
 const MUSCLE_GROUP_MAP: Record<string, { id: string; side: 'front' | 'back' }[]> = {
@@ -39,6 +40,7 @@ const WorkoutStatsPage = () => {
   const { getMovementId } = useMovements();
   const { setGlobalFrontWorked, setGlobalBackWorked } = useGlobalWorkedMuscles();
   const { addToLifetimeStats } = useUser();
+  const { addMedalsFromWorkout } = useAchievement();
   const [workoutName, setWorkoutName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
@@ -119,10 +121,18 @@ const WorkoutStatsPage = () => {
         exercises,
       };
       if (notes.trim()) sessionLogData.notes = notes.trim();
-      await createSessionLog(sessionLogData);
+      const response = await createSessionLog(sessionLogData);
+      if (response.newlyAwardedMedals?.length > 0) {
+        await addMedalsFromWorkout(response.newlyAwardedMedals);
+        // Defer navigation so the achievement queue is committed before the new screen mounts
+        requestAnimationFrame(() => {
+          navigation.navigate("WorkoutInputMainPage");
+        });
+      } else {
+        navigation.navigate("WorkoutInputMainPage");
+      }
       addToLifetimeStats(stats.totalWeight, stats.totalTime / 60);
       setStats(null);
-      navigation.navigate("WorkoutInputMainPage");
     } catch (e) {
       Alert.alert(
         "Save failed",

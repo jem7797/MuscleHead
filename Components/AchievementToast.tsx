@@ -1,40 +1,89 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Dimensions,
+  Animated,
 } from "react-native";
-import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import { useAchievement } from "../Contexts/AchievementContext";
 
 const NAV_BAR_HEIGHT = 70;
+const DISPLAY_DURATION_MS = 5000;
+
+type AchievementToastProps = {
+  navigationRef: React.RefObject<{ navigate: (name: string) => void; isReady: () => boolean } | null>;
+};
 
 /**
  * Achievement toast triggered by MEDAL_EARNED notifications.
  * Xbox 360–style: pill-shaped popup at bottom, above navbar.
- * On touch: navigates to Notifications tab and dismisses.
+ * Multiple achievements show one after another with 5 seconds between each.
+ * On touch: navigates to Notifications tab and clears the queue.
  */
-const AchievementToast = () => {
-  const navigation = useNavigation<any>();
-  const { activeAchievement, dismissAchievement, triggerAchievementCheck } =
-    useAchievement();
+const SLIDE_DISTANCE = 100;
+const SPRING_CONFIG = { tension: 100, friction: 8 };
+
+const AchievementToast = ({ navigationRef }: AchievementToastProps) => {
+  const {
+    activeAchievement,
+    dismissAchievement,
+    triggerAchievementCheck,
+  } = useAchievement();
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const translateY = useRef(new Animated.Value(SLIDE_DISTANCE)).current;
+  const opacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     triggerAchievementCheck();
   }, [triggerAchievementCheck]);
 
+  useEffect(() => {
+    if (!activeAchievement) return;
+    translateY.setValue(SLIDE_DISTANCE);
+    opacity.setValue(0);
+    Animated.parallel([
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+        ...SPRING_CONFIG,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    timerRef.current = setTimeout(() => {
+      dismissAchievement();
+      timerRef.current = null;
+    }, DISPLAY_DURATION_MS);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+    };
+  }, [activeAchievement, dismissAchievement]);
+
   const handlePress = () => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     dismissAchievement();
-    navigation.navigate("Notifications");
+    if (navigationRef?.current?.isReady()) {
+      navigationRef.current.navigate("Notifications");
+    }
   };
 
   if (!activeAchievement) return null;
 
-  const displayName =
+  const rawName =
     activeAchievement.medalName ?? activeAchievement.message ?? "Achievement unlocked!";
+  const displayName = rawName.replace(/_/g, " ");
 
   return (
     <TouchableOpacity
@@ -42,14 +91,22 @@ const AchievementToast = () => {
       onPress={handlePress}
       activeOpacity={0.9}
     >
-      <View style={styles.pill}>
+      <Animated.View
+        style={[
+          styles.pill,
+          {
+            transform: [{ translateY }],
+            opacity,
+          },
+        ]}
+      >
         <View style={styles.iconCircle}>
           <Ionicons name="trophy" size={28} color="#ffd700" />
         </View>
         <Text style={styles.achievementName} numberOfLines={1}>
           {displayName}
         </Text>
-      </View>
+      </Animated.View>
     </TouchableOpacity>
   );
 };
@@ -67,7 +124,7 @@ const styles = StyleSheet.create({
   pill: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#1a1a1a",
+    backgroundColor: "#202c76",
     borderRadius: 28,
     paddingVertical: 10,
     paddingLeft: 10,

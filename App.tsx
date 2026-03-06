@@ -1,7 +1,10 @@
 import { useEffect } from "react";
 import { StatusBar } from "expo-status-bar";
 import { StyleSheet, Text, View } from "react-native";
-import { NavigationContainer } from "@react-navigation/native";
+import {
+  NavigationContainer,
+  createNavigationContainerRef,
+} from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Audio, InterruptionModeIOS } from "expo-av";
 
@@ -41,10 +44,12 @@ import { WorkoutTemplateProvider } from "./Contexts/WorkoutTemplateContext";
 import { RoutinesProvider } from "./Contexts/RoutinesContext";
 import { WorkoutsProvider } from "./Contexts/WorkoutsContext";
 import { AchievementProvider } from "./Contexts/AchievementContext";
+import AchievementToast from "./Components/AchievementToast";
 
 //@ts-ignore
 Amplify.configure(awsConfig);
 const Stack = createNativeStackNavigator();
+const navigationRef = createNavigationContainerRef();
 
 export default function App() {
   useEffect(() => {
@@ -65,7 +70,8 @@ export default function App() {
                 <WorkoutStatsProvider>
                   <GlobalWorkedMusclesProvider>
                     <AchievementProvider>
-                    <NavigationContainer>
+                    <View style={styles.appRoot}>
+                    <NavigationContainer ref={navigationRef}>
                       <Stack.Navigator
                         screenOptions={{ headerShown: false }}
                         initialRouteName="Welcome"
@@ -183,6 +189,8 @@ export default function App() {
                         />
                       </Stack.Navigator>
                     </NavigationContainer>
+                    <AchievementToast navigationRef={navigationRef} />
+                    </View>
                     </AchievementProvider>
                   </GlobalWorkedMusclesProvider>
                 </WorkoutStatsProvider>
@@ -196,6 +204,9 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
+  appRoot: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: "rgba(215, 215, 213, 1)",

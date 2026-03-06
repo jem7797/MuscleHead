@@ -7,6 +7,9 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  LayoutAnimation,
+  Platform,
+  UIManager,
 } from "react-native";
 import { useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
@@ -35,11 +38,12 @@ const formatTimeAgo = (dateStr?: string): string => {
 const getIconForType = (type: string): string => {
   const t = (type ?? "").toUpperCase();
   switch (t) {
+    case "MEDAL_EARNED":
+    case "LEVEL_UP":
+      return "trophy";
     case "NEMESIS_POST":
     case "WORKOUT":
       return "fitness";
-    case "LEVEL_UP":
-      return "trophy";
     case "FOLLOW":
       return "person-add";
     case "LIKE":
@@ -51,7 +55,14 @@ const getIconForType = (type: string): string => {
   }
 };
 
+const isAchievement = (n: Notification) =>
+  (n.type ?? "").toUpperCase() === "MEDAL_EARNED";
+
 const PAGE_SIZE = 20;
+
+if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 
 const NotificationCenterScreen = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -60,6 +71,7 @@ const NotificationCenterScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
   const [page, setPage] = useState(0);
+  const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
 
   const fetchNotifications = useCallback(async (pageNum: number = 0, append: boolean = false) => {
     const result = await getNotifications(pageNum, PAGE_SIZE);
@@ -96,6 +108,15 @@ const NotificationCenterScreen = () => {
   };
 
   const handleNotificationPress = async (n: Notification) => {
+    if (isAchievement(n)) {
+      LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+      setExpandedIds((prev) => {
+        const next = new Set(prev);
+        if (next.has(n.id)) next.delete(n.id);
+        else next.add(n.id);
+        return next;
+      });
+    }
     if (!n.read) {
       try {
         await markNotificationAsRead(n.id);
@@ -109,22 +130,56 @@ const NotificationCenterScreen = () => {
   const renderItem = ({ item }: { item: Notification }) => {
     const timeAgo = formatTimeAgo(item.createdAt);
     const icon = getIconForType(item.type);
+    const achievement = isAchievement(item);
+    const expanded = expandedIds.has(item.id);
+    const rawDisplayName = achievement
+      ? (item.medalName ?? item.message ?? "Achievement unlocked!")
+      : item.message;
+    const displayName = achievement ? rawDisplayName.replace(/_/g, " ") : rawDisplayName;
+    const rawDescription = achievement
+      ? (item.medalDescription ?? item.message)
+      : null;
+    const description = rawDescription ? rawDescription.replace(/_/g, " ") : rawDescription;
 
     return (
-      <TouchableOpacity
-        style={[styles.notificationCard, item.read && styles.notificationRead]}
-        onPress={() => handleNotificationPress(item)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.iconWrapper}>
-          <Ionicons name={icon} size={24} color="#202c76" />
-        </View>
-        <View style={styles.content}>
-          <Text style={styles.message}>{item.message}</Text>
-          <Text style={styles.timeAgo}>{timeAgo}</Text>
-        </View>
-        <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
-      </TouchableOpacity>
+      <View style={[styles.notificationCard, item.read && styles.notificationRead]}>
+        <TouchableOpacity
+          style={styles.notificationRow}
+          onPress={() => handleNotificationPress(item)}
+          activeOpacity={0.7}
+        >
+          <View
+            style={[
+              styles.iconWrapper,
+              achievement && styles.achievementIconWrapper,
+            ]}
+          >
+            <Ionicons
+              name={icon}
+              size={24}
+              color={achievement ? "#ffd700" : "#202c76"}
+            />
+          </View>
+          <View style={styles.content}>
+            <Text style={styles.message}>{displayName}</Text>
+            <Text style={styles.timeAgo}>{timeAgo}</Text>
+          </View>
+          {achievement ? (
+            <Ionicons
+              name={expanded ? "chevron-down" : "chevron-forward"}
+              size={20}
+              color="#9aa6bd"
+            />
+          ) : (
+            <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
+          )}
+        </TouchableOpacity>
+        {achievement && expanded && description ? (
+          <View style={styles.expandedDescription}>
+            <Text style={styles.descriptionText}>{description}</Text>
+          </View>
+        ) : null}
+      </View>
     );
   };
 
@@ -213,14 +268,31 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   notificationCard: {
-    flexDirection: "row",
-    alignItems: "center",
     backgroundColor: "#fff",
     borderRadius: 12,
-    padding: 16,
     marginBottom: 8,
     borderWidth: 1,
     borderColor: "#e8ecf4",
+    overflow: "hidden",
+  },
+  notificationRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+  },
+  achievementIconWrapper: {
+    backgroundColor: "rgba(21, 18, 0, 0.81)",
+  },
+  expandedDescription: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 0,
+  },
+  descriptionText: {
+    fontSize: 14,
+    color: "#5a6a7e",
+    lineHeight: 20,
+    paddingLeft: 58,
   },
   notificationRead: {
     backgroundColor: "#f8f9fa",

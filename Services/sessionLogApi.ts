@@ -7,15 +7,29 @@
 
 import { apiRequest, parseJsonResponse, getCurrentUserSub } from "./apiConfig";
 
+/** Medal awarded from POST /sessionLog/api/ response */
+export interface NewlyAwardedMedal {
+  id: number;
+  medalName: string;
+  description: string;
+  awardedAt: string;
+}
+
+/** Response from POST /sessionLog/api/ (201 Created) */
+export interface CreateSessionLogResponse {
+  sessionId: number;
+  newlyAwardedMedals: NewlyAwardedMedal[];
+}
+
 /**
  * Creates a new session log (workout session) in the backend
- * 
+ * POST /sessionLog/api/
  * @param sessionLogData - The session log data to create
- * @returns Promise with the created session log data
+ * @returns Promise with sessionId and newlyAwardedMedals
  */
 export const createSessionLog = async (
   sessionLogData: any
-): Promise<any> => {
+): Promise<CreateSessionLogResponse> => {
   const response = await apiRequest(
     "/sessionLog/api/",
     {
@@ -24,7 +38,11 @@ export const createSessionLog = async (
     }
   );
 
-  return parseJsonResponse(response);
+  const data = await parseJsonResponse<CreateSessionLogResponse>(response);
+  return {
+    sessionId: data?.sessionId ?? 0,
+    newlyAwardedMedals: Array.isArray(data?.newlyAwardedMedals) ? data.newlyAwardedMedals : [],
+  };
 };
 
 /**

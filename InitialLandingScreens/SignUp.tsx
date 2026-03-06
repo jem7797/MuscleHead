@@ -60,6 +60,22 @@ const SignUpScreen = () => {
     clearExistingSession();
   }, []); // Run once when component mounts
 
+  const formatDobInput = (text: string) => {
+    const digits = text.replace(/\D/g, "").slice(0, 8);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+  };
+
+  const parseDobToYYYYMMDD = (formatted: string): string | null => {
+    const digits = formatted.replace(/\D/g, "");
+    if (digits.length !== 8) return null;
+    const mm = digits.slice(0, 2);
+    const dd = digits.slice(2, 4);
+    const yyyy = digits.slice(4, 8);
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   /**
    * handleSignUp - Main sign up flow handler
    *
@@ -88,13 +104,18 @@ const SignUpScreen = () => {
       Alert.alert("Error", "Please fill out all fields.");
       return;
     }
-    const dobMatch = birthDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-    if (!dobMatch) {
-      Alert.alert("Error", "Date of birth must be in YYYY-MM-DD format (e.g. 1990-05-15).");
+    const birthDateYYYYMMDD = parseDobToYYYYMMDD(birthDate);
+    if (!birthDateYYYYMMDD) {
+      Alert.alert("Error", "Date of birth must be in MM/DD/YYYY format (e.g. 05/15/1990).");
       return;
     }
-    const parsed = new Date(birthDate);
-    if (isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== birthDate) {
+    const dobMatch = birthDateYYYYMMDD.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!dobMatch) {
+      Alert.alert("Error", "Please enter a valid date.");
+      return;
+    }
+    const parsed = new Date(birthDateYYYYMMDD);
+    if (isNaN(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== birthDateYYYYMMDD) {
       Alert.alert("Error", "Please enter a valid date.");
       return;
     }
@@ -104,7 +125,7 @@ const SignUpScreen = () => {
 
     if (age < 13) {
       try {
-        await reportMinorSignupAttempt(email, given_name, birthDate, alias);
+        await reportMinorSignupAttempt(email, given_name, birthDateYYYYMMDD, alias);
       } catch (e: any) {
         // Backend received the data (or failed) - either way we block
       }
@@ -185,7 +206,7 @@ const SignUpScreen = () => {
         username: alias,
         email,
         given_name,
-        birthDate,
+        birthDate: birthDateYYYYMMDD,
       });
     } catch (error: any) {
       // Handle any errors during the sign up process
@@ -286,11 +307,13 @@ const SignUpScreen = () => {
             <Text style={styles.label}>Date of Birth</Text>
             <TextInput
               style={styles.input}
-              placeholder="YYYY-MM-DD (e.g. 1990-05-15)"
+              placeholder="MM/DD/YYYY (e.g. 05/15/1990)"
               placeholderTextColor="#aaaaaaac"
               value={birthDate}
-              onChangeText={setBirthDate}
+              onChangeText={(text) => setBirthDate(formatDobInput(text))}
               autoCapitalize="none"
+              keyboardType="number-pad"
+              maxLength={10}
             />
 
             <Text style={styles.label}>Username</Text>
