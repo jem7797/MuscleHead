@@ -15,7 +15,8 @@
       "bundleIdentifier": "com.jem7797.MuscleHead",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "MuscleHead needs access to your photo library to set your profile picture."
+        "NSPhotoLibraryUsageDescription": "MuscleHead needs access to your photo library to set your profile picture.",
+        "NSCameraUsageDescription": "MuscleHead needs camera access to take photos for your posts."
       }
     },
     "android": {

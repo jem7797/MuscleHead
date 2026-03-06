@@ -154,7 +154,6 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
   const hasCaption = !!(post.caption && post.caption.trim());
   const isTrophy = post.isTrophy === true || post.trophy === true;
   const medalName = post.medalName ?? (post as { medal_name?: string }).medal_name ?? "";
-  const achievementDesc = post.description ?? (post as { achievement_description?: string }).achievement_description ?? "";
   const formattedMedal = medalName ? medalName.replace(/_/g, " ").trim() : "";
   const trophyDisplayName = formattedMedal || (post as { achievementName?: string }).achievementName || "Achievement";
   const displayName = post.user?.username ?? "User";
@@ -215,7 +214,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
               <Ionicons name="trophy" size={24} color="#FFD700" />
               <Text style={styles.achievementBannerText}>{trophyDisplayName}</Text>
             </View>
-           
+            {renderActions()}
           </View>
         </TouchableOpacity>
         {showComments && (
