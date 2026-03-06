@@ -48,12 +48,18 @@ export const MovementProvider = ({ children }: { children: React.ReactNode }) =>
   });
 
   const getMovementId = (name: string): number | undefined => {
+    console.log("getMovementId input:", name);
     if (!name) return undefined;
     const exact = movementIdByName[name];
-    if (exact != null) return exact;
+    if (exact != null) {
+      console.log("getMovementId result:", exact);
+      return exact;
+    }
     const key = name.toLowerCase().trim();
     const found = movements.find((m) => m.name.toLowerCase().trim() === key);
-    return found?.id;
+    const result = found?.id;
+    console.log("getMovementId result:", result);
+    return result;
   };
 
   const value: MovementContextType = {

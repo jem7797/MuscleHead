@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   StyleSheet,
   View,
@@ -19,53 +19,18 @@ import ExercisesSection from "./WorkoutStatsPage Components/ExercisesSection";
 import PrimaryButton from "../Components/PrimaryButton";
 import { createSessionLog } from "../Services/sessionLogApi";
 import { useAchievement } from "../Contexts/AchievementContext";
-
-// Map muscle group names to muscle IDs and front/back
-const MUSCLE_GROUP_MAP: Record<string, { id: string; side: 'front' | 'back' }[]> = {
-  Chest: [{ id: 'pecs', side: 'front' }],
-  Arms: [{ id: 'biceps', side: 'front' }, { id: 'triceps', side: 'front' }],
-  Shoulders: [{ id: 'delts', side: 'front' }],
-  Back: [{ id: 'lats', side: 'back' }],
-  Legs: [{ id: 'quads', side: 'front' }, { id: 'hamstrings', side: 'back' }],
-  Glutes: [{ id: 'glutes', side: 'back' }],
-  Calves: [{ id: 'calves', side: 'back' }],
-  Abs: [{ id: 'abs', side: 'front' }],
-  Core: [{ id: 'obliques', side: 'front' }],
-  Traps: [{ id: 'traps', side: 'back' }],
-};
+import { postWorkedMuscles } from "../Services/workedMusclesApi";
 
 const WorkoutStatsPage = () => {
   const navigation = useNavigation<any>();
   const { stats, setStats } = useWorkoutStats();
-  const { getMovementId } = useMovements();
-  const { setGlobalFrontWorked, setGlobalBackWorked } = useGlobalWorkedMuscles();
+  const { getMovementId, movements } = useMovements();
+  const { refreshWorkedMuscles } = useGlobalWorkedMuscles();
   const { addToLifetimeStats } = useUser();
   const { addMedalsFromWorkout } = useAchievement();
   const [workoutName, setWorkoutName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
-  // Update global worked muscles when stats load
-  useEffect(() => {
-    if (!stats) return;
-    
-    const frontWorked: string[] = [];
-    const backWorked: string[] = [];
-    
-    stats.workouts.forEach(workout => {
-      if (workout.muscleGroup && MUSCLE_GROUP_MAP[workout.muscleGroup]) {
-        MUSCLE_GROUP_MAP[workout.muscleGroup].forEach(muscle => {
-          if (muscle.side === 'front' && !frontWorked.includes(muscle.id)) {
-            frontWorked.push(muscle.id);
-          } else if (muscle.side === 'back' && !backWorked.includes(muscle.id)) {
-            backWorked.push(muscle.id);
-          }
-        });
-      }
-    });
-    
-    setGlobalFrontWorked(frontWorked);
-    setGlobalBackWorked(backWorked);
-  }, [stats, setGlobalFrontWorked, setGlobalBackWorked]);
 
   if (!stats) {
     return null;
@@ -81,11 +46,13 @@ const WorkoutStatsPage = () => {
     if (!stats) return;
     setSaving(true);
     try {
+      console.log("raw workouts from stats:", JSON.stringify(stats.workouts));
       const completedWorkouts = stats.workouts.filter(
         (w) =>
           w.workout &&
           w.sets.some((s) => s.reps && s.weight)
       );
+      console.log("raw workouts from stats:", JSON.stringify(stats.workouts));
       const exercises = completedWorkouts
         .map((w) => {
           const exerciseId = w.exerciseId ?? (w.workout ? getMovementId(w.workout) : undefined);
@@ -122,6 +89,16 @@ const WorkoutStatsPage = () => {
       };
       if (notes.trim()) sessionLogData.notes = notes.trim();
       const response = await createSessionLog(sessionLogData);
+      if (exercises.length > 0) {
+        exercises.forEach((ex) => {
+          const movement = movements.find((m) => m.id === ex.exerciseId);
+          console.log("[WorkoutStats] exercise:", movement?.name ?? ex.exerciseId, "| areaOfActivation:", movement?.areaOfActivation ?? "N/A");
+        });
+        console.log("POST worked muscles exercises:", JSON.stringify(exercises));
+        postWorkedMuscles(exercises).then(() => {
+          refreshWorkedMuscles();
+        });
+      }
       if (response.newlyAwardedMedals?.length > 0) {
         await addMedalsFromWorkout(response.newlyAwardedMedals);
         // Defer navigation so the achievement queue is committed before the new screen mounts
