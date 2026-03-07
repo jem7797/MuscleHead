@@ -16,6 +16,7 @@ import PrimaryButton from "../Components/PrimaryButton";
 import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
 import MuscleWomanFront from "../Components/MuscleWomanFront";
+import MuscleWomanBack from "../Components/MuscleWomanBack";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
 import {
@@ -117,6 +118,7 @@ const ActiveWorkoutPage = () => {
   const navigation = useNavigation<any>();
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
+  const MuscleBack = gender === "Female" ? MuscleWomanBack : MuscleManBack;
   const routineId = route.params?.routineId as number | undefined;
   const templateJson = route.params?.templateJson as string | undefined;
   const { movements } = useMovements();
@@ -422,7 +424,7 @@ const ActiveWorkoutPage = () => {
                 backWorked={backWorked}
               >
                 {isBack ? (
-                  <MuscleManBack width={130} height={232} />
+                  <MuscleBack width={130} height={232} />
                 ) : (
                   <MuscleFront width={130} height={210} />
                 )}

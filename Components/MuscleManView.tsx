@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import MuscleManFront from "./MuscleManFront";
 import MuscleManBack from "./MuscleManBack";
 import MuscleWomanFront from "./MuscleWomanFront";
+import MuscleWomanBack from "./MuscleWomanBack";
 import { useUser } from "../Contexts/UserContext";
 
 interface MuscleManViewProps {
@@ -16,6 +17,7 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
   const navigation = useNavigation<any>();
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
+  const MuscleBack = gender === "Female" ? MuscleWomanBack : MuscleManBack;
 
   if (isBack) {
     return (
@@ -25,7 +27,7 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
           onPress={() => navigation.navigate("MuscleDetail")}
           activeOpacity={0.9}
         >
-          <MuscleManBack width={size} height={size} />
+          <MuscleBack width={size} height={size} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.fullscreenIcon}

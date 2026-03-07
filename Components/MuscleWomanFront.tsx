@@ -21,7 +21,7 @@ const VB_H = 293.538;
 // Slightly larger viewBox = figure appears smaller (more padding)
 const VB_PADDING = 12;
 // Scale factor for line thickness (1 = original)
-const STROKE_SCALE = 1.4;
+const STROKE_SCALE = 3;
 
 const MuscleWomanFront: React.FC<Props> = ({
   width,

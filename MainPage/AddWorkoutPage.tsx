@@ -18,6 +18,7 @@ import AddWorkoutButton from "./AddWorkoutPage Components/AddWorkoutButton";
 import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
 import MuscleWomanFront from "../Components/MuscleWomanFront";
+import MuscleWomanBack from "../Components/MuscleWomanBack";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
 
@@ -153,6 +154,7 @@ const AddWorkoutPage = () => {
   const navigation = useNavigation<any>();
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
+  const MuscleBack = gender === "Female" ? MuscleWomanBack : MuscleManBack;
   const { setStats } = useWorkoutStats();
   const { getMovementId, movements } = useMovements();
   const [workouts, setWorkouts] = useState<SessionInstance[]>([
@@ -736,7 +738,7 @@ const AddWorkoutPage = () => {
                   backWorked={backWorked}
                 >
                   {isBack ? (
-                    <MuscleManBack width={130} height={232} />
+                    <MuscleBack width={130} height={232} />
                   ) : (
                     <MuscleFront width={130} height={210} />
                   )}

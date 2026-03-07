@@ -18,6 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 import MuscleManFront from "../Components/MuscleManFront";
 import MuscleManBack from "../Components/MuscleManBack";
 import MuscleWomanFront from "../Components/MuscleWomanFront";
+import MuscleWomanBack from "../Components/MuscleWomanBack";
 // Context provider that manages which muscles should be highlighted
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
@@ -172,6 +173,7 @@ const MuscleDetailScreen = () => {
   const navigation = useNavigation();
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
+  const MuscleBack = gender === "Female" ? MuscleWomanBack : MuscleManBack;
 
   // State: tracks whether showing front (false) or back (true) view
   const [isBack, setIsBack] = useState(false);
@@ -256,7 +258,7 @@ const MuscleDetailScreen = () => {
               onPress={() => {}}
               style={styles.muscleWrapperBack}
             >
-              <MuscleManBack
+              <MuscleBack
                 width={size}
                 height={size}
                 worked={workedMuscles}
