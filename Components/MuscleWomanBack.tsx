@@ -184,13 +184,13 @@ const MuscleWomanBack: React.FC<Props> = ({
   return(
       <Svg
       id="svg1"
-      viewBox={`${-VB_PADDING} ${-VB_PADDING} ${VB_W + VB_PADDING * 3} ${VB_H + VB_PADDING * 2.9}`}
+      viewBox={`${-VB_PADDING} ${-VB_PADDING} ${VB_W + VB_PADDING * 26} ${VB_H + VB_PADDING * 9}`}
       width={W}
       height={H}
       preserveAspectRatio="xMidYMid meet"
       {...rest}
       >
-        <G id="layer1" transform="translate(-292.3646,110.33125)">
+        <G id="layer1" transform="translate(-460.3646,60) scale(1.8, 1)">
           <G
             id="g1918"
             transform="matrix(0.3027507,0,0,0.26110832,-528.0247,-115.37765)"
