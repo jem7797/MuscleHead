@@ -70,8 +70,9 @@ const styles = StyleSheet.create({
     color: "#1f2a44",
   },
   placeholder: {
-    width: 40,
+    minWidth: 40,
     alignItems: "flex-end",
+    justifyContent: "center",
   },
 });
 

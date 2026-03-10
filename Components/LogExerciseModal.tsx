@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,8 +9,11 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
 } from "react-native";
 import PrimaryButton from "./PrimaryButton";
+import SelectorButton from "./SelectorButton";
+import { WORKOUT_BY_MUSCLE_GROUP } from "../constants/workoutByMuscleGroup";
 
 interface LogExerciseModalProps {
   visible: boolean;
@@ -21,23 +24,40 @@ interface LogExerciseModalProps {
     reps: number;
     weight: number | null;
   }) => Promise<void>;
+  /** When true, show muscle group + exercise pills like AddWorkoutPage */
+  usePillSelector?: boolean;
 }
+
+const MUSCLE_GROUPS = Object.keys(WORKOUT_BY_MUSCLE_GROUP);
 
 const LogExerciseModal: React.FC<LogExerciseModalProps> = ({
   visible,
   onClose,
   onSubmit,
+  usePillSelector = false,
 }) => {
   const [exerciseName, setExerciseName] = useState("");
+  const [muscleGroup, setMuscleGroup] = useState<string | null>(null);
+  const [selectedWorkout, setSelectedWorkout] = useState<string | null>(null);
   const [sets, setSets] = useState("");
   const [reps, setReps] = useState("");
   const [weight, setWeight] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  const availableWorkouts = muscleGroup ? WORKOUT_BY_MUSCLE_GROUP[muscleGroup] ?? [] : [];
+  const effectiveExerciseName = usePillSelector ? selectedWorkout : exerciseName.trim();
+
+  useEffect(() => {
+    if (!visible) {
+      setMuscleGroup(null);
+      setSelectedWorkout(null);
+    }
+  }, [visible]);
+
   const handleSubmit = async () => {
-    const trimmedName = exerciseName.trim();
+    const trimmedName = effectiveExerciseName?.trim() ?? "";
     if (!trimmedName) {
-      Alert.alert("Required", "Exercise name is required.");
+      Alert.alert("Required", usePillSelector ? "Select an exercise." : "Exercise name is required.");
       return;
     }
 
@@ -67,6 +87,8 @@ const LogExerciseModal: React.FC<LogExerciseModalProps> = ({
         weight: weightNum,
       });
       setExerciseName("");
+      setMuscleGroup(null);
+      setSelectedWorkout(null);
       setSets("");
       setReps("");
       setWeight("");
@@ -102,62 +124,93 @@ const LogExerciseModal: React.FC<LogExerciseModalProps> = ({
           onPress={handleClose}
         />
         <View style={styles.modal}>
-          <Text style={styles.title}>Log Exercise</Text>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <Text style={styles.title}>Log Exercise</Text>
 
-          <Text style={styles.label}>Exercise name *</Text>
-          <TextInput
-            style={styles.input}
-            value={exerciseName}
-            onChangeText={setExerciseName}
-            placeholder="e.g. Bench Press"
-            placeholderTextColor="#9aa6bd"
-            autoCapitalize="words"
-          />
+            {usePillSelector ? (
+              <>
+                <SelectorButton
+                  options={MUSCLE_GROUPS}
+                  selected={muscleGroup}
+                  onSelect={(g) => {
+                    setMuscleGroup(g);
+                    setSelectedWorkout(null);
+                  }}
+                  title="Select Muscle Group"
+                />
+                {muscleGroup && availableWorkouts.length > 0 && (
+                  <SelectorButton
+                    options={availableWorkouts}
+                    selected={selectedWorkout}
+                    onSelect={setSelectedWorkout}
+                    title="Select Exercise"
+                  />
+                )}
+              </>
+            ) : (
+              <>
+                <Text style={styles.label}>Exercise name *</Text>
+                <TextInput
+                  style={styles.input}
+                  value={exerciseName}
+                  onChangeText={setExerciseName}
+                  placeholder="e.g. Bench Press"
+                  placeholderTextColor="#9aa6bd"
+                  autoCapitalize="words"
+                />
+              </>
+            )}
 
-          <Text style={styles.label}>Sets</Text>
-          <TextInput
-            style={styles.input}
-            value={sets}
-            onChangeText={setSets}
-            placeholder="3"
-            placeholderTextColor="#9aa6bd"
-            keyboardType="number-pad"
-          />
-
-          <Text style={styles.label}>Reps</Text>
-          <TextInput
-            style={styles.input}
-            value={reps}
-            onChangeText={setReps}
-            placeholder="10"
-            placeholderTextColor="#9aa6bd"
-            keyboardType="number-pad"
-          />
-
-          <Text style={styles.label}>Weight (lb, optional)</Text>
-          <TextInput
-            style={styles.input}
-            value={weight}
-            onChangeText={setWeight}
-            placeholder="135"
-            placeholderTextColor="#9aa6bd"
-            keyboardType="decimal-pad"
-          />
-
-          <View style={styles.actions}>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={handleClose}
-              disabled={submitting}
-            >
-              <Text style={styles.cancelText}>Cancel</Text>
-            </TouchableOpacity>
-            <PrimaryButton
-              label={submitting ? "Logging..." : "Log"}
-              onPress={handleSubmit}
-              disabled={submitting}
+            <Text style={styles.label}>Sets</Text>
+            <TextInput
+              style={styles.input}
+              value={sets}
+              onChangeText={setSets}
+              placeholder="3"
+              placeholderTextColor="#9aa6bd"
+              keyboardType="number-pad"
             />
-          </View>
+
+            <Text style={styles.label}>Reps</Text>
+            <TextInput
+              style={styles.input}
+              value={reps}
+              onChangeText={setReps}
+              placeholder="10"
+              placeholderTextColor="#9aa6bd"
+              keyboardType="number-pad"
+            />
+
+            <Text style={styles.label}>Weight (lb, optional)</Text>
+            <TextInput
+              style={styles.input}
+              value={weight}
+              onChangeText={setWeight}
+              placeholder="135"
+              placeholderTextColor="#9aa6bd"
+              keyboardType="decimal-pad"
+            />
+
+            <View style={styles.actions}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={handleClose}
+                disabled={submitting}
+              >
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <PrimaryButton
+                label={submitting ? "Logging..." : "Log"}
+                onPress={handleSubmit}
+                disabled={submitting}
+              />
+            </View>
+          </ScrollView>
         </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -177,9 +230,16 @@ const styles = StyleSheet.create({
   modal: {
     width: "90%",
     maxWidth: 360,
+    maxHeight: "85%",
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 24,
+  },
+  scrollView: {
+    maxHeight: 500,
+  },
+  scrollContent: {
+    paddingBottom: 8,
   },
   title: {
     fontSize: 20,
