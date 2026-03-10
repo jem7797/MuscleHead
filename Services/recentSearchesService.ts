@@ -15,6 +15,7 @@ export interface RecentSearchUser {
   first_name?: string;
   profile_pic_url?: string;
   profilePicUrl?: string;
+  profilePicVersion?: number | null;
   [key: string]: unknown;
 }
 

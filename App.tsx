@@ -34,6 +34,7 @@ import AccoladesScreen from "./Profile/AccoladesScreen";
 import UserProfileScreen from "./Profile/UserProfileScreen";
 import FollowListScreen from "./Profile/FollowListScreen";
 import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
+import LiveSessionScreen from "./Live/LiveSessionScreen";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";
@@ -46,6 +47,7 @@ import { RoutinesProvider } from "./Contexts/RoutinesContext";
 import { WorkoutsProvider } from "./Contexts/WorkoutsContext";
 import { AchievementProvider } from "./Contexts/AchievementContext";
 import AchievementToast from "./Components/AchievementToast";
+import InviteNotification from "./Components/InviteNotification";
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -193,9 +195,15 @@ export default function App() {
                           component={MuscleDetailScreen}
                           options={{ animation: "none" }}
                         />
+                        <Stack.Screen
+                          name="LiveSession"
+                          component={LiveSessionScreen}
+                          options={{ animation: "none" }}
+                        />
                       </Stack.Navigator>
                     </NavigationContainer>
                     <AchievementToast navigationRef={navigationRef} />
+                    <InviteNotification navigationRef={navigationRef} />
                     </View>
                     </AchievementProvider>
                   </GlobalWorkedMusclesProvider>

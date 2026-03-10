@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   Text,
   Dimensions,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { Video } from "expo-av";
+
+const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
   // @ts-ignore
@@ -72,10 +74,10 @@ const WelcomeScreen = ({navigation}) => {
       />
 
       {/* Logo */}
-      <Animated.Image
+      <AnimatedImage
         source={require("../assets/AlternateMuscleHeadTitle.png")}
         style={[styles.image, { transform: [{ translateY }] }]}
-        resizeMode="contain"
+        contentFit="contain"
       />
 
       {/* Buttons */}

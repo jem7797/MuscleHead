@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Image,
   ActivityIndicator,
   TouchableOpacity,
   Modal,
+  Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRoute, useNavigation } from "@react-navigation/native";
+import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import BackButton from "../Components/BackButton";
 import StatsRow from "./ProfileComponents/StatsRow";
@@ -18,8 +18,11 @@ import BioSection from "./ProfileComponents/BioSection";
 import MetricsRow from "./ProfileComponents/MetricsRow";
 import ProfilePostsSection from "./ProfileComponents/ProfilePostsSection";
 import { getUser, updateUserNemesis, removeNemesis } from "../Services/userApi";
-import { follow, unfollow, checkFollow } from "../Services/followApi";
+import { follow, unfollow, checkFollow, checkMutualFollow } from "../Services/followApi";
+import { createLiveSession, sendInvite } from "../lib/sessionService";
 import { useUser } from "../Contexts/UserContext";
+import { getProfilePicUrl } from "../utils/profilePicUrl";
+import { Image } from "expo-image";
 
 const formatHeight = (totalInches?: number | null) => {
   if (totalInches === undefined || totalInches === null) return "N/A";
@@ -28,18 +31,13 @@ const formatHeight = (totalInches?: number | null) => {
   return `${feet}'${inches}"`;
 };
 
-const getPfpUrl = (raw: string | undefined): string | undefined => {
-  if (!raw) return undefined;
-  return raw.startsWith("http") ? raw : `https://${raw}`;
-};
-
 /** Normalize IDs for comparison (handles sub_id vs subId, casing, etc.) */
 const normalizeId = (id: string) => String(id ?? "").trim().toLowerCase();
 
 const UserProfileScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { userId: currentUserId, addToFollowingCount, nemesisSubIds, setNemesisSubIds, refreshUserProfile } = useUser();
+  const { userId: currentUserId, addToFollowingCount, nemesisSubIds, setNemesisSubIds, refreshUserProfile, pfpLink } = useUser();
   const subId = route.params?.subId ?? route.params?.sub_id;
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -49,13 +47,17 @@ const UserProfileScreen = () => {
   const [nemesisLoading, setNemesisLoading] = useState(false);
   const [nemesisModalVisible, setNemesisModalVisible] = useState(false);
   const [nemesisModalMode, setNemesisModalMode] = useState<"add" | "remove">("add");
+  const [isMutualFollow, setIsMutualFollow] = useState(false);
+  const [inviteLoading, setInviteLoading] = useState(false);
 
-  useEffect(() => {
+  const fetchUser = useCallback(() => {
     if (!subId) {
       setError("No user specified");
       setLoading(false);
-      return;
+      return () => {};
     }
+    setLoading(true);
+    setError(null);
     let cancelled = false;
     getUser(subId)
       .then((data) => {
@@ -67,8 +69,20 @@ const UserProfileScreen = () => {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [subId]);
+
+  useEffect(() => {
+    return fetchUser();
+  }, [fetchUser]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (subId) fetchUser();
+    }, [subId, fetchUser])
+  );
 
   useEffect(() => {
     if (!subId || !currentUserId || subId === currentUserId) return;
@@ -80,6 +94,22 @@ const UserProfileScreen = () => {
       .catch(() => {});
     return () => { cancelled = true; };
   }, [subId, currentUserId]);
+
+  useEffect(() => {
+    if (!subId || !currentUserId || subId === currentUserId || !isFollowing) {
+      setIsMutualFollow(false);
+      return;
+    }
+    let cancelled = false;
+    checkMutualFollow(currentUserId, subId)
+      .then((mutual) => {
+        if (!cancelled) setIsMutualFollow(mutual);
+      })
+      .catch(() => {
+        if (!cancelled) setIsMutualFollow(false);
+      });
+    return () => { cancelled = true; };
+  }, [subId, currentUserId, isFollowing]);
 
   const isNemesis = subId ? nemesisSubIds.some((id) => normalizeId(id) === normalizeId(subId)) : false;
 
@@ -103,6 +133,31 @@ const UserProfileScreen = () => {
       setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + (isFollowing ? 1 : -1) });
     } finally {
       setFollowLoading(false);
+    }
+  };
+
+  const handleInviteToSession = async () => {
+    if (!subId || !currentUserId || inviteLoading) return;
+    setInviteLoading(true);
+    try {
+      const session = await createLiveSession();
+      console.log('session:', session);
+      console.log('sessionId:', session?.id);
+      await sendInvite({ sessionId: session.id, toUserId: subId });
+      navigation.navigate("LiveSession", {
+        sessionId: session.id,
+        currentUserId,
+        hostUserId: currentUserId,
+        guestUserId: null,
+      });
+    } catch (e) {
+      console.error("Failed to invite to session:", e);
+      Alert.alert(
+        "Error",
+        e instanceof Error ? e.message : "Could not send invite."
+      );
+    } finally {
+      setInviteLoading(false);
     }
   };
 
@@ -163,9 +218,9 @@ const UserProfileScreen = () => {
   }
 
   const displayName = user.username ?? user.first_name ?? "User";
-  const pfpUrl = getPfpUrl(user.profile_pic_url ?? user.profilePicUrl ?? user.pfp_link);
-  const bio = user.bio ?? "No bio yet.";
   const isCurrentUser = subId && currentUserId && subId === currentUserId;
+  const pfpUrl = isCurrentUser ? pfpLink : getProfilePicUrl(user);
+  const bio = user.bio ?? "No bio yet.";
   const stats = [
     { label: "Following", value: String(user.number_following ?? 0) },
     { label: "Posts", value: String(user.number_of_posts ?? 0) },
@@ -217,15 +272,28 @@ const UserProfileScreen = () => {
             <Text style={styles.rankText}>{user.rank.name}</Text>
           )}
           {!isCurrentUser && (
-            <TouchableOpacity
-              style={[styles.followButton, isFollowing && styles.followingButton]}
-              onPress={handleFollowPress}
-              disabled={followLoading}
-            >
-              <Text style={styles.followButtonText}>
-                {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.followRow}>
+              <TouchableOpacity
+                style={[styles.followButton, isFollowing && styles.followingButton]}
+                onPress={handleFollowPress}
+                disabled={followLoading}
+              >
+                <Text style={styles.followButtonText}>
+                  {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
+                </Text>
+              </TouchableOpacity>
+              {isMutualFollow && (
+                <TouchableOpacity
+                  style={styles.inviteButton}
+                  onPress={handleInviteToSession}
+                  disabled={inviteLoading}
+                >
+                  <Text style={styles.inviteButtonText}>
+                    {inviteLoading ? "..." : "Invite to Session"}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
         </View>
         <StatsRow
@@ -357,8 +425,14 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#5a6a7e",
   },
-  followButton: {
+  followRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 12,
     marginTop: 16,
+  },
+  followButton: {
     paddingVertical: 8,
     paddingHorizontal: 20,
     backgroundColor: "#1f2a44",
@@ -368,6 +442,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#5a6a7e",
   },
   followButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  inviteButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    backgroundColor: "#1f2a44",
+    borderRadius: 10,
+  },
+  inviteButtonText: {
     fontSize: 14,
     fontWeight: "600",
     color: "#fff",

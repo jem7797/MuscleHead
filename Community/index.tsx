@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -20,7 +20,7 @@ const PAGE_SIZE = 20;
 
 const CommunityScreen = () => {
   const navigation = useNavigation<any>();
-  const { userId: currentUserId, nemesisSubIds } = useUser();
+  const { userId: currentUserId, nemesisSubIds, feedInvalidationTrigger } = useUser();
   const [posts, setPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -61,6 +61,10 @@ const CommunityScreen = () => {
       loadFeed(0, false);
     }, [loadFeed])
   );
+
+  useEffect(() => {
+    if (feedInvalidationTrigger > 0) loadFeed(0, false);
+  }, [feedInvalidationTrigger, loadFeed]);
 
   const handleRefresh = () => loadFeed(0, true);
   const handleLoadMore = () => {

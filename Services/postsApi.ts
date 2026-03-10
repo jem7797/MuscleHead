@@ -24,6 +24,7 @@ export interface PostUser {
   subId: string;
   username: string;
   profilePicUrl?: string;
+  profilePicVersion?: number | null;
   [key: string]: unknown;
 }
 

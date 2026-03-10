@@ -3,11 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { getProfilePicUrl } from "../../utils/profilePicUrl";
+import { useUser } from "../../Contexts/UserContext";
+import { Image } from "expo-image";
 
 export interface SearchUser {
   sub_id?: string;
@@ -15,6 +17,7 @@ export interface SearchUser {
   first_name?: string;
   profile_pic_url?: string;
   profilePicUrl?: string;
+  profilePicVersion?: number | null;
   [key: string]: unknown;
 }
 
@@ -30,11 +33,6 @@ interface UserSearchResultsProps {
   currentUserId?: string | null;
   emptyMessage?: string;
 }
-
-const getPfpUrl = (user: SearchUser): string | undefined => {
-  const raw = user.profile_pic_url ?? user.profilePicUrl ?? (user as { pfp_link?: string }).pfp_link;
-  return raw ? (String(raw).startsWith("http") ? raw : `https://${raw}`) : undefined;
-};
 
 const UserSearchResults: React.FC<UserSearchResultsProps> = ({
   users,
@@ -76,10 +74,10 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
       <Text style={styles.sectionTitle}>Users</Text>
       {users.map((user, index) => {
         const displayName = user.username ?? user.first_name ?? "User";
-        const pfpUrl = getPfpUrl(user);
-        const key = user.sub_id ? `${user.sub_id}-${index}` : `user-${index}`;
         const userSubId = user.sub_id ?? (user as { subId?: string }).subId;
         const isCurrentUser = currentUserId && userSubId === currentUserId;
+        const pfpUrl = isCurrentUser && pfpLink ? pfpLink : getProfilePicUrl(user);
+        const key = user.sub_id ? `${user.sub_id}-${index}` : `user-${index}`;
         const isFollowing = userSubId ? followedUserIds.has(userSubId) : false;
 
         return (

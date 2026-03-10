@@ -167,16 +167,21 @@ export const updateUser = async (
   updateData: Record<string, any>
 ): Promise<any> => {
   const response = await apiRequest(
+    
     `/user/api/${sub}`,
+    
     {
       method: "PATCH",
       body: JSON.stringify(updateData),
+
     },
     false
   );
 
   return parseJsonResponse(response);
+
 };
+
 
 /**
  * Updates the current user's nemesis list (add)

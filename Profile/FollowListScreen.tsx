@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   FlatList,
-  Image,
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
@@ -15,6 +14,8 @@ import { getFollowers, getFollowing } from "../Services/followApi";
 import { follow, unfollow, checkFollow } from "../Services/followApi";
 import { useUser } from "../Contexts/UserContext";
 import { Ionicons } from "@expo/vector-icons";
+import { getProfilePicUrl } from "../utils/profilePicUrl";
+import { Image } from "expo-image";
 
 type FollowListMode = "followers" | "following";
 
@@ -26,13 +27,9 @@ export interface FollowListUser {
   profile_pic_url?: string;
   profilePicUrl?: string;
   pfp_link?: string;
+  profilePicVersion?: number | null;
   [key: string]: unknown;
 }
-
-const getPfpUrl = (user: FollowListUser): string | undefined => {
-  const raw = user.profile_pic_url ?? user.profilePicUrl ?? user.pfp_link;
-  return raw ? (String(raw).startsWith("http") ? raw : `https://${raw}`) : undefined;
-};
 
 const FollowListScreen = () => {
   const route = useRoute<any>();
@@ -126,7 +123,7 @@ const FollowListScreen = () => {
   const renderUser = ({ item, index }: { item: FollowListUser; index: number }) => {
     const userSubId = item.sub_id ?? item.subId;
     const displayNameUser = item.username ?? item.first_name ?? "User";
-    const pfpUrl = getPfpUrl(item);
+    const pfpUrl = getProfilePicUrl(item);
     const isCurrentUser = currentUserId && userSubId === currentUserId;
     const isFollowing = userSubId ? followedUserIds.has(userSubId) : false;
 

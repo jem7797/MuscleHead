@@ -1,5 +1,6 @@
 import React from "react";
-import { StyleSheet, View, TouchableOpacity, Image } from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";

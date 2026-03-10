@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -20,6 +19,7 @@ import BackButton from "../Components/BackButton";
 import PrimaryButton from "../Components/PrimaryButton";
 import NavBar from "../Components/NavBar";
 import { getPresignedImageUrl, uploadImageToS3, createPost } from "../Services/postsApi";
+import { Image } from "expo-image";
 
 const CAPTION_MAX_LENGTH = 300;
 
@@ -166,7 +166,7 @@ const CreatePostScreen = () => {
         <View style={styles.formContainer}>
         {imageUri ? (
           <TouchableOpacity style={styles.imagePreviewWrapper} onPress={handlePickImage} activeOpacity={0.9}>
-            <Image source={{ uri: imageUri }} style={styles.imagePreview} resizeMode="cover" />
+            <Image source={{ uri: imageUri }} style={styles.imagePreview} contentFit="cover" />
             <TouchableOpacity style={styles.removeImageBtn} onPress={handleRemoveImage}>
               <Text style={styles.removeImageBtnText}>✕ Remove</Text>
             </TouchableOpacity>
@@ -228,7 +228,7 @@ const CreatePostScreen = () => {
       >
         <View style={styles.cameraPreviewOverlay}>
           {cameraPreviewUri && (
-            <Image source={{ uri: cameraPreviewUri }} style={styles.cameraPreviewImage} resizeMode="contain" />
+            <Image source={{ uri: cameraPreviewUri }} style={styles.cameraPreviewImage} contentFit="contain" />
           )}
           <View style={styles.cameraPreviewActions}>
             <TouchableOpacity style={styles.cameraPreviewBtn} onPress={handleRetakePhoto}>

@@ -10,8 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { signIn, signOut, getCurrentUser } from "aws-amplify/auth";
 import { useNavigation } from "@react-navigation/native";

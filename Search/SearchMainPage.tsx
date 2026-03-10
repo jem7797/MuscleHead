@@ -22,7 +22,7 @@ const PAGE_SIZE = 10;
 
 const SearchScreen = () => {
   const navigation = useNavigation<any>();
-  const { userId: currentUserId, addToFollowingCount } = useUser();
+  const { userId: currentUserId, addToFollowingCount, feedInvalidationTrigger } = useUser();
   const [query, setQuery] = useState("");
   const [followedUserIds, setFollowedUserIds] = useState<Set<string>>(new Set());
   const [isFocused, setIsFocused] = useState(false);
@@ -89,6 +89,13 @@ const SearchScreen = () => {
       getRecentSearches().then(setRecentSearches);
     }, [])
   );
+
+  useEffect(() => {
+    if (feedInvalidationTrigger > 0) {
+      getRecentSearches().then(setRecentSearches);
+      if (canSearch) runSearch(0, false);
+    }
+  }, [feedInvalidationTrigger, canSearch, runSearch]);
 
   useEffect(() => {
     if (!canSearch) {

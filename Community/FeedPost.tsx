@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
   Alert,
   TextInput,
@@ -11,6 +10,9 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import type { PostResponse, PostComment } from "../Services/postsApi";
 import { deletePost, patchPost, getPost } from "../Services/postsApi";
+import { getProfilePicUrl } from "../utils/profilePicUrl";
+import { useUser } from "../Contexts/UserContext";
+import { Image } from "expo-image";
 
 const formatTimestamp = (ts: string) => {
   try {
@@ -30,11 +32,6 @@ const formatTimestamp = (ts: string) => {
   }
 };
 
-const getPfpUrl = (raw?: string) => {
-  if (!raw) return undefined;
-  return raw.startsWith("http") ? raw : `https://${raw}`;
-};
-
 const NEMESIS_BG = "#8b0000";
 
 interface FeedPostProps {
@@ -49,7 +46,7 @@ interface FeedPostProps {
 const normalizeId = (id: string) => String(id ?? "").trim().toLowerCase();
 
 const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds = [], onUserPress, onDeleted, onUpdated }) => {
-  console.log('PostCard props:', JSON.stringify(post));
+  const { pfpLink } = useUser();
   const [imgError, setImgError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [liked, setLiked] = useState(!!post.userLiked);
@@ -157,7 +154,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
   const formattedMedal = medalName ? medalName.replace(/_/g, " ").trim() : "";
   const trophyDisplayName = formattedMedal || (post as { achievementName?: string }).achievementName || "Achievement";
   const displayName = post.user?.username ?? "User";
-  const pfpUrl = getPfpUrl(post.user?.profilePicUrl);
+  const pfpUrl = isOwnPost && pfpLink ? pfpLink : getProfilePicUrl(post.user);
 
   const actionColor = isNemesisPost ? "#f5c6c6" : "#5a6a7e";
   const renderActions = () => (
@@ -358,7 +355,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
             <Image
               source={{ uri: post.imageLink! }}
               style={styles.bubbleImage}
-              resizeMode="cover"
+              contentFit="cover"
               onError={() => setImgError(true)}
             />
           ) : (

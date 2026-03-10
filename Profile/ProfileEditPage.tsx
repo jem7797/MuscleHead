@@ -10,9 +10,9 @@ import {
   KeyboardAvoidingView,
   Platform,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
 } from "react-native";
+import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";

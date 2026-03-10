@@ -5,7 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   Modal,
   Alert,
   TextInput,
@@ -16,6 +15,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import FeedPost from "../../Community/FeedPost";
 import { getPostsByUser, deletePost, patchPost, getPost } from "../../Services/postsApi";
+import { Image } from "expo-image";
 import type { PostResponse, PostComment } from "../../Services/postsApi";
 
 const GAP = 2;
@@ -243,7 +243,7 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
               <Image
                 source={{ uri }}
                 style={styles.gridImage}
-                resizeMode="cover"
+                contentFit="cover"
               />
             ) : (
               <View style={[styles.gridImage, styles.gridImagePlaceholder]}>
@@ -354,7 +354,7 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
                       <Image
                         source={{ uri: getImageUrl(selectedPost.imageLink)! }}
                         style={styles.modalImage}
-                        resizeMode="contain"
+                        contentFit="contain"
                       />
                     ) : (
                       <View style={[styles.modalImage, styles.modalImagePlaceholder]}>

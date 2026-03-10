@@ -3,16 +3,13 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { SearchUser } from "./UserSearchResults";
-
-const getPfpUrl = (user: SearchUser): string | undefined => {
-  const raw = user.profile_pic_url ?? user.profilePicUrl ?? (user as { pfp_link?: string }).pfp_link;
-  return raw ? (String(raw).startsWith("http") ? raw : `https://${raw}`) : undefined;
-};
+import { getProfilePicUrl } from "../../utils/profilePicUrl";
+import { useUser } from "../../Contexts/UserContext";
+import { Image } from "expo-image";
 
 interface RecentSearchesProps {
   users: SearchUser[];
@@ -21,6 +18,7 @@ interface RecentSearchesProps {
 }
 
 const RecentSearches: React.FC<RecentSearchesProps> = ({ users, onUserPress, onClearPress }) => {
+  const { userId: currentUserId, pfpLink } = useUser();
   if (users.length === 0) return null;
 
   return (
@@ -28,8 +26,9 @@ const RecentSearches: React.FC<RecentSearchesProps> = ({ users, onUserPress, onC
       <Text style={styles.sectionTitle}>Recent Searches</Text>
       {users.map((user, index) => {
         const displayName = user.username ?? user.first_name ?? "User";
-        const pfpUrl = getPfpUrl(user);
         const subId = user.sub_id ?? (user as { subId?: string }).subId;
+        const isCurrentUser = currentUserId && subId === currentUserId;
+        const pfpUrl = isCurrentUser && pfpLink ? pfpLink : getProfilePicUrl(user);
         const key = subId ? `${subId}-${index}` : `recent-${index}`;
 
         return (

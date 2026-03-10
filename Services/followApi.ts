@@ -77,3 +77,23 @@ export const checkFollow = async (
   const data = await parseJsonResponse<any>(response);
   return data?.following === true || data === true;
 };
+
+/**
+ * Check if two users follow each other (mutual follow)
+ * GET /follow/api/mutual?user1={subId}&user2={subId}
+ * Returns false if either user is missing or IDs are the same.
+ */
+export const checkMutualFollow = async (
+  user1SubId: string,
+  user2SubId: string
+): Promise<boolean> => {
+  const params = new URLSearchParams({
+    user1: user1SubId,
+    user2: user2SubId,
+  });
+  const response = await apiRequest(`/follow/api/mutual?${params}`, {
+    method: "GET",
+  });
+  const data = await parseJsonResponse<any>(response);
+  return data === true || data?.mutual === true;
+};

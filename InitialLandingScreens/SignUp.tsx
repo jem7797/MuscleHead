@@ -7,7 +7,6 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -19,6 +18,7 @@ import { reportMinorSignupAttempt } from "../Services/userApi";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
 import PrimaryButton from "../Components/PrimaryButton";
+import { Image } from "expo-image";
 // Note: createUser will be called after email confirmation and sign-in
 // when we have an authenticated session
 

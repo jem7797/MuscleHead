@@ -18,6 +18,7 @@ import {
   setNemesisSubIds as persistNemesisSubIds,
   clearNemesisSubIds,
 } from "../Services/nemesisStorage";
+import { getProfilePicUrl } from "../utils/profilePicUrl";
 
 interface Rank {
   id: number;
@@ -56,6 +57,8 @@ interface UserContextType {
   numberFollowing: number | undefined;
   numberOfPosts: number | undefined;
   pfpLink: string | undefined;
+  /** Increments when pfp is updated; use to trigger feed/search refetch */
+  feedInvalidationTrigger: number;
   isProfileLoading: boolean; // Profile data loading state
   nemesisSubIds: string[];
   /** "Male" | "Female" | null - used to show appropriate muscle diagram */
@@ -108,8 +111,16 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [numberOfFollowers, setNumberOfFollowers] = useState<number>();
   const [numberFollowing, setNumberFollowing] = useState<number>();
   const [numberOfPosts, setNumberOfPosts] = useState<number>();
-  const [pfpLink, setPfpLink] = useState<string | undefined>();
+  const [profilePicUrl, setProfilePicUrl] = useState<string | undefined>();
+  const [profilePicVersion, setProfilePicVersion] = useState<number | null>(null);
+  const [feedInvalidationTrigger, setFeedInvalidationTrigger] = useState(0);
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
+
+  const pfpLink = getProfilePicUrl({ profilePicUrl, profilePicVersion });
+
+  useEffect(() => {
+    if (__DEV__ && pfpLink) console.log("[pfp] current URL:", pfpLink);
+  }, [pfpLink]);
   const [nemesisSubIds, setNemesisSubIdsInternal] = useState<string[]>([]);
   const [gender, setGender] = useState<string | null>(null);
 
@@ -161,7 +172,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setNumberOfFollowers(undefined);
     setNumberFollowing(undefined);
     setNumberOfPosts(undefined);
-    setPfpLink(undefined);
+    setProfilePicUrl(undefined);
+    setProfilePicVersion(null);
     setGender(null);
     setNemesisSubIdsInternal([]);
     clearNemesisSubIds().catch(() => {});
@@ -228,13 +240,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       updates.nattyStatus !== undefined ||
       updates.profilePicUrl !== undefined;
     if (!hasProfileUpdates) return;
-    await updateUser(userId, payload);
+    const response = await updateUser(userId, payload);
+    if (__DEV__) console.log("[PATCH] updateUser response:", response);
     if (updates.username !== undefined) setUsername(updates.username);
     if (updates.bio !== undefined) setBio(updates.bio);
     if (updates.height !== undefined) setHeight(updates.height);
     if (updates.weight !== undefined) setWeight(updates.weight);
     if (updates.nattyStatus !== undefined) setIsNatty(updates.nattyStatus);
-    if (updates.profilePicUrl !== undefined) setPfpLink(updates.profilePicUrl);
+    if (updates.profilePicUrl !== undefined) {
+      const resUrl = response?.profilePicUrl ?? response?.profile_pic_url ?? response?.pfp_link;
+      const resVersion = response?.profilePicVersion ?? response?.profile_pic_version;
+      const baseUrl = resUrl?.split("?")[0];
+      setProfilePicUrl(baseUrl ?? updates.profilePicUrl);
+      setProfilePicVersion(typeof resVersion === "number" ? resVersion : Date.now());
+      setFeedInvalidationTrigger((n) => n + 1);
+    }
   };
 
   const setProfileLoading = (loadStatus: boolean) => {
@@ -310,9 +330,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       persistNemesisSubIds(ids).catch(() => {});
       const raw =
         userData.profile_pic_url ?? userData.profilePicUrl ?? userData.pfp_link;
-      setPfpLink(
-        raw ? (raw.startsWith("http") ? raw : `https://${raw}`) : undefined,
-      );
+      const version = userData.profilePicVersion ?? userData.profile_pic_version ?? null;
+      const baseUrl = raw ? String(raw).split("?")[0] : undefined;
+      setProfilePicUrl(baseUrl ?? undefined);
+      setProfilePicVersion(typeof version === "number" ? version : null);
       const g = userData.gender ?? null;
       setGender(typeof g === "string" ? g : null);
     } catch (error: any) {
@@ -373,6 +394,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         numberFollowing,
         numberOfPosts,
         pfpLink,
+        feedInvalidationTrigger,
         isProfileLoading,
         nemesisSubIds,
         setNemesisSubIds,
