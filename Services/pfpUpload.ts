@@ -8,6 +8,7 @@
 
 import { getPresignedUrl } from "./s3Api";
 import { CLOUDFRONT_BASE_URL } from "./apiConfig";
+import { waitForImageAccessible } from "./imageUploadUtils";
 
 const OBJECT_KEY_PREFIX = "users";
 const PROFILE_FILENAME = "profile.jpg";
@@ -76,5 +77,7 @@ export const pickAndUploadPfp = async (subId: string): Promise<string | null> =>
 
   const base = CLOUDFRONT_BASE_URL.replace(/\/$/, "");
   const path = `${base}/${objectKey}?t=${Date.now()}`;
-  return path.startsWith("http") ? path : `https://${path}`;
+  const cloudFrontUrl = path.startsWith("http") ? path : `https://${path}`;
+  await waitForImageAccessible(cloudFrontUrl);
+  return cloudFrontUrl;
 };

@@ -1,55 +1,52 @@
-# Live Workout Session
+# Live
 
-Real-time workout sessions where two users can work out together.
+Live workout sessions: host/guest tabs, real-time exercise sync via Supabase, invite flow.
 
-## Setup
+---
 
-1. **Environment variables** – Add to your `.env` or app config:
+## What It Does
 
-   ```
-   EXPO_PUBLIC_SUPABASE_URL=your_supabase_project_url
-   EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   ```
+- Host creates a session, invites a friend
+- Guest receives invite (toast → Notifications), accepts → joins
+- Both see Host and Guest tabs with separate exercise lists
+- Exercises sync in real time via Supabase `postgres_changes`
+- Host can end the session
 
-2. **Supabase Realtime** – Enable replication for `live_session_exercises` and `session_invites` in your Supabase project (Dashboard → Database → Replication).
+---
 
-## Usage
+## Key Files
 
-### Starting a session (host)
+| File | Purpose |
+|------|---------|
+| `LiveSessionScreen.tsx` | Main screen. Host/Guest tabs, WorkoutInputSection for both, End Session. Subscribes to exercise updates via `subscribeToSession`. |
 
-```ts
-import { createLiveSession, sendInvite } from "../lib/sessionService";
+---
 
-// Host is derived from JWT by the backend
-const session = await createLiveSession();
-await sendInvite({
-  sessionId: session.id,
-  toUserId: friendUserId,
-  message: "Let's lift!",
-});
+## Design Choices
 
-// Navigate to LiveSession
-navigation.navigate("LiveSession", {
-  sessionId: session.id,
-  currentUserId,
-  hostUserId: session.host_user_id,
-  guestUserId: null,
-});
-```
+### Supabase for real-time sync
 
-### Accepting an invite
+Exercises are written to Supabase (`live_session_exercises`); the app subscribes to `postgres_changes` for that table. When anyone logs an exercise, all clients get it without polling. The REST API is still used for session/invite CRUD.
 
-`InviteNotification` listens for invites and shows an Alert. On Accept, it calls `acceptInvite` and navigates to `LiveSession`.
+### Separate host/guest exercise lists
 
-### Joining as guest (after invite accepted)
+Exercises are split by `user_id` so each tab shows only that user’s exercises. The subscription handler routes new rows into the correct list.
 
-The host can share the session ID; the guest navigates with:
+### WorkoutInputSection reuse
 
-```ts
-navigation.navigate("LiveSession", {
-  sessionId,
-  currentUserId: guestUserId,
-  hostUserId,
-  guestUserId,
-});
-```
+LiveSessionScreen uses the same `WorkoutInputSection` as AddWorkoutPage. Exercises are logged via Supabase `insert` (sessionService.logExercise), not the REST API. The UI and muscle selection stay consistent.
+
+### No NavBar on LiveSession
+
+LiveSession is full-screen; NavBar is hidden so the layout isn’t cramped. Back/End Session is in the header.
+
+---
+
+## How It Connects to the Rest of the App
+
+- **lib/sessionService** – `subscribeToSession`, `logExercise`, `fetchSessionExercises`, `endSession`
+- **Services/liveSessionApi** – `getSession`, `getPendingInvites` (for Notifications tab)
+- **InviteToast / InviteNotification** – User gets invite → toast → Notifications → Accept → navigates here
+- **Community/FriendsListScreen** – Invite to Session creates session and navigates here
+- **Components/WorkoutInputSection** – Shared workout input UI
+- **constants/workoutByMuscleGroup, exerciseToMuscles** – Exercise catalog

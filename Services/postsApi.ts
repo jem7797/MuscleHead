@@ -8,7 +8,8 @@
  * GET /posts/api/feed - Feed (posts from followed users)
  */
 
-import { apiRequest, parseJsonResponse, getCurrentUserSub } from "./apiConfig";
+import { apiRequest, parseJsonResponse, getCurrentUserSub, CLOUDFRONT_BASE_URL } from "./apiConfig";
+import { waitForImageAccessible } from "./imageUploadUtils";
 
 export interface PresignedImageUrlResponse {
   uploadUrl: string;
@@ -95,13 +96,16 @@ export const getPresignedImageUrl = async (): Promise<PresignedImageUrlResponse>
 };
 
 /**
- * Uploads image bytes to S3 using the presigned URL.
+ * Uploads image bytes to S3 using the presigned URL, then polls until the image
+ * is accessible on CloudFront (Lambda approval). Throws if rejected.
  * @param uploadUrl - URL from getPresignedImageUrl
  * @param imageUri - Local URI of the image (e.g. from ImagePicker)
+ * @param objectKey - Object key from getPresignedImageUrl (used to build CloudFront URL for polling)
  */
 export const uploadImageToS3 = async (
   uploadUrl: string,
-  imageUri: string
+  imageUri: string,
+  objectKey: string
 ): Promise<void> => {
   const response = await fetch(imageUri);
   const blob = await response.blob();
@@ -119,6 +123,11 @@ export const uploadImageToS3 = async (
     (err as Error & { status?: number }).status = uploadRes.status;
     throw err;
   }
+
+  const base = CLOUDFRONT_BASE_URL.replace(/\/$/, "");
+  const path = `${base}/${objectKey}`;
+  const cloudFrontUrl = path.startsWith("http") ? path : `https://${path}`;
+  await waitForImageAccessible(cloudFrontUrl);
 };
 
 /**

@@ -103,11 +103,12 @@ const CreatePostScreen = () => {
         const { uploadUrl, objectKey: key } = await getPresignedImageUrl();
         objectKey = key;
         try {
-          await uploadImageToS3(uploadUrl, imageUri);
-        } catch (uploadErr: any) {
+          await uploadImageToS3(uploadUrl, imageUri, objectKey);
+        } catch (uploadErr: unknown) {
+          const msg = uploadErr instanceof Error ? uploadErr.message : "Could not upload your photo. Please try again.";
           Alert.alert(
             "Upload failed",
-            "Could not upload your photo. Please try again.",
+            msg,
             [{ text: "Retry", onPress: () => handlePost() }, { text: "Cancel" }]
           );
           setPosting(false);
