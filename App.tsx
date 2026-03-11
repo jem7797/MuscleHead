@@ -36,6 +36,8 @@ import UserProfileScreen from "./Profile/UserProfileScreen";
 import FollowListScreen from "./Profile/FollowListScreen";
 import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
 import LiveSessionScreen from "./Live/LiveSessionScreen";
+import HiddenFeed from "./Community/HiddenFeed";
+import HiddenSearch from "./Search/HiddenSearchPage";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";
@@ -51,6 +53,7 @@ import { InviteProvider } from "./Contexts/InviteContext";
 import AchievementToast from "./Components/AchievementToast";
 import InviteToast from "./Components/InviteToast";
 import InviteNotification from "./Components/InviteNotification";
+
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -152,6 +155,17 @@ export default function App() {
                         <Stack.Screen
                           name="Community"
                           component={CommunityScreen}
+                          options={{ animation: "none" }}
+                        />
+                         <Stack.Screen
+                          name="hiddenFeed"
+                          component={HiddenFeed}
+                          options={{ animation: "none" }}
+                        />
+
+                          <Stack.Screen
+                          name="hiddenSearch"
+                          component={HiddenSearch}
                           options={{ animation: "none" }}
                         />
                         <Stack.Screen

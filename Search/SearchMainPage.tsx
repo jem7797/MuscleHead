@@ -22,7 +22,7 @@ const PAGE_SIZE = 10;
 
 const SearchScreen = () => {
   const navigation = useNavigation<any>();
-  const { userId: currentUserId, addToFollowingCount, feedInvalidationTrigger } = useUser();
+  const { userId: currentUserId, addToFollowingCount, feedInvalidationTrigger, privacySetting } = useUser();
   const [query, setQuery] = useState("");
   const [followedUserIds, setFollowedUserIds] = useState<Set<string>>(new Set());
   const [isFocused, setIsFocused] = useState(false);
@@ -154,8 +154,9 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchBarContainer}>
-        <SearchBar
+
+<View style={styles.searchBarContainer}>
+                <SearchBar
           value={query}
           onChangeText={setQuery}
           isFocused={isFocused}

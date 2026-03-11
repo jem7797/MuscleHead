@@ -9,22 +9,24 @@ import { useUser } from "../Contexts/UserContext";
 const NavBar = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
-  const { pfpLink } = useUser();
+  const { pfpLink, privacySetting } = useUser();
   const [pfpError, setPfpError] = React.useState(false);
   React.useEffect(() => setPfpError(false), [pfpLink]);
   const showPfp = pfpLink && !pfpError;
   const active = route.name;
+  const isCommunityActive = active === "Community" || active === "hiddenFeed";
+  const isSearchActive = active === "Search" || active === "hiddenSearch";
   return (
     <View style={styles.container}>
       <View style={styles.box}>
-        <TouchableOpacity onPress={() => navigation.navigate("Community")}> 
-          <View style={active === "Community" ? styles.highlightCircle : undefined}>
-            <FontAwesome6 name="people-group" size={24} color={active === "Community" ? "#fff" : "black"} />
+        <TouchableOpacity onPress={() => privacySetting == "hidden" ? navigation.navigate("hiddenFeed") : navigation.navigate("Community")}> 
+          <View style={isCommunityActive ? styles.highlightCircle : undefined}>
+            <FontAwesome6 name="people-group" size={24} color={isCommunityActive ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Search")}>
-          <View style={active === "Search" ? styles.highlightCircle : undefined}>
-            <Feather name="search" size={24} color={active === "Search" ? "#fff" : "black"} />
+        <TouchableOpacity onPress={() => privacySetting == "hidden" ? navigation.navigate("hiddenSearch") : navigation.navigate("Search")}>
+          <View style={isSearchActive ? styles.highlightCircle : undefined}>
+            <Feather name="search" size={24} color={isSearchActive ? "#fff" : "black"} />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("WorkoutInputMainPage")}>

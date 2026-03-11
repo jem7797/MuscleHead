@@ -366,8 +366,8 @@ if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacy
       setNumberOfFollowers(userData.number_of_followers);
       setNumberFollowing(userData.number_following);
       setNumberOfPosts(userData.number_of_posts);
-      setPrivacySetting(userData.privacy_setting ?? "public");
-      
+      setPrivacySetting(userData.privacy_setting ?? "hidden");
+
       const nemesisRaw =
         userData.nemesis ??
         userData.nemesisSubIds ??

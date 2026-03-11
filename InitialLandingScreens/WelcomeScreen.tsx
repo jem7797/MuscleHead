@@ -88,7 +88,7 @@ const WelcomeScreen = ({navigation}) => {
       </Animated.View>
 
       <Animated.View style={[styles.buttonWrapper, { opacity: loginOpacity }]}>
-        <TouchableOpacity style={styles.buttonSmall} onPress={() => navigation.navigate("LogIn")}>
+        <TouchableOpacity style={styles.buttonSmall} onPress={() => navigation.navigate("WorkoutInputMainPage")}>
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
       </Animated.View>
