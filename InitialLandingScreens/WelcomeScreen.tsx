@@ -75,7 +75,7 @@ const WelcomeScreen = ({navigation}) => {
 
       {/* Logo */}
       <AnimatedImage
-        source={require("../assets/AlternateMuscleHeadTitle.png")}
+        source={require("../assets/MeatHeadLogo.png")}
         style={[styles.image, { transform: [{ translateY }] }]}
         contentFit="contain"
       />

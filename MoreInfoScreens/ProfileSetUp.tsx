@@ -76,7 +76,7 @@ const ProfileSetUp = () => {
   const privacyOptions = [
     { value: "public", label: "Public", description: "All users can see you, your workouts, and your posts" },
     { value: "friendsOnly", label: "Friends Only", description: "Only people who you follow will see you, your workouts, and your posts" },
-    { value: "private", label: "Private", description: "Only you will see your workouts and leaderboard position" },
+    { value: "private", label: "Private", description: "Only you will see your workouts and notifications" },
   ];
 
 
@@ -262,7 +262,7 @@ const ProfileSetUp = () => {
     },
     {
       label: "Stat Tracking",
-      description: "Allow MuscleHead to track your workout data to place you on leaderboards, track progress, and more",
+      description: "Allow MeatHead to track your workout data to send you notifications, track progress, and more",
       value: statTracking,
       onValueChange: (value: boolean) => {
         setStatTracking(value);

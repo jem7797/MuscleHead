@@ -113,7 +113,7 @@ const LogInScreen = () => {
           style={styles.mainContainer}
         >
           <Image
-            source={require("../assets/AlternateMuscleHeadLogo.png")}
+            source={require("../assets/MeatHeadLogo.png")}
             style={styles.logo}
           />
 

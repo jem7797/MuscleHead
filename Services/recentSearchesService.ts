@@ -5,7 +5,7 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const STORAGE_KEY = "@musclehead/recent_searches";
+const STORAGE_KEY = "@meathead/recent_searches";
 const MAX_RECENT = 7;
 
 export interface RecentSearchUser {

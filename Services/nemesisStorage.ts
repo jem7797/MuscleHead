@@ -4,7 +4,7 @@
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const STORAGE_KEY = "@musclehead/nemesis_sub_ids";
+const STORAGE_KEY = "@meathead/nemesis_sub_ids";
 
 export const getNemesisSubIds = async (): Promise<string[]> => {
   try {
