@@ -18,7 +18,7 @@ import BioSection from "./ProfileComponents/BioSection";
 import MetricsRow from "./ProfileComponents/MetricsRow";
 import ProfilePostsSection from "./ProfileComponents/ProfilePostsSection";
 import { getUser, updateUserNemesis, removeNemesis } from "../Services/userApi";
-import { follow, unfollow, checkFollow, checkMutualFollow } from "../Services/followApi";
+import { follow, unfollow, checkFollow, checkMutualFollow, checkFollowRequestStatus } from "../Services/followApi";
 import { createLiveSession, sendInvite } from "../lib/sessionService";
 import { useUser } from "../Contexts/UserContext";
 import { getProfilePicUrl } from "../utils/profilePicUrl";
@@ -43,6 +43,7 @@ const UserProfileScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFollowing, setIsFollowing] = useState(false);
+  const [requestPending, setRequestPending] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
   const [nemesisLoading, setNemesisLoading] = useState(false);
   const [nemesisModalVisible, setNemesisModalVisible] = useState(false);
@@ -87,11 +88,15 @@ const UserProfileScreen = () => {
   useEffect(() => {
     if (!subId || !currentUserId || subId === currentUserId) return;
     let cancelled = false;
-    checkFollow(currentUserId, subId)
-      .then((following) => {
-        if (!cancelled) setIsFollowing(following);
-      })
-      .catch(() => {});
+    Promise.all([
+      checkFollow(currentUserId, subId),
+      checkFollowRequestStatus(currentUserId, subId),
+    ]).then(([following, reqStatus]) => {
+      if (!cancelled) {
+        setIsFollowing(following);
+        setRequestPending(!following && reqStatus === "pending");
+      }
+    }).catch(() => {});
     return () => { cancelled = true; };
   }, [subId, currentUserId]);
 
@@ -122,15 +127,24 @@ const UserProfileScreen = () => {
         setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: Math.max(0, (prev.number_of_followers ?? 0) - 1) });
         await unfollow(subId);
         setIsFollowing(false);
+        setRequestPending(false);
+      } else if (requestPending) {
+        // Can't cancel request from UI; do nothing
       } else {
-        addToFollowingCount(1);
-        setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + 1 });
         await follow(subId);
-        setIsFollowing(true);
+        const nowFollowing = await checkFollow(currentUserId, subId);
+        const reqStatus = await checkFollowRequestStatus(currentUserId, subId);
+        if (nowFollowing) {
+          addToFollowingCount(1);
+          setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + 1 });
+          setIsFollowing(true);
+          setRequestPending(false);
+        } else if (reqStatus === "pending") {
+          setRequestPending(true);
+        }
       }
     } catch {
-      addToFollowingCount(isFollowing ? 1 : -1);
-      setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + (isFollowing ? 1 : -1) });
+      // Revert optimistic updates if any
     } finally {
       setFollowLoading(false);
     }
@@ -274,12 +288,16 @@ const UserProfileScreen = () => {
           {!isCurrentUser && (
             <View style={styles.followRow}>
               <TouchableOpacity
-                style={[styles.followButton, isFollowing && styles.followingButton]}
+                style={[
+                  styles.followButton,
+                  isFollowing && styles.followingButton,
+                  requestPending && styles.requestedButton,
+                ]}
                 onPress={handleFollowPress}
-                disabled={followLoading}
+                disabled={followLoading || requestPending}
               >
                 <Text style={styles.followButtonText}>
-                  {followLoading ? "..." : isFollowing ? "Following" : "Follow"}
+                  {followLoading ? "..." : requestPending ? "Requested" : isFollowing ? "Following" : "Follow"}
                 </Text>
               </TouchableOpacity>
               {isMutualFollow && (
@@ -440,6 +458,9 @@ const styles = StyleSheet.create({
   },
   followingButton: {
     backgroundColor: "#5a6a7e",
+  },
+  requestedButton: {
+    backgroundColor: "#9aa6bd",
   },
   followButtonText: {
     fontSize: 14,

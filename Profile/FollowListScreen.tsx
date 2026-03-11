@@ -11,7 +11,7 @@ import { useRoute, useNavigation } from "@react-navigation/native";
 import BackButton from "../Components/BackButton";
 import NavBar from "../Components/NavBar";
 import { getFollowers, getFollowing } from "../Services/followApi";
-import { follow, unfollow, checkFollow } from "../Services/followApi";
+import { follow, unfollow, checkFollow, checkFollowRequestStatus } from "../Services/followApi";
 import { useUser } from "../Contexts/UserContext";
 import { Ionicons } from "@expo/vector-icons";
 import { getProfilePicUrl } from "../utils/profilePicUrl";
@@ -43,6 +43,7 @@ const FollowListScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [followedUserIds, setFollowedUserIds] = useState<Set<string>>(new Set());
+  const [requestPendingUserIds, setRequestPendingUserIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (!subId) {
@@ -72,16 +73,26 @@ const FollowListScreen = () => {
     let cancelled = false;
     const checkAll = async () => {
       const followed = new Set<string>();
+      const pending = new Set<string>();
       await Promise.all(
         ids.map(async (id) => {
           if (id === currentUserId) return;
           try {
-            const isFollowing = await checkFollow(currentUserId, id);
-            if (isFollowing && !cancelled) followed.add(id);
+            const [isFollowing, reqStatus] = await Promise.all([
+              checkFollow(currentUserId, id),
+              checkFollowRequestStatus(currentUserId, id),
+            ]);
+            if (!cancelled) {
+              if (isFollowing) followed.add(id);
+              else if (reqStatus === "pending") pending.add(id);
+            }
           } catch {}
         })
       );
-      if (!cancelled) setFollowedUserIds(followed);
+      if (!cancelled) {
+        setFollowedUserIds(followed);
+        setRequestPendingUserIds(pending);
+      }
     };
     checkAll();
     return () => { cancelled = true; };
@@ -96,11 +107,24 @@ const FollowListScreen = () => {
     const id = user.sub_id ?? user.subId;
     if (!id || !currentUserId) return;
     try {
-      addToFollowingCount(1);
       await follow(id);
-      setFollowedUserIds((prev) => new Set(prev).add(id));
+      const [isFollowing, reqStatus] = await Promise.all([
+        checkFollow(currentUserId, id),
+        checkFollowRequestStatus(currentUserId, id),
+      ]);
+      if (isFollowing) {
+        addToFollowingCount(1);
+        setFollowedUserIds((prev) => new Set(prev).add(id));
+        setRequestPendingUserIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
+      } else if (reqStatus === "pending") {
+        setRequestPendingUserIds((prev) => new Set(prev).add(id));
+      }
     } catch {
-      addToFollowingCount(-1);
+      // No optimistic update
     }
   };
 
@@ -126,6 +150,7 @@ const FollowListScreen = () => {
     const pfpUrl = getProfilePicUrl(item);
     const isCurrentUser = currentUserId && userSubId === currentUserId;
     const isFollowing = userSubId ? followedUserIds.has(userSubId) : false;
+    const requestPending = userSubId ? requestPendingUserIds.has(userSubId) : false;
 
     return (
       <View style={styles.userRow}>
@@ -147,11 +172,16 @@ const FollowListScreen = () => {
         </TouchableOpacity>
         {!isCurrentUser && userSubId ? (
           <TouchableOpacity
-            style={[styles.followButton, isFollowing && styles.followingButton]}
-            onPress={() => (isFollowing ? handleUnfollowPress(item) : handleFollowPress(item))}
+            style={[
+              styles.followButton,
+              isFollowing && styles.followingButton,
+              requestPending && styles.requestedButton,
+            ]}
+            onPress={() => (isFollowing ? handleUnfollowPress(item) : requestPending ? undefined : handleFollowPress(item))}
+            disabled={requestPending}
           >
             <Text style={styles.followButtonText}>
-              {isFollowing ? "Following" : "Follow"}
+              {requestPending ? "Requested" : isFollowing ? "Following" : "Follow"}
             </Text>
           </TouchableOpacity>
         ) : (
@@ -307,6 +337,9 @@ const styles = StyleSheet.create({
   },
   followingButton: {
     backgroundColor: "#5a6a7e",
+  },
+  requestedButton: {
+    backgroundColor: "#9aa6bd",
   },
   followButtonText: {
     fontSize: 13,

@@ -30,6 +30,7 @@ interface UserSearchResultsProps {
   onFollowPress?: (user: SearchUser) => void;
   onUnfollowPress?: (user: SearchUser) => void;
   followedUserIds?: Set<string>;
+  requestPendingUserIds?: Set<string>;
   currentUserId?: string | null;
   emptyMessage?: string;
 }
@@ -43,6 +44,7 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
   onFollowPress,
   onUnfollowPress,
   followedUserIds = new Set(),
+  requestPendingUserIds = new Set(),
   currentUserId,
   emptyMessage = "No users found",
 }) => {
@@ -79,6 +81,7 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
         const pfpUrl = isCurrentUser && pfpLink ? pfpLink : getProfilePicUrl(user);
         const key = user.sub_id ? `${user.sub_id}-${index}` : `user-${index}`;
         const isFollowing = userSubId ? followedUserIds.has(userSubId) : false;
+        const requestPending = userSubId ? requestPendingUserIds.has(userSubId) : false;
 
         return (
           <View key={key} style={styles.userRow}>
@@ -100,11 +103,16 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
             </TouchableOpacity>
             {!isCurrentUser ? (
               <TouchableOpacity
-                style={[styles.followButton, isFollowing && styles.followingButton]}
-                onPress={() => (isFollowing ? onUnfollowPress?.(user) : onFollowPress?.(user))}
+                style={[
+                  styles.followButton,
+                  isFollowing && styles.followingButton,
+                  requestPending && styles.requestedButton,
+                ]}
+                onPress={() => (isFollowing ? onUnfollowPress?.(user) : requestPending ? undefined : onFollowPress?.(user))}
+                disabled={requestPending}
               >
                 <Text style={styles.followButtonText}>
-                  {isFollowing ? "Following" : "Follow"}
+                  {requestPending ? "Requested" : isFollowing ? "Following" : "Follow"}
                 </Text>
               </TouchableOpacity>
             ) : (
@@ -163,6 +171,9 @@ const styles = StyleSheet.create({
   },
   followingButton: {
     backgroundColor: "#5a6a7e",
+  },
+  requestedButton: {
+    backgroundColor: "#9aa6bd",
   },
   followButtonText: {
     fontSize: 13,

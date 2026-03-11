@@ -34,6 +34,7 @@ import ProfileEditPage from "./Profile/ProfileEditPage";
 import AccoladesScreen from "./Profile/AccoladesScreen";
 import UserProfileScreen from "./Profile/UserProfileScreen";
 import FollowListScreen from "./Profile/FollowListScreen";
+import FollowRequestsScreen from "./Profile/FollowRequestsScreen";
 import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
 import LiveSessionScreen from "./Live/LiveSessionScreen";
 import HiddenFeed from "./Community/HiddenFeed";
@@ -211,6 +212,11 @@ export default function App() {
                         <Stack.Screen
                           name="FollowList"
                           component={FollowListScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="FollowRequests"
+                          component={FollowRequestsScreen}
                           options={{ animation: "none" }}
                         />
                         <Stack.Screen

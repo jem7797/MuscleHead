@@ -14,7 +14,7 @@ import SearchBar from "./SearchMainPage Components/SearchBar";
 import UserSearchResults, { SearchUser } from "./SearchMainPage Components/UserSearchResults";
 import RecentSearches from "./SearchMainPage Components/RecentSearches";
 import { searchUsers } from "../Services/userApi";
-import { follow, unfollow, checkFollow } from "../Services/followApi";
+import { follow, unfollow, checkFollow, checkFollowRequestStatus } from "../Services/followApi";
 import { getRecentSearches, addRecentSearch, clearRecentSearches } from "../Services/recentSearchesService";
 
 const SEARCH_DEBOUNCE_MS = 300;
@@ -25,6 +25,7 @@ const SearchScreen = () => {
   const { userId: currentUserId, addToFollowingCount, feedInvalidationTrigger, privacySetting } = useUser();
   const [query, setQuery] = useState("");
   const [followedUserIds, setFollowedUserIds] = useState<Set<string>>(new Set());
+  const [requestPendingUserIds, setRequestPendingUserIds] = useState<Set<string>>(new Set());
   const [isFocused, setIsFocused] = useState(false);
   const [users, setUsers] = useState<SearchUser[]>([]);
   const [recentSearches, setRecentSearches] = useState<SearchUser[]>([]);
@@ -54,23 +55,35 @@ const SearchScreen = () => {
         setTotalPages(res.totalPages);
 
         if (currentUserId && res.content.length > 0) {
-          const followed = await Promise.all(
+          const followed = new Set<string>();
+          const pending = new Set<string>();
+          await Promise.all(
             res.content.map(async (u) => {
               const subId = u.sub_id ?? (u as { subId?: string }).subId;
-              if (!subId || subId === currentUserId) return null;
-              const following = await checkFollow(currentUserId, subId);
-              return following ? subId : null;
+              if (!subId || subId === currentUserId) return;
+              const [isFollowing, reqStatus] = await Promise.all([
+                checkFollow(currentUserId, subId),
+                checkFollowRequestStatus(currentUserId, subId),
+              ]);
+              if (isFollowing) followed.add(subId);
+              else if (reqStatus === "pending") pending.add(subId);
             })
           );
-          const newIds = followed.filter((id): id is string => id != null);
           setFollowedUserIds((prev) => {
+            if (!append) return followed;
             const next = new Set(prev);
-            newIds.forEach((id) => next.add(id));
-            if (!append) return new Set(newIds);
+            followed.forEach((id) => next.add(id));
+            return next;
+          });
+          setRequestPendingUserIds((prev) => {
+            if (!append) return pending;
+            const next = new Set(prev);
+            pending.forEach((id) => next.add(id));
             return next;
           });
         } else if (!append) {
           setFollowedUserIds(new Set());
+          setRequestPendingUserIds(new Set());
         }
       } catch (e) {
         if (!append) setUsers([]);
@@ -125,11 +138,24 @@ const SearchScreen = () => {
     const subId = user.sub_id ?? user.subId;
     if (!subId || !currentUserId) return;
     try {
-      addToFollowingCount(1);
       await follow(subId);
-      setFollowedUserIds((prev) => new Set(prev).add(subId));
+      const [isFollowing, reqStatus] = await Promise.all([
+        checkFollow(currentUserId, subId),
+        checkFollowRequestStatus(currentUserId, subId),
+      ]);
+      if (isFollowing) {
+        addToFollowingCount(1);
+        setFollowedUserIds((prev) => new Set(prev).add(subId));
+        setRequestPendingUserIds((prev) => {
+          const next = new Set(prev);
+          next.delete(subId);
+          return next;
+        });
+      } else if (reqStatus === "pending") {
+        setRequestPendingUserIds((prev) => new Set(prev).add(subId));
+      }
     } catch {
-      addToFollowingCount(-1);
+      // No optimistic update
     }
   };
 
@@ -188,6 +214,7 @@ const SearchScreen = () => {
             onLoadMore={handleLoadMore}
             currentUserId={currentUserId}
             followedUserIds={followedUserIds}
+            requestPendingUserIds={requestPendingUserIds}
             onFollowPress={handleFollowPress}
             onUnfollowPress={handleUnfollowPress}
             onUserPress={handleUserPress}

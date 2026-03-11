@@ -108,6 +108,7 @@ const ProfileScreen = () => {
         onClose={toggleSettings}
         onEditProfile={() => navigation.navigate("ProfileEdit")}
         onAccoladesPress={() => navigation.navigate("Accolades")}
+        onFollowRequestsPress={() => navigation.navigate("FollowRequests")}
       />
 
       <NavBar />

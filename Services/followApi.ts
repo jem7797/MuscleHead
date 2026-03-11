@@ -1,14 +1,28 @@
 /**
  * Follow API Service
  *
- * POST   follow/api/follow/{followeeSubId}   - Current user follows followeeSubId
+ * POST   follow/api/follow/{followeeSubId}   - Public: create follow. Private: create follow request.
  * DELETE follow/api/unfollow/{followeeSubId}  - Current user unfollows followeeSubId
  * GET    follow/api/followers/{subId}         - Followers of subId
  * GET    follow/api/following/{subId}         - Users that subId follows
  * GET    follow/api/check?follower=...&followee=... - Whether follower follows followee
+ *
+ * Follow requests (private accounts):
+ * GET    follow/api/requests                 - Pending requests for current user
+ * POST   follow/api/requests/{id}/accept     - Accept request
+ * POST   follow/api/requests/{id}/decline    - Decline request
+ * GET    follow/api/request-status?requester=X&followee=Y - "pending" | "none"
  */
 
 import { apiRequest, parseJsonResponse } from "./apiConfig";
+
+export interface FollowRequestResponse {
+  id: string;
+  requester: { sub_id?: string; subId?: string; username?: string; first_name?: string; [key: string]: unknown };
+  followeeSubId: string;
+  status: string;
+  createdAt: string;
+}
 
 /**
  * Current user follows followeeSubId
@@ -127,4 +141,61 @@ export const getMutualFriends = async (userSubId: string): Promise<any[]> => {
     const id = (u.sub_id ?? u.subId ?? "").toString();
     return id && followerIds.has(id);
   });
+};
+
+/**
+ * Get pending follow requests for the current user (as followee)
+ */
+export const getFollowRequests = async (): Promise<FollowRequestResponse[]> => {
+  const response = await apiRequest("/follow/api/requests", { method: "GET" });
+  const data = await parseJsonResponse<any>(response);
+  const arr = Array.isArray(data) ? data : data?.content ?? data?.requests ?? [];
+  return arr as FollowRequestResponse[];
+};
+
+/**
+ * Accept a follow request
+ */
+export const acceptFollowRequest = async (requestId: string): Promise<void> => {
+  const response = await apiRequest(`/follow/api/requests/${requestId}/accept`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err || `Accept failed: ${response.status}`);
+  }
+};
+
+/**
+ * Decline a follow request
+ */
+export const declineFollowRequest = async (requestId: string): Promise<void> => {
+  const response = await apiRequest(`/follow/api/requests/${requestId}/decline`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err || `Decline failed: ${response.status}`);
+  }
+};
+
+/**
+ * Check follow request status: "pending" if request exists, "none" otherwise
+ */
+export const checkFollowRequestStatus = async (
+  requesterSubId: string,
+  followeeSubId: string
+): Promise<"pending" | "none"> => {
+  const params = new URLSearchParams({
+    requester: requesterSubId,
+    followee: followeeSubId,
+  });
+  const response = await apiRequest(`/follow/api/request-status?${params}`, {
+    method: "GET",
+  });
+  const data = await parseJsonResponse<any>(response);
+  const status = (data?.status ?? data ?? "").toString().toLowerCase();
+  return status === "pending" ? "pending" : "none";
 };
