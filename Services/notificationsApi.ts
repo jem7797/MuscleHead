@@ -18,6 +18,11 @@ export interface Notification {
   medalId?: number | null;
   medalName?: string | null;
   medalDescription?: string | null;
+  /** User who performed the action (e.g. follower's sub_id for FOLLOW) */
+  actorSubId?: string | null;
+  actor_sub_id?: string | null;
+  fromUserId?: string | null;
+  from_user_id?: string | null;
 }
 
 export interface NotificationsPage {

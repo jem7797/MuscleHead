@@ -26,6 +26,7 @@ import WorkoutStatsPage from "./MainPage/WorkoutStatsPage";
 import WorkoutDetailPage from "./MainPage/WorkoutDetailPage";
 import CommunityScreen from "./Community";
 import CreatePostScreen from "./Community/CreatePostScreen";
+import FriendsListScreen from "./Community/FriendsListScreen";
 import SearchScreen from "./Search/SearchMainPage";
 import NotificationCenterScreen from "./Leaderboard/LeaderboardMainPage";
 import ProfileScreen from "./Profile/ProfileMain";
@@ -148,6 +149,11 @@ export default function App() {
                         <Stack.Screen
                           name="Community"
                           component={CommunityScreen}
+                          options={{ animation: "none" }}
+                        />
+                        <Stack.Screen
+                          name="FriendsList"
+                          component={FriendsListScreen}
                           options={{ animation: "none" }}
                         />
                         <Stack.Screen

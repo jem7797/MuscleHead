@@ -97,3 +97,34 @@ export const checkMutualFollow = async (
   const data = await parseJsonResponse<any>(response);
   return data === true || data?.mutual === true;
 };
+
+/**
+ * Get list of users who have a mutual follow with the given user (friends).
+ * Tries GET /follow/api/mutual?user1={subId}&user2={subId}; if backend returns
+ * a list, uses it. Otherwise falls back to intersecting following and followers.
+ */
+export const getMutualFriends = async (userSubId: string): Promise<any[]> => {
+  try {
+    const params = new URLSearchParams({ user1: userSubId, user2: userSubId });
+    const response = await apiRequest(`/follow/api/mutual?${params}`, {
+      method: "GET",
+    });
+    const data = await parseJsonResponse<any>(response);
+    if (Array.isArray(data)) return data;
+    if (data?.content && Array.isArray(data.content)) return data.content;
+    if (data?.users && Array.isArray(data.users)) return data.users;
+  } catch {
+    // Fallback
+  }
+  const [following, followers] = await Promise.all([
+    getFollowing(userSubId),
+    getFollowers(userSubId),
+  ]);
+  const followerIds = new Set(
+    (followers || []).map((u) => (u.sub_id ?? u.subId ?? "").toString()).filter(Boolean)
+  );
+  return (following || []).filter((u) => {
+    const id = (u.sub_id ?? u.subId ?? "").toString();
+    return id && followerIds.has(id);
+  });
+};

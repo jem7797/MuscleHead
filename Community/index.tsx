@@ -114,8 +114,15 @@ const CommunityScreen = () => {
           <TouchableOpacity style={styles.postButton} onPress={handleCreatePost} activeOpacity={0.7}>
             <Ionicons name="create-outline" size={24} color="#1f2a44" />
           </TouchableOpacity>
-          <Text style={styles.title}>Community</Text>
-          <View style={styles.headerSpacer} />
+        <Text style={styles.title}>Community</Text>
+        <TouchableOpacity
+          style={styles.friendsButton}
+          onPress={() => navigation.navigate("FriendsList")}
+          activeOpacity={0.7}
+          accessibilityLabel="Friends"
+        >
+          <Ionicons name="people" size={24} color="#1f2a44" />
+        </TouchableOpacity>
         </View>
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#1f2a44" />
@@ -137,7 +144,14 @@ const CommunityScreen = () => {
           <Ionicons name="create-outline" size={24} color="#1f2a44" />
         </TouchableOpacity>
         <Text style={styles.title}>Community</Text>
-        <View style={styles.headerSpacer} />
+        <TouchableOpacity
+          style={styles.friendsButton}
+          onPress={() => navigation.navigate("FriendsList")}
+          activeOpacity={0.7}
+          accessibilityLabel="Friends"
+        >
+          <Ionicons name="people" size={24} color="#1f2a44" />
+        </TouchableOpacity>
       </View>
       {error && posts.length === 0 ? (
         <View style={styles.centered}>
@@ -198,8 +212,9 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#0f1724",
   },
-  headerSpacer: {
-    width: 40,
+  friendsButton: {
+    padding: 8,
+    marginRight: -8,
   },
   centered: {
     flex: 1,

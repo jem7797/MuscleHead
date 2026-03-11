@@ -12,7 +12,7 @@ import {
   UIManager,
   Alert,
 } from "react-native";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../Components/NavBar";
 import {
@@ -66,7 +66,14 @@ if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+const getActorSubId = (n: Notification): string | null => {
+  const id = n.actorSubId ?? n.actor_sub_id ?? n.fromUserId ?? n.from_user_id;
+  if (id == null) return null;
+  return typeof id === "string" ? id : String(id);
+};
+
 const NotificationCenterScreen = () => {
+  const navigation = useNavigation<any>();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -125,6 +132,13 @@ const NotificationCenterScreen = () => {
   };
 
   const handleNotificationPress = async (n: Notification) => {
+    const type = (n.type ?? "").toUpperCase();
+    if (type === "FOLLOW") {
+      const actorSubId = getActorSubId(n);
+      if (actorSubId) {
+        navigation.navigate("UserProfile", { subId: actorSubId });
+      }
+    }
     if (isAchievement(n)) {
       LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
       setExpandedIds((prev) => {
