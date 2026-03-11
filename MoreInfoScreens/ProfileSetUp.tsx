@@ -75,8 +75,8 @@ const ProfileSetUp = () => {
 
   const privacyOptions = [
     { value: "public", label: "Public", description: "All users can see you, your workouts, and your posts" },
-    { value: "friendsOnly", label: "Friends Only", description: "Only people who you follow will see you, your workouts, and your posts" },
-    { value: "private", label: "Private", description: "Only you will see your workouts and notifications" },
+    { value: "private", label: "Private", description: "Only people who you follow will see you, your workouts, and your posts" },
+    { value: "hidden", label: "Hidden", description: "No one will see your profile, even on seach. Note: this option disables the posting and gym bro features" },
   ];
 
 

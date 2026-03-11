@@ -47,7 +47,9 @@ import { WorkoutTemplateProvider } from "./Contexts/WorkoutTemplateContext";
 import { RoutinesProvider } from "./Contexts/RoutinesContext";
 import { WorkoutsProvider } from "./Contexts/WorkoutsContext";
 import { AchievementProvider } from "./Contexts/AchievementContext";
+import { InviteProvider } from "./Contexts/InviteContext";
 import AchievementToast from "./Components/AchievementToast";
+import InviteToast from "./Components/InviteToast";
 import InviteNotification from "./Components/InviteNotification";
 
 //@ts-ignore
@@ -74,6 +76,7 @@ export default function App() {
                 <WorkoutStatsProvider>
                   <GlobalWorkedMusclesProvider>
                     <AchievementProvider>
+                    <InviteProvider>
                     <View style={styles.appRoot}>
                     <NavigationContainer ref={navigationRef}>
                       <Stack.Navigator
@@ -208,9 +211,11 @@ export default function App() {
                         />
                       </Stack.Navigator>
                     </NavigationContainer>
-                    <AchievementToast navigationRef={navigationRef} />
-                    <InviteNotification navigationRef={navigationRef} />
+                      <AchievementToast navigationRef={navigationRef} />
+                      <InviteToast navigationRef={navigationRef} />
+                      <InviteNotification />
                     </View>
+                    </InviteProvider>
                     </AchievementProvider>
                   </GlobalWorkedMusclesProvider>
                 </WorkoutStatsProvider>

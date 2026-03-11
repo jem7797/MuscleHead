@@ -18,7 +18,7 @@ import { createUser } from "../Services/userApi";
 const ConfirmSignUpScreen = ({ route, navigation }) => {
   const [code, setCode] = useState(["", "", "", "", "", ""]); // 6-digit array
   const inputs = useRef<(TextInput | null)[]>([]);
-  const { username, email, given_name, birthDate } = route.params;
+  const { username, email, given_name, birthDate, height, weight } = route.params || {};
   //@ts-ignore
   const { getAndClearTempPassword, setIsAuth, changeUsername} = useUser();
 
@@ -140,8 +140,12 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         
         console.log("Step 4: User sub retrieved:", sub);
         
-        // Create user in backend (height/weight stay null until user sets them via update)
-        const userData = await createUser(username, sub, email, given_name, birthDate);
+        // Create user in backend (include height/weight if provided from sign up)
+        const optionalFields =
+          height != null && weight != null
+            ? { height: Number(height), weight: Number(weight) }
+            : undefined;
+        const userData = await createUser(username, sub, email, given_name, birthDate, optionalFields);
         console.log("Step 4: User created in backend database:", userData);
         setIsAuth(true);
         

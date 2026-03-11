@@ -10,13 +10,13 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Button,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signUp, signOut, getCurrentUser } from "aws-amplify/auth";
 import { reportMinorSignupAttempt } from "../Services/userApi";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
+import { useOnboarding } from "../Contexts/OnboardingContext";
 import PrimaryButton from "../Components/PrimaryButton";
 import { Image } from "expo-image";
 // Note: createUser will be called after email confirmation and sign-in
@@ -28,10 +28,15 @@ const SignUpScreen = () => {
   const navigation = useNavigation();
   //@ts-ignore
   const { given_name, setgiven_name, setTempPasswordForSignup } = useUser();
+  const { setGender, setHeight, setWeight } = useOnboarding();
   const [email, setEmail] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [alias, setAlias] = useState("");
   const [password, setPassword] = useState("");
+  const [gender, setGenderLocal] = useState<"Male" | "Female" | null>(null);
+  const [heightFeet, setHeightFeet] = useState("");
+  const [heightInches, setHeightInches] = useState("");
+  const [weight, setWeightLocal] = useState("");
 
   // Automatically sign out any existing user when this screen loads
   // This allows testing signup multiple times without manual sign-out
@@ -102,6 +107,25 @@ const SignUpScreen = () => {
     // STEP 1: Validate that all required fields are filled
     if (!given_name || !email || !birthDate || !alias || !password) {
       Alert.alert("Error", "Please fill out all fields.");
+      return;
+    }
+    if (!gender) {
+      Alert.alert("Error", "Please select your gender.");
+      return;
+    }
+    const feet = parseInt(heightFeet, 10);
+    const inches = parseInt(heightInches, 10);
+    const weightLbs = parseFloat(weight);
+    if (isNaN(feet) || feet < 1 || feet > 8) {
+      Alert.alert("Error", "Please enter a valid height (feet: 1-8).");
+      return;
+    }
+    if (isNaN(inches) || inches < 0 || inches > 11) {
+      Alert.alert("Error", "Please enter a valid height (inches: 0-11).");
+      return;
+    }
+    if (isNaN(weightLbs) || weightLbs < 50 || weightLbs > 600) {
+      Alert.alert("Error", "Please enter a valid weight in lbs (50-600).");
       return;
     }
     const birthDateYYYYMMDD = parseDobToYYYYMMDD(birthDate);
@@ -192,21 +216,23 @@ const SignUpScreen = () => {
       console.log("Next step:", nextStep);
 
       // STEP 3: Store password temporarily in context for auto-login after email confirmation
-      // Note: User creation in backend will happen after email confirmation and sign-in
-      // when we have an authenticated session (ID token available)
-      // This is more secure than passing it through navigation params
       setTempPasswordForSignup(password);
 
+      // Store gender, height, weight in onboarding context for IdentityBasics/HeightWeight/ProfileSetUp
+      const totalHeightInches = feet * 12 + inches;
+      setGender(gender);
+      setHeight(feet, inches);
+      setWeight(weightLbs);
+
       // STEP 4: Navigate to email confirmation screen
-      // The user needs to verify their email with the code Cognito sent
-      // Password is stored in context, not passed through navigation params for security
-      // Pass required data for user creation (will happen after sign-in)
       // @ts-ignore
       navigation.navigate("ConfirmSignUp", {
         username: alias,
         email,
         given_name,
         birthDate: birthDateYYYYMMDD,
+        height: totalHeightInches,
+        weight: weightLbs,
       });
     } catch (error: any) {
       // Handle any errors during the sign up process
@@ -272,7 +298,7 @@ const SignUpScreen = () => {
           style={styles.mainContainer}
         >
           <Image
-            source={require("../assets/AlternateMuscleHeadLogo.png")}
+            source={require("../assets/MeatHeadLogo.png")}
             style={styles.logo}
           />
 
@@ -334,6 +360,56 @@ const SignUpScreen = () => {
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+            />
+
+            <Text style={styles.label}>Gender</Text>
+            <View style={styles.genderRow}>
+              <TouchableOpacity
+                style={[styles.genderButton, gender === "Male" && styles.genderButtonSelected]}
+                onPress={() => setGenderLocal("Male")}
+              >
+                <Text style={[styles.genderButtonText, gender === "Male" && styles.genderButtonTextSelected]}>Male</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.genderButton, gender === "Female" && styles.genderButtonSelected]}
+                onPress={() => setGenderLocal("Female")}
+              >
+                <Text style={[styles.genderButtonText, gender === "Female" && styles.genderButtonTextSelected]}>Female</Text>
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.label}>Height (ft / in)</Text>
+            <View style={styles.heightRow}>
+              <TextInput
+                style={[styles.input, styles.heightInput]}
+                placeholder="5"
+                placeholderTextColor="#aaaaaaac"
+                value={heightFeet}
+                onChangeText={setHeightFeet}
+                keyboardType="number-pad"
+                maxLength={1}
+              />
+              <Text style={styles.heightSeparator}>ft</Text>
+              <TextInput
+                style={[styles.input, styles.heightInput]}
+                placeholder="10"
+                placeholderTextColor="#aaaaaaac"
+                value={heightInches}
+                onChangeText={setHeightInches}
+                keyboardType="number-pad"
+                maxLength={2}
+              />
+              <Text style={styles.heightSeparator}>in</Text>
+            </View>
+
+            <Text style={styles.label}>Weight (lbs)</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="150"
+              placeholderTextColor="#aaaaaaac"
+              value={weight}
+              onChangeText={setWeightLocal}
+              keyboardType="number-pad"
             />
 
             <PrimaryButton
@@ -419,6 +495,42 @@ const styles = StyleSheet.create({
   signUpLinkBold: {
     color: "#5b9aff",
     fontWeight: "600",
+  },
+  genderRow: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 12,
+  },
+  genderButton: {
+    flex: 1,
+    backgroundColor: "#44434373",
+    paddingVertical: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+  genderButtonSelected: {
+    backgroundColor: "#3b6fb8",
+  },
+  genderButtonText: {
+    color: "#fff",
+    fontWeight: "600",
+  },
+  genderButtonTextSelected: {
+    color: "#fff",
+  },
+  heightRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  heightInput: {
+    width: 60,
+    marginBottom: 0,
+  },
+  heightSeparator: {
+    color: "#fff",
+    marginHorizontal: 8,
+    fontSize: 14,
   },
 });
 

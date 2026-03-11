@@ -1,12 +1,9 @@
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "../Contexts/UserContext";
 import PrimaryButton from "../Components/PrimaryButton";
-import SecondaryButton from "../Components/SecondaryButton";
-
-
 
 //@ts-ignore
 const ContinueSignUp = ({ navigation }) => {
@@ -25,20 +22,15 @@ const ContinueSignUp = ({ navigation }) => {
         <Ionicons name="checkmark-circle" size={90} color="#3b6fb8" style={styles.iconGlow} />
         <Text style={styles.headerText}>Congrats, {given_name}, your account was created!</Text>
         <Text style={styles.subText}>
-          Jump right in or tell us more to personalize your experience. 
+          Let's personalize your experience.
         </Text>
 
         <View style={styles.buttonContainer}>
           <PrimaryButton
             label="Continue"
             variant="continue"
-            onPress={() => navigation.navigate("WorkoutInputMainPage")}
-            containerStyle={styles.primaryButton}
-          />
-          <SecondaryButton
-            label="Add More Info"
-            variant="ghost"
             onPress={() => navigation.navigate("IdentityBasics")}
+            containerStyle={styles.primaryButton}
           />
         </View>
       </View>

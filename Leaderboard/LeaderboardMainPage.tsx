@@ -15,12 +15,17 @@ import {
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import NavBar from "../Components/NavBar";
+import { useUser } from "../Contexts/UserContext";
+import { useInvite } from "../Contexts/InviteContext";
 import {
   getNotifications,
   markNotificationAsRead,
   Notification,
 } from "../Services/notificationsApi";
 import { createAchievementPost } from "../Services/postsApi";
+import { getPendingInvites } from "../Services/liveSessionApi";
+import type { SessionInvite } from "../Services/liveSessionApi";
+import { acceptInvite, declineInvite } from "../lib/sessionService";
 
 const formatTimeAgo = (dateStr?: string): string => {
   if (!dateStr) return "";
@@ -40,6 +45,8 @@ const formatTimeAgo = (dateStr?: string): string => {
 const getIconForType = (type: string): string => {
   const t = (type ?? "").toUpperCase();
   switch (t) {
+    case "SESSION_INVITE":
+      return "fitness";
     case "MEDAL_EARNED":
     case "LEVEL_UP":
       return "trophy";
@@ -72,9 +79,16 @@ const getActorSubId = (n: Notification): string | null => {
   return typeof id === "string" ? id : String(id);
 };
 
+type FeedItem =
+  | { kind: "notification"; data: Notification }
+  | { kind: "invite"; data: SessionInvite };
+
 const NotificationCenterScreen = () => {
   const navigation = useNavigation<any>();
+  const { userId } = useUser();
+  const { removeInvite } = useInvite();
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [pendingInvites, setPendingInvites] = useState<SessionInvite[]>([]);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -82,6 +96,7 @@ const NotificationCenterScreen = () => {
   const [page, setPage] = useState(0);
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const [postingMedalId, setPostingMedalId] = useState<number | null>(null);
+  const [inviteActionId, setInviteActionId] = useState<string | null>(null);
 
   const handleShareAchievement = async (n: Notification) => {
     const achievementId = n.medalId;
@@ -105,11 +120,20 @@ const NotificationCenterScreen = () => {
     return result;
   }, []);
 
+  const fetchPendingInvites = useCallback(async () => {
+    try {
+      const invites = await getPendingInvites();
+      setPendingInvites(invites.filter((i) => i.status === "pending"));
+    } catch {
+      setPendingInvites([]);
+    }
+  }, []);
+
   const loadInitial = useCallback(async () => {
     setLoading(true);
-    await fetchNotifications(0, false);
+    await Promise.all([fetchNotifications(0, false), fetchPendingInvites()]);
     setLoading(false);
-  }, [fetchNotifications]);
+  }, [fetchNotifications, fetchPendingInvites]);
 
   useFocusEffect(
     useCallback(() => {
@@ -119,7 +143,7 @@ const NotificationCenterScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await fetchNotifications(0, false);
+    await Promise.all([fetchNotifications(0, false), fetchPendingInvites()]);
     setRefreshing(false);
   };
 
@@ -130,6 +154,50 @@ const NotificationCenterScreen = () => {
     await fetchNotifications(page + 1, true);
     setLoadingMore(false);
   };
+
+  const handleAcceptInvite = async (invite: SessionInvite) => {
+    if (inviteActionId) return;
+    setInviteActionId(invite.id);
+    try {
+      await acceptInvite({ inviteId: invite.id });
+      removeInvite(invite.id);
+      setPendingInvites((prev) => prev.filter((i) => i.id !== invite.id));
+      if (userId) {
+        navigation.navigate("LiveSession", {
+          sessionId: invite.session_id,
+          currentUserId: userId,
+          hostUserId: invite.from_user_id,
+          guestUserId: userId,
+        });
+      }
+    } catch (e) {
+      Alert.alert(
+        "Error",
+        e instanceof Error ? e.message : "Could not join the session.",
+      );
+    } finally {
+      setInviteActionId(null);
+    }
+  };
+
+  const handleDeclineInvite = async (invite: SessionInvite) => {
+    if (inviteActionId) return;
+    setInviteActionId(invite.id);
+    try {
+      await declineInvite({ inviteId: invite.id });
+      removeInvite(invite.id);
+      setPendingInvites((prev) => prev.filter((i) => i.id !== invite.id));
+    } catch (e) {
+      console.error("Failed to decline invite:", e);
+    } finally {
+      setInviteActionId(null);
+    }
+  };
+
+  const feedItems: FeedItem[] = [
+    ...pendingInvites.map((inv) => ({ kind: "invite" as const, data: inv })),
+    ...notifications.map((n) => ({ kind: "notification" as const, data: n })),
+  ];
 
   const handleNotificationPress = async (n: Notification) => {
     const type = (n.type ?? "").toUpperCase();
@@ -158,25 +226,65 @@ const NotificationCenterScreen = () => {
     }
   };
 
-  const renderItem = ({ item }: { item: Notification }) => {
-    const timeAgo = formatTimeAgo(item.createdAt);
-    const icon = getIconForType(item.type);
-    const achievement = isAchievement(item);
-    const expanded = expandedIds.has(item.id);
+  const renderItem = ({ item }: { item: FeedItem }) => {
+    if (item.kind === "invite") {
+      const invite = item.data;
+      const message = invite.message ?? "You've been invited to join a live workout!";
+      const timeAgo = formatTimeAgo(invite.sent_at);
+      const isProcessing = inviteActionId === invite.id;
+
+      return (
+        <View style={styles.notificationCard}>
+          <View style={styles.notificationRow}>
+            <View style={[styles.iconWrapper, styles.inviteIconWrapper]}>
+              <Ionicons name="fitness" size={24} color="#3b6fb8" />
+            </View>
+            <View style={styles.content}>
+              <Text style={styles.message}>{message}</Text>
+              <Text style={styles.timeAgo}>{timeAgo}</Text>
+            </View>
+          </View>
+          <View style={styles.inviteActions}>
+            <TouchableOpacity
+              style={[styles.declineButton, isProcessing && styles.buttonDisabled]}
+              onPress={() => handleDeclineInvite(invite)}
+              disabled={isProcessing}
+            >
+              <Text style={styles.declineButtonText}>Decline</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.acceptButton, isProcessing && styles.buttonDisabled]}
+              onPress={() => handleAcceptInvite(invite)}
+              disabled={isProcessing}
+            >
+              <Text style={styles.acceptButtonText}>
+                {inviteActionId === invite.id ? "Joining..." : "Accept"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+
+    const n = item.data;
+    const timeAgo = formatTimeAgo(n.createdAt);
+    const icon = getIconForType(n.type);
+    const achievement = isAchievement(n);
+    const expanded = expandedIds.has(n.id);
     const rawDisplayName = achievement
-      ? (item.medalName ?? item.message ?? "Achievement unlocked!")
-      : item.message;
+      ? (n.medalName ?? n.message ?? "Achievement unlocked!")
+      : n.message;
     const displayName = achievement ? rawDisplayName.replace(/_/g, " ") : rawDisplayName;
     const rawDescription = achievement
-      ? (item.medalDescription ?? item.message)
+      ? (n.medalDescription ?? n.message)
       : null;
     const description = rawDescription ? rawDescription.replace(/_/g, " ") : rawDescription;
 
     return (
-      <View style={[styles.notificationCard, item.read && styles.notificationRead]}>
+      <View style={[styles.notificationCard, n.read && styles.notificationRead]}>
         <TouchableOpacity
           style={styles.notificationRow}
-          onPress={() => handleNotificationPress(item)}
+          onPress={() => handleNotificationPress(n)}
           activeOpacity={0.7}
         >
           <View
@@ -208,15 +316,15 @@ const NotificationCenterScreen = () => {
         {achievement && expanded && description ? (
           <View style={styles.expandedDescription}>
             <Text style={styles.descriptionText}>{description}</Text>
-            {item.medalId != null && (
+            {n.medalId != null && (
               <TouchableOpacity
-                style={[styles.shareButton, postingMedalId === item.id && styles.shareButtonDisabled]}
-                onPress={() => handleShareAchievement(item)}
+                style={[styles.shareButton, postingMedalId === n.id && styles.shareButtonDisabled]}
+                onPress={() => handleShareAchievement(n)}
                 disabled={postingMedalId != null}
               >
                 <Ionicons name="share-social-outline" size={16} color="#fff" />
                 <Text style={styles.shareButtonText}>
-                  {postingMedalId === item.id ? "Posting..." : "Share to Feed"}
+                  {postingMedalId === n.id ? "Posting..." : "Share to Feed"}
                 </Text>
               </TouchableOpacity>
             )}
@@ -226,7 +334,7 @@ const NotificationCenterScreen = () => {
     );
   };
 
-  if (loading && notifications.length === 0) {
+  if (loading && feedItems.length === 0) {
     return (
       <View style={[styles.container, styles.centered]}>
         <View style={styles.header}>
@@ -243,18 +351,20 @@ const NotificationCenterScreen = () => {
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Notifications</Text>
       </View>
-      {notifications.length === 0 ? (
+      {feedItems.length === 0 ? (
         <View style={styles.emptyState}>
           <Ionicons name="notifications-outline" size={64} color="#a2a2a2" />
           <Text style={styles.emptyTitle}>No notifications yet</Text>
           <Text style={styles.emptySubtext}>
-            When someone follows you or interacts with your content, you'll see it here.
+            When someone follows you, invites you to a workout, or interacts with your content, you'll see it here.
           </Text>
         </View>
       ) : (
         <FlatList
-          data={notifications}
-          keyExtractor={(item) => String(item.id)}
+          data={feedItems}
+          keyExtractor={(item) =>
+            item.kind === "invite" ? `invite-${item.data.id}` : String(item.data.id)
+          }
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -325,6 +435,43 @@ const styles = StyleSheet.create({
   },
   achievementIconWrapper: {
     backgroundColor: "rgba(21, 18, 0, 0.81)",
+  },
+  inviteIconWrapper: {
+    backgroundColor: "rgba(59, 111, 184, 0.2)",
+  },
+  inviteActions: {
+    flexDirection: "row",
+    gap: 12,
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+    paddingTop: 0,
+  },
+  declineButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "#e8ecf4",
+    alignItems: "center",
+  },
+  acceptButton: {
+    flex: 1,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: "#202c76",
+    alignItems: "center",
+  },
+  declineButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#5a6a7e",
+  },
+  acceptButtonText: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#fff",
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   expandedDescription: {
     paddingHorizontal: 16,

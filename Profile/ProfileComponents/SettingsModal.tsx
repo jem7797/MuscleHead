@@ -58,15 +58,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose, onEditP
               <Text style={styles.settingsText}>Accolades</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.settingsItem}>
-              <Ionicons name="person-circle-outline" size={22} color="#1f2a44" />
-              <Text style={styles.settingsText}>Account</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.settingsItem}>
-              <Ionicons name="notifications-outline" size={22} color="#1f2a44" />
-              <Text style={styles.settingsText}>Notifications</Text>
-            </TouchableOpacity>
+           
 
             <TouchableOpacity style={styles.settingsItem}>
               <Ionicons name="lock-closed-outline" size={22} color="#1f2a44" />

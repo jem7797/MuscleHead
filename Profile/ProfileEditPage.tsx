@@ -19,6 +19,7 @@ import PageHeader from "../Components/PageHeader";
 import PrimaryButton from "../Components/PrimaryButton";
 import { useUser } from "../Contexts/UserContext";
 import { pickAndUploadPfp } from "../Services/pfpUpload";
+import PrivacyDropdown from "../MoreInfoScreens/ProfileSetUp Components/PrivacyDropdown";
 
 /** ~100 words at ~5 chars/word */
 const BIO_CHAR_LIMIT = 500;
@@ -33,6 +34,9 @@ const ProfileEditPage = () => {
     weight,
     isNatty,
     pfpLink,
+    privacySetting,
+
+    setPrivacySetting,
     updateProfile,
   } = useUser();
 
@@ -45,6 +49,23 @@ const ProfileEditPage = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingPfp, setUploadingPfp] = useState(false);
   const [pfpImgError, setPfpImgError] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedPrivacySetting, setSelectedPrivacySetting] = useState(privacySetting)
+
+  const privacyOptions = [
+    { value: "public", label: "Public", description: "All users can see you, your workouts, and your posts" },
+    { value: "private", label: "Private", description: "Only people who you follow will see you, your workouts, and your posts" },
+    { value: "hidden", label: "Hidden", description: "No one will see your profile, even on seach. Note: this option disables the posting and gym bro features" },
+  ];
+
+
+  const handleSelectPrivacy = (value: string) => {
+
+    setSelectedPrivacySetting(value);
+    
+
+    setIsDropdownOpen(false);
+  };
 
   useEffect(() => {
     if (height != null) {
@@ -60,6 +81,7 @@ const ProfileEditPage = () => {
   const hasChanges =
     editedUsername.trim() !== (username ?? "").trim() ||
     editedBio.trim() !== (bio ?? "").trim() ||
+    selectedPrivacySetting !== privacySetting ||
     (() => {
       const totalInches = parseInt(feet, 10) * 12 + parseInt(inches || "0", 10);
       return totalInches !== (height ?? 0);
@@ -104,6 +126,8 @@ const ProfileEditPage = () => {
         height: totalInches > 0 ? totalInches : null,
         weight: weightVal,
         nattyStatus: editedNatty,
+        privacySetting: selectedPrivacySetting,
+        
       });
       navigation.goBack();
     } catch (e) {
@@ -223,6 +247,9 @@ const ProfileEditPage = () => {
             </View>
           </View>
 
+
+
+
           <View style={styles.section}>
             <View style={styles.switchRow}>
               <Text style={styles.label}>Natty status</Text>
@@ -238,7 +265,26 @@ const ProfileEditPage = () => {
             </Text>
           </View>
           </View>
+
+
+
+
+<View style = {{paddingBottom: isDropdownOpen ? 170: 0}}>
+          <PrivacyDropdown
+            options={privacyOptions}
+            selectedPrivacy={selectedPrivacySetting}
+            isOpen={isDropdownOpen}
+            onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+            onSelect={handleSelectPrivacy}
+          />
+
+</View>
+
+
+
         </ScrollView>
+
+
 
         <PrimaryButton
           label={saving ? "Saving..." : "Save"}
@@ -358,6 +404,11 @@ const styles = StyleSheet.create({
     color: "#5a6a7e",
     marginTop: 6,
   },
-});
+
+  privacySettings:{
+paddingBottom: 170,
+},
+},
+);
 
 export default ProfileEditPage;

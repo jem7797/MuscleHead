@@ -42,12 +42,22 @@ interface UserContextType {
   weight: number | null;
   lifetimeWeightLifted: number | null;
   lifetimeGymTime: number | null;
+
+
+  //privacy
+privacySetting: string;
+
+
+
   /** Add to lifetime stats after a workout (no refetch). Weight in lbs, time in minutes. Optimistically updates xp (+1) and rank if leveled up. */
   addToLifetimeStats: (
     weightLbs: number,
     timeMinutes: number,
     xpGain?: number,
   ) => void;
+  
+  
+  
   /** Optimistically update following count. delta: +1 for follow, -1 for unfollow. */
   addToFollowingCount: (delta: number) => void;
   isNatty: boolean | true;
@@ -57,10 +67,12 @@ interface UserContextType {
   numberFollowing: number | undefined;
   numberOfPosts: number | undefined;
   pfpLink: string | undefined;
+  
   /** Increments when pfp is updated; use to trigger feed/search refetch */
   feedInvalidationTrigger: number;
   isProfileLoading: boolean; // Profile data loading state
   nemesisSubIds: string[];
+ 
   /** "Male" | "Female" | null - used to show appropriate muscle diagram */
   gender: string | null;
   setNemesisSubIds: (ids: string[] | ((prev: string[]) => string[])) => void;
@@ -71,6 +83,9 @@ interface UserContextType {
   setIsAuth: (isAuthBoolValue: boolean) => void;
   getAndSetUserSubId: () => Promise<void>;
   refreshUserProfile: (sub?: string) => Promise<void>;
+  setPrivacySetting: (PrivacyChoice : string) => void;
+
+
 
   // Profile methods
   changeUsername: (newUsername: string) => void;
@@ -81,12 +96,14 @@ interface UserContextType {
     weight?: number | null;
     nattyStatus?: boolean;
     profilePicUrl?: string;
+    privacySetting?: string;
   }) => Promise<void>;
   setShowRealNameValue: (revealName: boolean) => void;
   setProfileLoading: (loadStatus: boolean) => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
+
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   // Auth state
@@ -96,6 +113,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+
 
   // Profile state
   const [username, setUsername] = useState<string>(" ");
@@ -115,8 +134,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [profilePicVersion, setProfilePicVersion] = useState<number | null>(null);
   const [feedInvalidationTrigger, setFeedInvalidationTrigger] = useState(0);
   const [isProfileLoading, setIsProfileLoading] = useState<boolean>(true);
+  const [privacySetting, setPrivacySetting] = useState<string>("public");
+
+
 
   const pfpLink = getProfilePicUrl({ profilePicUrl, profilePicVersion });
+
+
+
 
   useEffect(() => {
     if (__DEV__ && pfpLink) console.log("[pfp] current URL:", pfpLink);
@@ -138,8 +163,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     [],
   );
 
+
+
+
   // Temporary password storage for signup flow - cleared after one-time use
   const [tempPassword, setTempPassword] = useState<string | null>(null);
+
+
 
   // Store password temporarily (only during signup flow)
   const setTempPasswordForSignup = (password: string) => {
@@ -156,6 +186,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const setIsAuth = (isAuthBoolValue: boolean) => {
     setIsAuthenticated(isAuthBoolValue);
   };
+
+
+
+
 
   const clearProfile = () => {
     setUsername(" ");
@@ -178,6 +212,11 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setNemesisSubIdsInternal([]);
     clearNemesisSubIds().catch(() => {});
   };
+
+
+
+
+
 
   const getAndSetUserSubId = async () => {
     setIsLoading(true);
@@ -212,6 +251,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setShowRealName(revealNameStatus);
   };
 
+
+
+
   const updateProfile = async (updates: {
     username?: string;
     bio?: string;
@@ -219,6 +261,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     weight?: number | null;
     nattyStatus?: boolean;
     profilePicUrl?: string;
+    privacySetting?: string;
   }) => {
     if (!userId) return;
     // PATCH: send only the fields being changed
@@ -230,6 +273,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (updates.weight !== undefined) payload.weight = updates.weight;
     if (updates.nattyStatus !== undefined)
       payload.natty_status = updates.nattyStatus;
+
+if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacySetting;
+
     if (updates.profilePicUrl !== undefined)
       payload.profilePicUrl = updates.profilePicUrl;
     const hasProfileUpdates =
@@ -238,6 +284,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       updates.height !== undefined ||
       updates.weight !== undefined ||
       updates.nattyStatus !== undefined ||
+      updates.privacySetting !== undefined ||
       updates.profilePicUrl !== undefined;
     if (!hasProfileUpdates) return;
     const response = await updateUser(userId, payload);
@@ -246,6 +293,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (updates.bio !== undefined) setBio(updates.bio);
     if (updates.height !== undefined) setHeight(updates.height);
     if (updates.weight !== undefined) setWeight(updates.weight);
+  if(updates.privacySetting !== undefined) setPrivacySetting(updates.privacySetting);
+  
     if (updates.nattyStatus !== undefined) setIsNatty(updates.nattyStatus);
     if (updates.profilePicUrl !== undefined) {
       const resUrl = response?.profilePicUrl ?? response?.profile_pic_url ?? response?.pfp_link;
@@ -286,9 +335,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     });
   };
 
+
+
   const addToFollowingCount = (delta: number) => {
     setNumberFollowing((prev) => Math.max(0, (prev ?? 0) + delta));
   };
+
+
+
 
   const fetchUserProfile = async (sub?: string) => {
     const id = sub ?? userId;
@@ -312,6 +366,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       setNumberOfFollowers(userData.number_of_followers);
       setNumberFollowing(userData.number_following);
       setNumberOfPosts(userData.number_of_posts);
+      setPrivacySetting(userData.privacy_setting ?? "public");
+      
       const nemesisRaw =
         userData.nemesis ??
         userData.nemesisSubIds ??
@@ -349,6 +405,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+
+
+
   // Check auth status on mount
   useEffect(() => {
     getAndSetUserSubId();
@@ -376,6 +435,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         isAuthenticated,
         userId,
         isLoading,
+
         // Profile state
         username,
         bio,
@@ -387,6 +447,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         addToLifetimeStats,
         addToFollowingCount,
         isNatty: isNatty ?? true,
+        privacySetting: privacySetting ?? "public",
 
         xp,
         rank: rank ?? null,
@@ -413,6 +474,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         updateProfile,
         setShowRealNameValue,
         setProfileLoading,
+        setPrivacySetting,
       }}
     >
       {children}
