@@ -25,6 +25,7 @@ import {
   type RoutineExerciseDetail,
 } from "../Services/workoutTemplateApi";
 import { useMovements } from "../Contexts/MovementContext";
+import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
 
 interface SetData {
   weight: string;
@@ -277,11 +278,19 @@ const ActiveWorkoutPage = () => {
     const front: string[] = [];
     const back: string[] = [];
     exercises.forEach((ex) => {
-      const area = ex.routineExercise.exercise?.areaOfActivation ?? "";
-      const mapping = MUSCLE_GROUP_MAP[area];
-      if (mapping) {
-        front.push(...mapping.front);
-        back.push(...mapping.back);
+      const name =
+        ex.routineExercise.exerciseName ?? ex.routineExercise.exercise?.name;
+      const byName = name ? EXERCISE_TO_MUSCLES[name] : undefined;
+      if (byName) {
+        front.push(...byName.front);
+        back.push(...byName.back);
+      } else {
+        const area = ex.routineExercise.exercise?.areaOfActivation ?? "";
+        const mapping = MUSCLE_GROUP_MAP[area];
+        if (mapping) {
+          front.push(...mapping.front);
+          back.push(...mapping.back);
+        }
       }
     });
     return {

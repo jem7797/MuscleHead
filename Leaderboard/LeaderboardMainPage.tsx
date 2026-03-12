@@ -26,6 +26,14 @@ import { createAchievementPost } from "../Services/postsApi";
 import { getPendingInvites } from "../Services/liveSessionApi";
 import type { SessionInvite } from "../Services/liveSessionApi";
 import { acceptInvite, declineInvite } from "../lib/sessionService";
+import {
+  getFollowRequests,
+  acceptFollowRequest,
+  declineFollowRequest,
+  type FollowRequestResponse,
+} from "../Services/followApi";
+import { getProfilePicUrl, type UserWithProfilePic } from "../utils/profilePicUrl";
+import { Image } from "expo-image";
 
 const formatTimeAgo = (dateStr?: string): string => {
   if (!dateStr) return "";
@@ -81,7 +89,8 @@ const getActorSubId = (n: Notification): string | null => {
 
 type FeedItem =
   | { kind: "notification"; data: Notification }
-  | { kind: "invite"; data: SessionInvite };
+  | { kind: "invite"; data: SessionInvite }
+  | { kind: "followRequest"; data: FollowRequestResponse };
 
 const NotificationCenterScreen = () => {
   const navigation = useNavigation<any>();
@@ -97,6 +106,8 @@ const NotificationCenterScreen = () => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const [postingMedalId, setPostingMedalId] = useState<number | null>(null);
   const [inviteActionId, setInviteActionId] = useState<string | null>(null);
+  const [followRequests, setFollowRequests] = useState<FollowRequestResponse[]>([]);
+  const [followRequestActionId, setFollowRequestActionId] = useState<string | null>(null);
 
   const handleShareAchievement = async (n: Notification) => {
     const achievementId = n.medalId;
@@ -129,11 +140,24 @@ const NotificationCenterScreen = () => {
     }
   }, []);
 
+  const fetchFollowRequests = useCallback(async () => {
+    try {
+      const requests = await getFollowRequests();
+      setFollowRequests(requests ?? []);
+    } catch {
+      setFollowRequests([]);
+    }
+  }, []);
+
   const loadInitial = useCallback(async () => {
     setLoading(true);
-    await Promise.all([fetchNotifications(0, false), fetchPendingInvites()]);
+    await Promise.all([
+      fetchNotifications(0, false),
+      fetchPendingInvites(),
+      fetchFollowRequests(),
+    ]);
     setLoading(false);
-  }, [fetchNotifications, fetchPendingInvites]);
+  }, [fetchNotifications, fetchPendingInvites, fetchFollowRequests]);
 
   useFocusEffect(
     useCallback(() => {
@@ -143,7 +167,11 @@ const NotificationCenterScreen = () => {
 
   const onRefresh = async () => {
     setRefreshing(true);
-    await Promise.all([fetchNotifications(0, false), fetchPendingInvites()]);
+    await Promise.all([
+      fetchNotifications(0, false),
+      fetchPendingInvites(),
+      fetchFollowRequests(),
+    ]);
     setRefreshing(false);
   };
 
@@ -194,8 +222,35 @@ const NotificationCenterScreen = () => {
     }
   };
 
+  const handleAcceptFollowRequest = async (req: FollowRequestResponse) => {
+    if (followRequestActionId) return;
+    setFollowRequestActionId(req.id);
+    try {
+      await acceptFollowRequest(req.id);
+      setFollowRequests((prev) => prev.filter((r) => r.id !== req.id));
+    } catch (e) {
+      Alert.alert("Error", e instanceof Error ? e.message : "Could not accept request.");
+    } finally {
+      setFollowRequestActionId(null);
+    }
+  };
+
+  const handleDeclineFollowRequest = async (req: FollowRequestResponse) => {
+    if (followRequestActionId) return;
+    setFollowRequestActionId(req.id);
+    try {
+      await declineFollowRequest(req.id);
+      setFollowRequests((prev) => prev.filter((r) => r.id !== req.id));
+    } catch (e) {
+      console.error("Failed to decline follow request:", e);
+    } finally {
+      setFollowRequestActionId(null);
+    }
+  };
+
   const feedItems: FeedItem[] = [
     ...pendingInvites.map((inv) => ({ kind: "invite" as const, data: inv })),
+    ...followRequests.map((req) => ({ kind: "followRequest" as const, data: req })),
     ...notifications.map((n) => ({ kind: "notification" as const, data: n })),
   ];
 
@@ -259,6 +314,59 @@ const NotificationCenterScreen = () => {
             >
               <Text style={styles.acceptButtonText}>
                 {inviteActionId === invite.id ? "Joining..." : "Accept"}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+
+    if (item.kind === "followRequest") {
+      const req = item.data;
+      const requester = req.requester ?? {};
+      const subId = requester.sub_id ?? requester.subId;
+      const displayName = requester.username ?? requester.first_name ?? "Someone";
+      const pfpUrl = getProfilePicUrl(requester as UserWithProfilePic);
+      const timeAgo = formatTimeAgo(req.createdAt);
+      const isProcessing = followRequestActionId === req.id;
+
+      return (
+        <View style={styles.notificationCard}>
+          <TouchableOpacity
+            style={styles.notificationRow}
+            onPress={() => subId && navigation.navigate("UserProfile", { subId })}
+            activeOpacity={0.7}
+          >
+            <View style={[styles.iconWrapper, styles.followRequestIconWrapper]}>
+              {pfpUrl ? (
+                <Image source={{ uri: pfpUrl }} style={styles.avatarImage} />
+              ) : (
+                <Text style={styles.avatarText}>
+                  {displayName.charAt(0).toUpperCase()}
+                </Text>
+              )}
+            </View>
+            <View style={styles.content}>
+              <Text style={styles.message}>{displayName} requested to follow you</Text>
+              <Text style={styles.timeAgo}>{timeAgo}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
+          </TouchableOpacity>
+          <View style={styles.inviteActions}>
+            <TouchableOpacity
+              style={[styles.declineButton, isProcessing && styles.buttonDisabled]}
+              onPress={() => handleDeclineFollowRequest(req)}
+              disabled={isProcessing}
+            >
+              <Text style={styles.declineButtonText}>Decline</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.acceptButton, isProcessing && styles.buttonDisabled]}
+              onPress={() => handleAcceptFollowRequest(req)}
+              disabled={isProcessing}
+            >
+              <Text style={styles.acceptButtonText}>
+                {isProcessing ? "..." : "Accept"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -356,14 +464,18 @@ const NotificationCenterScreen = () => {
           <Ionicons name="notifications-outline" size={64} color="#a2a2a2" />
           <Text style={styles.emptyTitle}>No notifications yet</Text>
           <Text style={styles.emptySubtext}>
-            When someone follows you, invites you to a workout, or interacts with your content, you'll see it here.
+            When someone follows you, requests to follow you, invites you to a workout, or interacts with your content, you'll see it here.
           </Text>
         </View>
       ) : (
         <FlatList
           data={feedItems}
           keyExtractor={(item) =>
-            item.kind === "invite" ? `invite-${item.data.id}` : String(item.data.id)
+            item.kind === "invite"
+              ? `invite-${item.data.id}`
+              : item.kind === "followRequest"
+                ? `followReq-${item.data.id}`
+                : String(item.data.id)
           }
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
@@ -438,6 +550,18 @@ const styles = StyleSheet.create({
   },
   inviteIconWrapper: {
     backgroundColor: "rgba(59, 111, 184, 0.2)",
+  },
+  followRequestIconWrapper: {
+    overflow: "hidden",
+  },
+  avatarImage: {
+    width: "100%",
+    height: "100%",
+  },
+  avatarText: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#fff",
   },
   inviteActions: {
     flexDirection: "row",
