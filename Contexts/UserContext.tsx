@@ -299,8 +299,8 @@ if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacy
     if (updates.profilePicUrl !== undefined) {
       const resUrl = response?.profilePicUrl ?? response?.profile_pic_url ?? response?.pfp_link;
       const resVersion = response?.profilePicVersion ?? response?.profile_pic_version;
-      const baseUrl = resUrl?.split("?")[0];
-      setProfilePicUrl(baseUrl ?? updates.profilePicUrl);
+      // Use full URL as-is (presigned URLs include query params; do not strip)
+      setProfilePicUrl(resUrl ?? updates.profilePicUrl);
       setProfilePicVersion(typeof resVersion === "number" ? resVersion : Date.now());
       setFeedInvalidationTrigger((n) => n + 1);
     }

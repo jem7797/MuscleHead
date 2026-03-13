@@ -35,9 +35,9 @@ const ProfileEditPage = () => {
     isNatty,
     pfpLink,
     privacySetting,
-
     setPrivacySetting,
     updateProfile,
+    refreshUserProfile,
   } = useUser();
 
   const [editedUsername, setEditedUsername] = useState(username ?? "");
@@ -93,9 +93,10 @@ const ProfileEditPage = () => {
     if (!userId || uploadingPfp) return;
     setUploadingPfp(true);
     try {
-      const cloudFrontUrl = await pickAndUploadPfp(userId);
-      if (cloudFrontUrl) {
-        await updateProfile({ profilePicUrl: cloudFrontUrl });
+      const objectKey = await pickAndUploadPfp(userId);
+      if (objectKey) {
+        await updateProfile({ profilePicUrl: objectKey });
+        await refreshUserProfile(userId);
       }
     } catch (e) {
       Alert.alert(

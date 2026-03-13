@@ -1,14 +1,13 @@
 /**
  * Profile picture upload via S3 presigned URL.
- * Flow: pick image -> get presigned URL -> PUT to S3 -> return CloudFront URL.
+ * Flow: POST presigned-url -> PUT image (Content-Type from response) -> PATCH user with objectKey.
+ * Backend returns presigned download URL in PATCH response; refresh user to display.
  *
  * Requires expo-image-picker native module. If you see "ExponentImagePicker" errors
  * or the app keeps refreshing, run: npx expo run:ios (or run:android) to rebuild.
  */
 
 import { getPresignedUrl } from "./s3Api";
-import { CLOUDFRONT_BASE_URL } from "./apiConfig";
-import { waitForImageAccessible } from "./imageUploadUtils";
 
 const OBJECT_KEY_PREFIX = "users";
 const PROFILE_FILENAME = "profile.jpg";
@@ -17,9 +16,9 @@ const PROFILE_FILENAME = "profile.jpg";
 const IMAGE_PICKER_ENABLED = true;
 
 /**
- * Picks an image, uploads to S3 via presigned URL, returns the CloudFront URL.
+ * Picks an image, uploads to S3 via presigned URL.
  * @param subId - User's sub ID for the object key
- * @returns CloudFront URL of the uploaded image, or null if cancelled/failed
+ * @returns The objectKey to pass to PATCH /user/api/{subId} as profilePicUrl, or null if cancelled
  */
 export const pickAndUploadPfp = async (subId: string): Promise<string | null> => {
   if (!IMAGE_PICKER_ENABLED) {
@@ -49,15 +48,12 @@ export const pickAndUploadPfp = async (subId: string): Promise<string | null> =>
   const uri = result.assets[0].uri;
   const objectKey = `${OBJECT_KEY_PREFIX}/${subId}/${PROFILE_FILENAME}`;
 
+  const { url, contentType } = await getPresignedUrl(objectKey, "UPLOAD", "application/octet-stream");
+
   const response = await fetch(uri);
   const blob = await response.blob();
 
-  // Use application/octet-stream - works for any image format (JPEG, PNG, HEIC).
-  // Backend must include ContentType: "application/octet-stream" when generating the presigned URL.
-  const contentType = "application/octet-stream";
-  const presignedUrl = await getPresignedUrl(objectKey, "UPLOAD", contentType);
-
-  const uploadRes = await fetch(presignedUrl, {
+  const uploadRes = await fetch(url, {
     method: "PUT",
     body: blob,
     headers: { "Content-Type": contentType },
@@ -69,9 +65,5 @@ export const pickAndUploadPfp = async (subId: string): Promise<string | null> =>
     throw new Error(msg);
   }
 
-  const base = CLOUDFRONT_BASE_URL.replace(/\/$/, "");
-  const path = `${base}/${objectKey}?t=${Date.now()}`;
-  const cloudFrontUrl = path.startsWith("http") ? path : `https://${path}`;
-  await waitForImageAccessible(cloudFrontUrl);
-  return cloudFrontUrl;
+  return objectKey;
 };

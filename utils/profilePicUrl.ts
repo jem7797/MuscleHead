@@ -14,9 +14,9 @@ export interface UserWithProfilePic {
 }
 
 /**
- * Builds the full profile picture URL with cache-busting.
- * @param user - Object with profilePicUrl (or profile_pic_url, pfp_link) and optional profilePicVersion
- * @returns Full URL with ?v=timestamp for cache-busting, or undefined if no profile pic
+ * Builds the full profile picture URL.
+ * - Presigned URLs (from backend): use as-is — do not append params (would break signature).
+ * - S3 key or CloudFront path: build URL and add ?v= for cache-busting.
  */
 export function getProfilePicUrl(user: UserWithProfilePic | null | undefined): string | undefined {
   const raw = user?.profile_pic_url ?? user?.profilePicUrl ?? user?.pfp_link;
@@ -25,6 +25,10 @@ export function getProfilePicUrl(user: UserWithProfilePic | null | undefined): s
   let baseUrl: string;
   if (raw.startsWith("http://") || raw.startsWith("https://")) {
     baseUrl = raw;
+    // Presigned URLs must be used as-is (signature covers exact URL)
+    if (raw.includes("X-Amz-") || raw.includes("Signature=")) {
+      return baseUrl;
+    }
   } else {
     const domain = CLOUDFRONT_BASE_URL.replace(/\/$/, "");
     baseUrl = `https://${domain}/${raw.replace(/^\//, "")}`;
