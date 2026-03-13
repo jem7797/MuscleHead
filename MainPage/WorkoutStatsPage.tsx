@@ -13,7 +13,6 @@ import { useMovements } from "../Contexts/MovementContext";
 import { useGlobalWorkedMuscles } from "../Contexts/GlobalWorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
 import HeaderSection from "./WorkoutStatsPage Components/HeaderSection";
-import WorkoutNameInput from "./WorkoutStatsPage Components/WorkoutNameInput";
 import StatsGrid from "./WorkoutStatsPage Components/StatsGrid";
 import ExercisesSection from "./WorkoutStatsPage Components/ExercisesSection";
 import PrimaryButton from "../Components/PrimaryButton";
@@ -24,11 +23,10 @@ import { postWorkedMuscles } from "../Services/workedMusclesApi";
 const WorkoutStatsPage = () => {
   const navigation = useNavigation<any>();
   const { stats, setStats } = useWorkoutStats();
-  const { getMovementId, movements } = useMovements();
+  const { getMovementId, movements, loading: movementsLoading } = useMovements();
   const { refreshWorkedMuscles } = useGlobalWorkedMuscles();
   const { addToLifetimeStats } = useUser();
   const { addMedalsFromWorkout } = useAchievement();
-  const [workoutName, setWorkoutName] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -46,13 +44,11 @@ const WorkoutStatsPage = () => {
     if (!stats) return;
     setSaving(true);
     try {
-      console.log("raw workouts from stats:", JSON.stringify(stats.workouts));
       const completedWorkouts = stats.workouts.filter(
         (w) =>
           w.workout &&
           w.sets.some((s) => s.reps && s.weight)
       );
-      console.log("raw workouts from stats:", JSON.stringify(stats.workouts));
       const exercises = completedWorkouts
         .map((w) => {
           const exerciseId = w.exerciseId ?? (w.workout ? getMovementId(w.workout) : undefined);
@@ -70,10 +66,12 @@ const WorkoutStatsPage = () => {
         .filter((e): e is NonNullable<typeof e> => e != null);
 
       if (completedWorkouts.length > 0 && exercises.length === 0) {
-        Alert.alert(
-          "Could not save exercises",
-          "Your exercises could not be matched to the server. Check that movements loaded (you may be offline) and that exercise names match the server."
-        );
+        const reason = movementsLoading
+          ? "Movements are still loading. Please wait a moment and try again."
+          : movements.length === 0
+            ? "Could not load exercises from the server. Check your connection and try again."
+            : "Exercise names could not be matched. The server may use different names than the app.";
+        Alert.alert("Could not save exercises", reason);
         setSaving(false);
         return;
       }
@@ -90,11 +88,6 @@ const WorkoutStatsPage = () => {
       if (notes.trim()) sessionLogData.notes = notes.trim();
       const response = await createSessionLog(sessionLogData);
       if (exercises.length > 0) {
-        exercises.forEach((ex) => {
-          const movement = movements.find((m) => m.id === ex.exerciseId);
-          console.log("[WorkoutStats] exercise:", movement?.name ?? ex.exerciseId, "| areaOfActivation:", movement?.areaOfActivation ?? "N/A");
-        });
-        console.log("POST worked muscles exercises:", JSON.stringify(exercises));
         postWorkedMuscles(exercises).then(() => {
           refreshWorkedMuscles();
         });
@@ -128,7 +121,6 @@ const WorkoutStatsPage = () => {
     <View style={styles.mainContainer}>
       <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
         <HeaderSection />
-        <WorkoutNameInput value={workoutName} onChangeText={setWorkoutName} />
         <StatsGrid
           totalTime={formatTime(stats.totalTime)}
           totalWeight={stats.totalWeight}
@@ -162,7 +154,7 @@ const WorkoutStatsPage = () => {
               label={saving ? "Saving..." : "Save & Continue"}
               variant="default"
               onPress={handleSave}
-              disabled={saving}
+              disabled={saving || movementsLoading}
             />
           </View>
         </View>

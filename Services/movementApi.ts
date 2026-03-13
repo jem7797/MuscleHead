@@ -14,6 +14,15 @@ export interface Movement {
   description: string;
 }
 
+/** Normalize raw API item to Movement (handles camelCase and snake_case) */
+function toMovement(raw: any): Movement {
+  const id = raw?.id ?? raw?.movement_id ?? raw?.exercise_id ?? 0;
+  const name = raw?.name ?? raw?.movement_name ?? raw?.exercise_name ?? "";
+  const areaOfActivation = raw?.areaOfActivation ?? raw?.area_of_activation ?? "";
+  const description = raw?.description ?? "";
+  return { id, name, areaOfActivation, description };
+}
+
 /**
  * Fetches all movements from the backend.
  * Each movement has id, name, areaOfActivation, and description.
@@ -22,5 +31,7 @@ export const getMovements = async (): Promise<Movement[]> => {
   const response = await apiRequest("/movement/api/", {
     method: "GET",
   });
-  return parseJsonResponse(response);
+  const data = await parseJsonResponse<any>(response);
+  const arr = Array.isArray(data) ? data : data?.content ?? data?.items ?? [];
+  return arr.map(toMovement).filter((m) => m.id && m.name);
 };

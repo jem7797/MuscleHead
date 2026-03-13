@@ -143,9 +143,9 @@ const WorkoutDetailPage = () => {
           <Text style={styles.emptyText}>No exercise data recorded</Text>
         ) : (
           exercises.map((ex, index) => {
-            const exerciseId = ex.exercise_id ?? ex.movement_id ?? ex.movement?.id;
+            const exerciseId = ex.exerciseId ?? ex.exercise_id ?? ex.movement_id ?? ex.movement?.id;
             const exerciseName =
-              ex.movement?.name ?? (exerciseId ? movementById[exerciseId] : null) ?? "Unknown exercise";
+              ex.exerciseName ?? ex.movement?.name ?? (exerciseId ? movementById[exerciseId] : null) ?? "Unknown exercise";
             return (
             <View key={ex.workout_exercise_id ?? index} style={styles.exerciseCard}>
               <Text style={styles.exerciseName}>

@@ -242,6 +242,17 @@ export interface SearchUsersResponse {
   size: number;
 }
 
+const EMPTY_SEARCH_RESPONSE = (
+  size: number,
+  page: number
+): SearchUsersResponse => ({
+  content: [],
+  totalElements: 0,
+  totalPages: 0,
+  number: page,
+  size,
+});
+
 export const searchUsers = async (
   q: string,
   page: number = 0,
@@ -258,7 +269,38 @@ export const searchUsers = async (
   const response = await apiRequest(`/user/api/search?${params}`, {
     method: "GET",
   });
-  return parseJsonResponse<SearchUsersResponse>(response);
+
+  if (!response.ok) {
+    return parseJsonResponse<SearchUsersResponse>(response);
+  }
+
+  const text = await response.text();
+  const trimmed = text.trim();
+
+  // Backend may return non-JSON for empty results (e.g. "Optional.empty", "ok", "[object Object]")
+  const looksLikeEmptyOrBad =
+    !trimmed ||
+    trimmed === "Optional.empty" ||
+    trimmed.toLowerCase() === "ok" ||
+    trimmed.includes("[object Object]");
+
+  if (looksLikeEmptyOrBad) {
+    return EMPTY_SEARCH_RESPONSE(size, page);
+  }
+
+  try {
+    const data = JSON.parse(text);
+    return {
+      content: Array.isArray(data.content) ? data.content : [],
+      totalElements: data.totalElements ?? 0,
+      totalPages: data.totalPages ?? 0,
+      number: data.number ?? page,
+      size: data.size ?? size,
+    };
+  } catch {
+    console.error("[API] Search response invalid JSON:", text.slice(0, 200));
+    throw new Error(`Server returned invalid JSON. Got: "${text.slice(0, 60)}..."`);
+  }
 };
 
 /**

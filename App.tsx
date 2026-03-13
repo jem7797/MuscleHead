@@ -39,6 +39,7 @@ import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
 import LiveSessionScreen from "./Live/LiveSessionScreen";
 import HiddenFeed from "./Community/HiddenFeed";
 import HiddenSearch from "./Search/HiddenSearchPage";
+import "@aws-amplify/react-native";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
 import { UserProvider } from "./Contexts/UserContext";

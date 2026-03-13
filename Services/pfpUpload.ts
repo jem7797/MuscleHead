@@ -49,25 +49,19 @@ export const pickAndUploadPfp = async (subId: string): Promise<string | null> =>
   const uri = result.assets[0].uri;
   const objectKey = `${OBJECT_KEY_PREFIX}/${subId}/${PROFILE_FILENAME}`;
 
-  const getBlob = () => fetch(uri).then((r) => r.blob());
+  const response = await fetch(uri);
+  const blob = await response.blob();
 
-  // Try with Content-Type first (backend must sign with same value). Fallback: try without if 403.
-  const contentType = "image/jpeg";
-  let presignedUrl = await getPresignedUrl(objectKey, "UPLOAD", contentType);
-  let blob = await getBlob();
+  // Use application/octet-stream - works for any image format (JPEG, PNG, HEIC).
+  // Backend must include ContentType: "application/octet-stream" when generating the presigned URL.
+  const contentType = "application/octet-stream";
+  const presignedUrl = await getPresignedUrl(objectKey, "UPLOAD", contentType);
 
-  let uploadRes = await fetch(presignedUrl, {
+  const uploadRes = await fetch(presignedUrl, {
     method: "PUT",
     body: blob,
     headers: { "Content-Type": contentType },
   });
-
-  if (uploadRes.status === 403) {
-    // Backend may not support contentType; try presigned URL without Content-Type in signature
-    presignedUrl = await getPresignedUrl(objectKey, "UPLOAD");
-    blob = await getBlob();
-    uploadRes = await fetch(presignedUrl, { method: "PUT", body: blob });
-  }
 
   if (!uploadRes.ok) {
     const errBody = await uploadRes.text();

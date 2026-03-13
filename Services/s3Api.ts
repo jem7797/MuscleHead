@@ -28,7 +28,10 @@ export const getPresignedUrl = async (
   contentType?: string
 ): Promise<string> => {
   const body: Record<string, unknown> = { objectKey, operation };
-  if (contentType) body.contentType = contentType;
+  if (contentType) {
+    body.contentType = contentType;
+    body.content_type = contentType; // Backend may expect snake_case
+  }
 
   const response = await apiRequest(
     "/s3/api/presigned-url",

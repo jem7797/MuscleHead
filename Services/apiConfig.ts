@@ -9,13 +9,22 @@ export const CLOUDFRONT_BASE_URL =
   process.env.EXPO_PUBLIC_CLOUDFRONT_URL ?? "dawn6uvaz7dxq.cloudfront.net";
 
 // Get the current user's sub ID from AWS Amplify
+// Retries once after delay for cold start (Amplify may need a moment to restore session from storage)
 export const getCurrentUserSub = async (): Promise<string | null> => {
-  try {
+  const tryGet = async (): Promise<string | null> => {
     const { userId } = await getCurrentUser();
-    return userId; // userId is the sub (subject) from Cognito
+    return userId ?? null;
+  };
+  try {
+    return await tryGet();
   } catch (error) {
-    console.error("Error getting current user sub:", error);
-    return null;
+    // On cold start, Amplify storage may not be ready yet; retry once
+    try {
+      await new Promise((r) => setTimeout(r, 300));
+      return await tryGet();
+    } catch {
+      return null;
+    }
   }
 };
 
@@ -218,7 +227,16 @@ export const parseJsonResponse = async <T>(response: Response): Promise<T> => {
     throw err;
   }
 
-  return response.json();
+  // Read text first so we can handle parse failures and show what the server returned
+  const text = await response.text();
+  try {
+    return (text ? JSON.parse(text) : {}) as T;
+  } catch {
+    console.error("[API] Invalid JSON response (first 200 chars):", text.slice(0, 200));
+    throw new Error(
+      `Server returned invalid JSON. Response starts with: "${text.slice(0, 80).replace(/"/g, "'")}"`
+    );
+  }
 };
 
 export default {

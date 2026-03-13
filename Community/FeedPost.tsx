@@ -45,8 +45,11 @@ interface FeedPostProps {
 
 const normalizeId = (id: string) => String(id ?? "").trim().toLowerCase();
 
+const getPostId = (p: PostResponse) => p.postId ?? (p as { post_id?: number }).post_id;
+
 const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds = [], onUserPress, onDeleted, onUpdated }) => {
   const { pfpLink } = useUser();
+  const postId = getPostId(post);
   const [imgError, setImgError] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [liked, setLiked] = useState(!!post.userLiked);
@@ -64,7 +67,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
     setLikeCount(post.likeCount);
     setCommentCount(post.commentCount);
     setComments(post.comments ?? []);
-  }, [post.postId, post.userLiked, post.likeCount, post.commentCount, post.comments, patching]);
+  }, [postId, post.userLiked, post.likeCount, post.commentCount, post.comments, patching]);
 
   const postOwnerSubId = post.user?.subId ?? (post.user as { sub_id?: string })?.sub_id;
   const isOwnPost = !!currentUserId && postOwnerSubId === currentUserId;
@@ -80,11 +83,11 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
     setLikeCount((c) => c + (newLiked ? 1 : -1));
     setPatching(true);
     try {
-      const updated = await patchPost(post.postId, { like: newLiked });
+      const updated = await patchPost(postId, { like: newLiked });
       setLikeCount(updated.likeCount);
 
       setLiked(updated.userLiked !== undefined ? !!updated.userLiked : newLiked);
-      onUpdated?.(post.postId, { likeCount: updated.likeCount, userLiked: updated.userLiked ?? newLiked });
+      onUpdated?.(postId, { likeCount: updated.likeCount, userLiked: updated.userLiked ?? newLiked });
     } catch {
       setLiked(liked);
       setLikeCount(post.likeCount);
@@ -99,9 +102,9 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
     if (next && comments.length === 0 && commentCount > 0) {
       setLoadingComments(true);
       try {
-        const fullPost = await getPost(post.postId);
+        const fullPost = await getPost(postId);
         setComments(fullPost.comments ?? []);
-        onUpdated?.(post.postId, { comments: fullPost.comments });
+        onUpdated?.(postId, { comments: fullPost.comments });
       } catch {
         // keep comments empty
       } finally {
@@ -115,11 +118,11 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
     if (!currentUserId || patching || !text) return;
     setPatching(true);
     try {
-      const updated = await patchPost(post.postId, { comment: text });
+      const updated = await patchPost(postId, { comment: text });
       setCommentCount(updated.commentCount);
       setCommentDraft("");
       if (updated.comments) setComments(updated.comments);
-      onUpdated?.(post.postId, { commentCount: updated.commentCount, comments: updated.comments });
+      onUpdated?.(postId, { commentCount: updated.commentCount, comments: updated.comments });
     } catch {
       Alert.alert("Error", "Failed to add comment.");
     } finally {
@@ -136,8 +139,8 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
         onPress: async () => {
           setDeleting(true);
           try {
-            await deletePost(post.postId);
-            onDeleted?.(post.postId);
+            await deletePost(postId);
+            onDeleted?.(postId);
           } catch (e) {
             Alert.alert("Error", e instanceof Error ? e.message : "Failed to delete post.");
           } finally {

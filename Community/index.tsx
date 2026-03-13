@@ -79,13 +79,17 @@ const CommunityScreen = () => {
     navigation.navigate("UserProfile", { subId });
   };
 
+  const getPostId = (p: PostResponse) => p.postId ?? (p as { post_id?: number }).post_id;
+
   const handlePostDeleted = (postId: number) => {
-    setPosts((prev) => prev.filter((p) => p.postId !== postId));
+    setPosts((prev) => prev.filter((p) => getPostId(p) !== postId));
+    // Refresh feed in background to ensure sync with server
+    loadFeed(0, true);
   };
 
   const handlePostUpdated = (postId: number, updates: Partial<PostResponse>) => {
     setPosts((prev) =>
-      prev.map((p) => (p.postId === postId ? { ...p, ...updates } : p))
+      prev.map((p) => (getPostId(p) === postId ? { ...p, ...updates } : p))
     );
   };
 
@@ -164,7 +168,7 @@ const CommunityScreen = () => {
       ) : (
         <FlatList
           data={posts}
-          keyExtractor={(item) => String(item.postId)}
+          keyExtractor={(item) => String(getPostId(item))}
           renderItem={renderPost}
           ListEmptyComponent={
             <View style={styles.empty}>

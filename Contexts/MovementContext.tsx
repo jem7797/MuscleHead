@@ -48,18 +48,20 @@ export const MovementProvider = ({ children }: { children: React.ReactNode }) =>
   });
 
   const getMovementId = (name: string): number | undefined => {
-    console.log("getMovementId input:", name);
-    if (!name) return undefined;
-    const exact = movementIdByName[name];
-    if (exact != null) {
-      console.log("getMovementId result:", exact);
-      return exact;
-    }
-    const key = name.toLowerCase().trim();
-    const found = movements.find((m) => m.name.toLowerCase().trim() === key);
-    const result = found?.id;
-    console.log("getMovementId result:", result);
-    return result;
+    if (!name?.trim()) return undefined;
+    const trimmed = name.trim();
+    const exact = movementIdByName[trimmed];
+    if (exact != null) return exact;
+    const key = trimmed.toLowerCase();
+    const caseInsensitive = movements.find((m) => m.name.toLowerCase().trim() === key);
+    if (caseInsensitive) return caseInsensitive.id;
+    // Fallback: partial match (e.g. "Bench Press" matches "Barbell Bench Press")
+    const partial = movements.find(
+      (m) =>
+        key.includes(m.name.toLowerCase().trim()) ||
+        m.name.toLowerCase().trim().includes(key)
+    );
+    return partial?.id;
   };
 
   const value: MovementContextType = {

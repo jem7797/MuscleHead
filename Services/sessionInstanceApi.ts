@@ -108,12 +108,13 @@ export const getSessionInstancesForUser = async (): Promise<any> => {
   return parseJsonResponse(response);
 };
 
-/** Exercise instance from GET /sessionInstance/api/session/{sessionId}
- * Note: movement is @JsonIgnore on backend - use exercise_id/movement_id + GET /movement/api/ to resolve name */
+/** Exercise instance from GET /sessionInstance/api/session/{sessionId} */
 export interface SessionExerciseResponse {
   workout_exercise_id: number;
+  exerciseId?: number;
   exercise_id?: number;
   movement_id?: number;
+  exerciseName?: string;
   area_of_activation?: string[];
   reps: number;
   sets: number;

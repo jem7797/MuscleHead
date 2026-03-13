@@ -80,12 +80,19 @@ export interface FeedPageResponse {
 
 /**
  * Gets a presigned URL for uploading a post image.
- * POST /posts/api/presigned-image-url (no body)
+ * POST /posts/api/presigned-image-url
+ * Sends contentType so backend can sign with it (fixes S3 403 signature mismatch).
  */
 export const getPresignedImageUrl = async (): Promise<PresignedImageUrlResponse> => {
   const response = await apiRequest(
     "/posts/api/presigned-image-url",
-    { method: "POST", body: JSON.stringify({}) },
+    {
+      method: "POST",
+      body: JSON.stringify({
+        contentType: "application/octet-stream",
+        content_type: "application/octet-stream",
+      }),
+    },
     false
   );
   const data = await parseJsonResponse<PresignedImageUrlResponse>(response);
@@ -109,13 +116,14 @@ export const uploadImageToS3 = async (
 ): Promise<void> => {
   const response = await fetch(imageUri);
   const blob = await response.blob();
+  const arrayBuffer = await blob.arrayBuffer();
 
+  // Use application/octet-stream - must match what backend uses when signing.
+  // Variable blob.type (image/jpeg, image/png, image/heic, etc.) causes S3 signature mismatch.
   const uploadRes = await fetch(uploadUrl, {
     method: "PUT",
-    body: blob,
-    headers: {
-      "Content-Type": blob.type || "image/jpeg",
-    },
+    body: arrayBuffer,
+    headers: { "Content-Type": "application/octet-stream" },
   });
 
   if (!uploadRes.ok) {
@@ -263,8 +271,5 @@ export const getFeed = async (
   const response = await apiRequest(`/posts/api/feed?${params}`, {
     method: "GET",
   });
-  const data = await parseJsonResponse<FeedPageResponse>(response);
-  const posts = data.content ?? [];
-  console.log('GET posts response:', JSON.stringify(posts));
-  return data;
+  return parseJsonResponse<FeedPageResponse>(response);
 };

@@ -466,19 +466,6 @@ const AddWorkoutPage = () => {
 
   const updateSessionInstance = (id: number, workout: string) => {
     const exerciseId = getMovementId(workout) ?? null;
-    const movement = movements.find(
-      (m) =>
-        m.id === exerciseId ||
-        m.name.toLowerCase().trim() === workout.toLowerCase().trim(),
-    );
-    console.log(
-      "[AddWorkout] selected:",
-      workout,
-      "| exerciseId:",
-      exerciseId,
-      "| areaOfActivation:",
-      movement?.areaOfActivation ?? "N/A",
-    );
     setWorkouts(
       workouts.map((w) => (w.id === id ? { ...w, workout, exerciseId } : w)),
     );

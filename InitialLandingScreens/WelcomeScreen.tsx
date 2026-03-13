@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   StyleSheet,
@@ -9,12 +9,24 @@ import {
 } from "react-native";
 import { Image } from "expo-image";
 import { Video } from "expo-av";
+import { useUser } from "../Contexts/UserContext";
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
   // @ts-ignore
 const WelcomeScreen = ({navigation}) => {
+  const { isAuthenticated, isLoading } = useUser();
+
+  // If already authenticated, go directly to main app (persistent login)
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: "WorkoutInputMainPage" }],
+      });
+    }
+  }, [isLoading, isAuthenticated, navigation]);
   const translateY = useRef(new Animated.Value(0)).current;
   const loginOpacity = useRef(new Animated.Value(0)).current;
   const signInOpacity = useRef(new Animated.Value(0)).current;
@@ -88,7 +100,7 @@ const WelcomeScreen = ({navigation}) => {
       </Animated.View>
 
       <Animated.View style={[styles.buttonWrapper, { opacity: loginOpacity }]}>
-        <TouchableOpacity style={styles.buttonSmall} onPress={() => navigation.navigate("WorkoutInputMainPage")}>
+        <TouchableOpacity style={styles.buttonSmall} onPress={() => navigation.navigate("LogIn")}>
           <Text style={styles.buttonText}>Log In</Text>
         </TouchableOpacity>
       </Animated.View>
