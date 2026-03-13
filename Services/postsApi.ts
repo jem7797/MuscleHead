@@ -1,20 +1,14 @@
 /**
  * Posts API Service
  *
- * POST /posts/api/presigned-image-url - Get presigned URL for image upload
- * PUT to uploadUrl - Upload image bytes to S3
+ * Uses POST /s3/api/presigned-url (same as profile pictures) for image upload.
  * POST /posts/api - Create a post
  * GET /posts/api/{id} - Single post by ID
  * GET /posts/api/feed - Feed (posts from followed users)
  */
 
-import { apiRequest, parseJsonResponse, getCurrentUserSub, CLOUDFRONT_BASE_URL } from "./apiConfig";
-import { waitForImageAccessible } from "./imageUploadUtils";
-
-export interface PresignedImageUrlResponse {
-  uploadUrl: string;
-  objectKey: string;
-}
+import { apiRequest, parseJsonResponse, getCurrentUserSub } from "./apiConfig";
+import { uploadImageToPresignedUrl } from "./pfpUpload";
 
 export interface CreatePostResponse {
   id?: string;
@@ -79,63 +73,17 @@ export interface FeedPageResponse {
 }
 
 /**
- * Gets a presigned URL for uploading a post image.
- * POST /posts/api/presigned-image-url
- * Sends contentType so backend can sign with it (fixes S3 403 signature mismatch).
+ * Uploads a post image to S3 via presigned URL (same flow as profile pictures).
+ * POST /s3/api/presigned-url, PUT image, returns objectKey for createPost.
+ * @param imageUri - Local URI from ImagePicker
+ * @returns objectKey to pass to createPost (e.g. "posts/{subId}/{timestamp}.jpg")
  */
-export const getPresignedImageUrl = async (): Promise<PresignedImageUrlResponse> => {
-  const response = await apiRequest(
-    "/posts/api/presigned-image-url",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        contentType: "application/octet-stream",
-        content_type: "application/octet-stream",
-      }),
-    },
-    false
-  );
-  const data = await parseJsonResponse<PresignedImageUrlResponse>(response);
-  if (!data?.uploadUrl || !data?.objectKey) {
-    throw new Error("Invalid presigned URL response");
-  }
-  return data;
-};
-
-/**
- * Uploads image bytes to S3 using the presigned URL, then polls until the image
- * is accessible on CloudFront (Lambda approval). Throws if rejected.
- * @param uploadUrl - URL from getPresignedImageUrl
- * @param imageUri - Local URI of the image (e.g. from ImagePicker)
- * @param objectKey - Object key from getPresignedImageUrl (used to build CloudFront URL for polling)
- */
-export const uploadImageToS3 = async (
-  uploadUrl: string,
-  imageUri: string,
-  objectKey: string
-): Promise<void> => {
-  const response = await fetch(imageUri);
-  const blob = await response.blob();
-  const arrayBuffer = await blob.arrayBuffer();
-
-  // Use application/octet-stream - must match what backend uses when signing.
-  // Variable blob.type (image/jpeg, image/png, image/heic, etc.) causes S3 signature mismatch.
-  const uploadRes = await fetch(uploadUrl, {
-    method: "PUT",
-    body: arrayBuffer,
-    headers: { "Content-Type": "application/octet-stream" },
-  });
-
-  if (!uploadRes.ok) {
-    const err = new Error(`Image upload failed: ${uploadRes.status}`);
-    (err as Error & { status?: number }).status = uploadRes.status;
-    throw err;
-  }
-
-  const base = CLOUDFRONT_BASE_URL.replace(/\/$/, "");
-  const path = `${base}/${objectKey}`;
-  const cloudFrontUrl = path.startsWith("http") ? path : `https://${path}`;
-  await waitForImageAccessible(cloudFrontUrl);
+export const uploadPostImage = async (imageUri: string): Promise<string> => {
+  const sub = await getCurrentUserSub();
+  if (!sub) throw new Error("Not authenticated");
+  const objectKey = `posts/${sub}/${Date.now()}.jpg`;
+  await uploadImageToPresignedUrl(objectKey, imageUri);
+  return objectKey;
 };
 
 /**

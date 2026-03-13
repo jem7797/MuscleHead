@@ -18,7 +18,7 @@ import { useNavigation } from "@react-navigation/native";
 import BackButton from "../Components/BackButton";
 import PrimaryButton from "../Components/PrimaryButton";
 import NavBar from "../Components/NavBar";
-import { getPresignedImageUrl, uploadImageToS3, createPost } from "../Services/postsApi";
+import { uploadPostImage, createPost } from "../Services/postsApi";
 import { Image } from "expo-image";
 
 const CAPTION_MAX_LENGTH = 300;
@@ -100,10 +100,8 @@ const CreatePostScreen = () => {
 
     try {
       if (imageUri) {
-        const { uploadUrl, objectKey: key } = await getPresignedImageUrl();
-        objectKey = key;
         try {
-          await uploadImageToS3(uploadUrl, imageUri, objectKey);
+          objectKey = await uploadPostImage(imageUri);
         } catch (uploadErr: unknown) {
           const msg = uploadErr instanceof Error ? uploadErr.message : "Could not upload your photo. Please try again.";
           Alert.alert(
