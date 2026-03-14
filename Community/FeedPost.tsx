@@ -248,6 +248,8 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
                   multiline
                   maxLength={500}
                   editable={!patching}
+                  returnKeyType="done"
+                  blurOnSubmit
                 />
                 <TouchableOpacity
                   style={[styles.commentPostBtn, (!commentDraft.trim() || patching) && styles.commentPostBtnDisabled]}
@@ -319,6 +321,8 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
               multiline
               maxLength={500}
               editable={!patching}
+              returnKeyType="done"
+              blurOnSubmit
             />
             <TouchableOpacity
               style={[styles.commentPostBtn, (!commentDraft.trim() || patching) && styles.commentPostBtnDisabled]}
@@ -401,6 +405,8 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
             multiline
             maxLength={500}
             editable={!patching}
+            returnKeyType="done"
+            blurOnSubmit
           />
           <TouchableOpacity
             style={[styles.commentPostBtn, (!commentDraft.trim() || patching) && styles.commentPostBtnDisabled]}

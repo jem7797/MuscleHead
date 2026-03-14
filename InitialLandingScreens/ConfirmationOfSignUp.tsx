@@ -224,6 +224,8 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
               onChangeText={(text) => handleChange(text, index)}
               placeholder=""
               placeholderTextColor="#333"
+              returnKeyType="done"
+              blurOnSubmit
               caretHidden={Platform.OS === "android"}
             />
           </LinearGradient>

@@ -127,6 +127,8 @@ const AddWorkoutTemplatePage = () => {
             placeholderTextColor="#999"
             value={state.name}
             onChangeText={setName}
+            returnKeyType="done"
+            blurOnSubmit
           />
         </View>
 
@@ -143,6 +145,8 @@ const AddWorkoutTemplatePage = () => {
               if (t === "") setDefaultSets(0);
             }}
             keyboardType="number-pad"
+            returnKeyType="done"
+            blurOnSubmit
           />
         </View>
 
@@ -174,6 +178,8 @@ const AddWorkoutTemplatePage = () => {
                     if (t === "") updateExercise(ex.orderIndex, { sets: 0 });
                   }}
                   keyboardType="number-pad"
+                  returnKeyType="done"
+                  blurOnSubmit
                   placeholder="0"
                   placeholderTextColor="#999"
                 />
@@ -214,6 +220,8 @@ const AddWorkoutTemplatePage = () => {
                 onChangeText={setPickerSearch}
                 autoCapitalize="none"
                 autoCorrect={false}
+                returnKeyType="done"
+                blurOnSubmit
               />
               {pickerSearch.length > 0 && (
                 <TouchableOpacity onPress={() => setPickerSearch("")} style={styles.searchClear}>

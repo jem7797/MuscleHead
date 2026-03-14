@@ -140,6 +140,8 @@ const WorkoutStatsPage = () => {
             value={notes}
             onChangeText={setNotes}
             editable={!saving}
+            returnKeyType="done"
+            blurOnSubmit
           />
         </View>
       </ScrollView>

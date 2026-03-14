@@ -271,20 +271,23 @@ export const searchUsers = async (
   });
 
   if (!response.ok) {
-    return parseJsonResponse<SearchUsersResponse>(response);
+    const err = new Error(`Search failed: ${response.status}`);
+    (err as Error & { status?: number }).status = response.status;
+    throw err;
   }
 
   const text = await response.text();
-  const trimmed = text.trim();
+  if (!text || text.trim() === "") {
+    return EMPTY_SEARCH_RESPONSE(size, page);
+  }
 
-  // Backend may return non-JSON for empty results (e.g. "Optional.empty", "ok", "[object Object]")
-  const looksLikeEmptyOrBad =
-    !trimmed ||
+  // Backend may return non-JSON for empty results (e.g. "Optional.empty", "ok")
+  const trimmed = text.trim();
+  if (
     trimmed === "Optional.empty" ||
     trimmed.toLowerCase() === "ok" ||
-    trimmed.includes("[object Object]");
-
-  if (looksLikeEmptyOrBad) {
+    trimmed.includes("[object Object]")
+  ) {
     return EMPTY_SEARCH_RESPONSE(size, page);
   }
 
@@ -297,9 +300,9 @@ export const searchUsers = async (
       number: data.number ?? page,
       size: data.size ?? size,
     };
-  } catch {
-    console.error("[API] Search response invalid JSON:", text.slice(0, 200));
-    throw new Error(`Server returned invalid JSON. Got: "${text.slice(0, 60)}..."`);
+  } catch (e) {
+    console.error("[API] Search invalid JSON:", text.slice(0, 200));
+    return EMPTY_SEARCH_RESPONSE(size, page);
   }
 };
 

@@ -480,6 +480,8 @@ const ActiveWorkoutPage = () => {
                       updateSet(exIndex, setIndex, "reps", t)
                     }
                     keyboardType="numeric"
+                    returnKeyType="done"
+                    blurOnSubmit
                   />
                   <TextInput
                     style={styles.input}
@@ -490,6 +492,8 @@ const ActiveWorkoutPage = () => {
                       updateSet(exIndex, setIndex, "weight", t)
                     }
                     keyboardType="numeric"
+                    returnKeyType="done"
+                    blurOnSubmit
                   />
                   <TouchableOpacity
                     style={styles.checkButton}

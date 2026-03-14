@@ -178,6 +178,8 @@ const FriendsListScreen = () => {
             onChangeText={setSearchQuery}
             autoCapitalize="none"
             autoCorrect={false}
+            returnKeyType="done"
+            blurOnSubmit
           />
           {searchQuery.length > 0 && (
             <TouchableOpacity

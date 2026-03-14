@@ -435,6 +435,8 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
                           multiline
                           maxLength={500}
                           editable={!patching}
+                          returnKeyType="done"
+                          blurOnSubmit
                         />
                         <TouchableOpacity
                           style={[

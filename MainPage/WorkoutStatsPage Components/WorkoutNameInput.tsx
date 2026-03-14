@@ -16,6 +16,8 @@ const WorkoutNameInput: React.FC<WorkoutNameInputProps> = ({ value, onChangeText
         value={value}
         onChangeText={onChangeText}
         placeholderTextColor="#999"
+        returnKeyType="done"
+        blurOnSubmit
       />
     </View>
   );

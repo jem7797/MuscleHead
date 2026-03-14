@@ -132,6 +132,8 @@ const LogInScreen = () => {
               onChangeText={setUsername}
               autoCapitalize="none"
               autoCorrect={false}
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Password</Text>
@@ -142,6 +144,8 @@ const LogInScreen = () => {
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <PrimaryButton

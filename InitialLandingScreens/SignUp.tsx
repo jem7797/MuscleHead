@@ -317,6 +317,8 @@ const SignUpScreen = () => {
               value={given_name}
               onChangeText={setgiven_name}
               autoCapitalize="words"
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Email</Text>
@@ -328,6 +330,8 @@ const SignUpScreen = () => {
               onChangeText={setEmail}
               autoCapitalize="none"
               keyboardType="email-address"
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Date of Birth</Text>
@@ -340,6 +344,8 @@ const SignUpScreen = () => {
               autoCapitalize="none"
               keyboardType="number-pad"
               maxLength={10}
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Username</Text>
@@ -350,6 +356,8 @@ const SignUpScreen = () => {
               value={alias}
               onChangeText={setAlias}
               autoCapitalize="none"
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Password</Text>
@@ -360,6 +368,8 @@ const SignUpScreen = () => {
               secureTextEntry
               value={password}
               onChangeText={setPassword}
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Gender</Text>
@@ -388,6 +398,8 @@ const SignUpScreen = () => {
                 onChangeText={setHeightFeet}
                 keyboardType="number-pad"
                 maxLength={1}
+                returnKeyType="done"
+                blurOnSubmit
               />
               <Text style={styles.heightSeparator}>ft</Text>
               <TextInput
@@ -398,6 +410,8 @@ const SignUpScreen = () => {
                 onChangeText={setHeightInches}
                 keyboardType="number-pad"
                 maxLength={2}
+                returnKeyType="done"
+                blurOnSubmit
               />
               <Text style={styles.heightSeparator}>in</Text>
             </View>
@@ -410,6 +424,8 @@ const SignUpScreen = () => {
               value={weight}
               onChangeText={setWeightLocal}
               keyboardType="number-pad"
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <PrimaryButton

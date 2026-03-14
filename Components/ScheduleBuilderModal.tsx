@@ -105,6 +105,8 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
                   style={styles.dayText}
                   value={schedule[day]}
                   onChangeText={(value) => handleDayChange(day, value)}
+                  returnKeyType="done"
+                  blurOnSubmit
                 />
               ))}
             </View>

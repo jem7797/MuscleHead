@@ -202,6 +202,8 @@ const CreatePostScreen = () => {
             multiline
             numberOfLines={5}
             textAlignVertical="top"
+            returnKeyType="done"
+            blurOnSubmit
             maxLength={CAPTION_MAX_LENGTH}
           />
           <Text style={styles.charCounter}>{text.length}/{CAPTION_MAX_LENGTH}</Text>

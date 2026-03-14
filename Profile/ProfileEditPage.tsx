@@ -188,6 +188,8 @@ const ProfileEditPage = () => {
               placeholderTextColor="#9aa6bd"
               autoCapitalize="none"
               autoCorrect={false}
+              returnKeyType="done"
+              blurOnSubmit
             />
           </View>
 
@@ -202,6 +204,8 @@ const ProfileEditPage = () => {
               multiline
               numberOfLines={4}
               textAlignVertical="top"
+              returnKeyType="done"
+              blurOnSubmit
               maxLength={BIO_CHAR_LIMIT}
             />
             <Text style={styles.charCount}>
@@ -219,6 +223,8 @@ const ProfileEditPage = () => {
                 placeholder="Ft"
                 placeholderTextColor="#9aa6bd"
                 keyboardType="number-pad"
+                returnKeyType="done"
+                blurOnSubmit
               />
               <Text style={styles.unit}>ft</Text>
               <TextInput
@@ -228,6 +234,8 @@ const ProfileEditPage = () => {
                 placeholder="In"
                 placeholderTextColor="#9aa6bd"
                 keyboardType="number-pad"
+                returnKeyType="done"
+                blurOnSubmit
               />
               <Text style={styles.unit}>in</Text>
             </View>
@@ -243,6 +251,8 @@ const ProfileEditPage = () => {
                 placeholder="0"
                 placeholderTextColor="#9aa6bd"
                 keyboardType="decimal-pad"
+                returnKeyType="done"
+                blurOnSubmit
               />
               <Text style={styles.unit}>lb</Text>
             </View>

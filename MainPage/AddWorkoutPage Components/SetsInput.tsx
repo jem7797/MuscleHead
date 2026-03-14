@@ -45,6 +45,8 @@ const SetsInput: React.FC<SetsInputProps> = ({
               value={set.reps}
               onChangeText={(text) => onUpdateSet(index, "reps", text)}
               keyboardType="numeric"
+              returnKeyType="done"
+              blurOnSubmit
             />
             <TextInput
               style={styles.input}
@@ -53,6 +55,8 @@ const SetsInput: React.FC<SetsInputProps> = ({
               value={set.weight}
               onChangeText={(text) => onUpdateSet(index, "weight", text)}
               keyboardType="numeric"
+              returnKeyType="done"
+              blurOnSubmit
             />
             <TouchableOpacity
               style={styles.checkButton}

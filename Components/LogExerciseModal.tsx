@@ -162,6 +162,8 @@ const LogExerciseModal: React.FC<LogExerciseModalProps> = ({
                   placeholder="e.g. Bench Press"
                   placeholderTextColor="#9aa6bd"
                   autoCapitalize="words"
+                  returnKeyType="done"
+                  blurOnSubmit
                 />
               </>
             )}
@@ -174,6 +176,8 @@ const LogExerciseModal: React.FC<LogExerciseModalProps> = ({
               placeholder="3"
               placeholderTextColor="#9aa6bd"
               keyboardType="number-pad"
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Reps</Text>
@@ -184,6 +188,8 @@ const LogExerciseModal: React.FC<LogExerciseModalProps> = ({
               placeholder="10"
               placeholderTextColor="#9aa6bd"
               keyboardType="number-pad"
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <Text style={styles.label}>Weight (lb, optional)</Text>
@@ -194,6 +200,8 @@ const LogExerciseModal: React.FC<LogExerciseModalProps> = ({
               placeholder="135"
               placeholderTextColor="#9aa6bd"
               keyboardType="decimal-pad"
+              returnKeyType="done"
+              blurOnSubmit
             />
 
             <View style={styles.actions}>
