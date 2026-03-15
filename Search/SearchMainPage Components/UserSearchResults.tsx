@@ -31,6 +31,7 @@ interface UserSearchResultsProps {
   onUnfollowPress?: (user: SearchUser) => void;
   followedUserIds?: Set<string>;
   requestPendingUserIds?: Set<string>;
+  followLoadingSubId?: string | null;
   currentUserId?: string | null;
   emptyMessage?: string;
 }
@@ -45,6 +46,7 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
   onUnfollowPress,
   followedUserIds = new Set(),
   requestPendingUserIds = new Set(),
+  followLoadingSubId = null,
   currentUserId,
   emptyMessage = "No users found",
 }) => {
@@ -82,6 +84,7 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
         const key = user.sub_id ? `${user.sub_id}-${index}` : `user-${index}`;
         const isFollowing = userSubId ? followedUserIds.has(userSubId) : false;
         const requestPending = userSubId ? requestPendingUserIds.has(userSubId) : false;
+        const followButtonLoading = userSubId ? followLoadingSubId === userSubId : false;
 
         return (
           <View key={key} style={styles.userRow}>
@@ -108,11 +111,11 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
                   isFollowing && styles.followingButton,
                   requestPending && styles.requestedButton,
                 ]}
-                onPress={() => (isFollowing ? onUnfollowPress?.(user) : requestPending ? undefined : onFollowPress?.(user))}
-                disabled={requestPending}
+                onPress={() => (isFollowing ? onUnfollowPress?.(user) : requestPending || followButtonLoading ? undefined : onFollowPress?.(user))}
+                disabled={requestPending || followButtonLoading}
               >
                 <Text style={styles.followButtonText}>
-                  {requestPending ? "Requested" : isFollowing ? "Following" : "Follow"}
+                  {followButtonLoading ? "..." : requestPending ? "Requested" : isFollowing ? "Following" : "Follow"}
                 </Text>
               </TouchableOpacity>
             ) : (

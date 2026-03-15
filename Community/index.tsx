@@ -39,10 +39,11 @@ const CommunityScreen = () => {
     setError(null);
     try {
       const res = await getFeed(pageNum, PAGE_SIZE);
+      const content = Array.isArray(res.content) ? res.content : [];
       if (append) {
-        setPosts((prev) => (pageNum === 0 ? res.content : [...prev, ...res.content]));
+        setPosts((prev) => (pageNum === 0 ? content : [...prev, ...content]));
       } else {
-        setPosts(res.content);
+        setPosts(content);
       }
       setPage(res.number);
       setTotalPages(res.totalPages);

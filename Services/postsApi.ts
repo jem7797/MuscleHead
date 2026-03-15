@@ -196,9 +196,12 @@ export const getPostsByUser = async (
     method: "GET",
   });
   const data = await parseJsonResponse<FeedPageResponse>(response);
-  const posts = data.content ?? [];
-  console.log('GET posts response:', JSON.stringify(posts));
-  return data;
+  const content = Array.isArray(data?.content) ? data.content : [];
+  console.log('GET posts response:', JSON.stringify(content));
+  return {
+    ...data,
+    content,
+  };
 };
 
 /**
@@ -219,5 +222,7 @@ export const getFeed = async (
   const response = await apiRequest(`/posts/api/feed?${params}`, {
     method: "GET",
   });
-  return parseJsonResponse<FeedPageResponse>(response);
+  const data = await parseJsonResponse<FeedPageResponse>(response);
+  const content = Array.isArray(data?.content) ? data.content : [];
+  return { ...data, content };
 };

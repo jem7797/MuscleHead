@@ -217,9 +217,11 @@ export const removeNemesis = async (
 };
 
 /**
- * Searches users by query string
+ * Searches users by query string.
+ * Auth: Required — backend expects JWT Bearer token in Authorization header.
+ * Uses apiRequest (same as profile/post endpoints) which adds the token automatically.
  *
- * GET user/api/search?q={query}&page={page}&size={size}
+ * GET {baseUrl}/user/api/search?q={query}&page={page}&size={size}
  * Queries shorter than 2 characters return 400 Bad Request.
  *
  * @param q - Search term (required, min 2 chars)
@@ -266,6 +268,7 @@ export const searchUsers = async (
     page: String(page),
     size: String(size),
   });
+  // Same pattern as getCurrentUserProfile, getPost, etc.: apiRequest adds Authorization: Bearer <idToken>
   const response = await apiRequest(`/user/api/search?${params}`, {
     method: "GET",
   });
@@ -277,6 +280,7 @@ export const searchUsers = async (
   }
 
   const text = await response.text();
+  console.log("Raw search response:", text);
   if (!text || text.trim() === "") {
     return EMPTY_SEARCH_RESPONSE(size, page);
   }

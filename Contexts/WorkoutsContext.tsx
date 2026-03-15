@@ -66,7 +66,8 @@ export const WorkoutsProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     try {
       const res = await getSessionLogsForUser({ page: 0, size: PAGE_SIZE, sort: "id,desc" });
-      setWorkouts(mapLogsToWorkouts(res.content));
+      const content = Array.isArray(res.content) ? res.content : [];
+      setWorkouts(mapLogsToWorkouts(content));
       setCurrentPage(0);
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);
@@ -88,7 +89,8 @@ export const WorkoutsProvider = ({ children }: { children: ReactNode }) => {
         size: PAGE_SIZE,
         sort: "id,desc",
       });
-      setWorkouts((prev) => [...prev, ...mapLogsToWorkouts(res.content)]);
+      const content = Array.isArray(res.content) ? res.content : [];
+      setWorkouts((prev) => [...prev, ...mapLogsToWorkouts(content)]);
       setCurrentPage(nextPage);
     } catch (e) {
       console.warn("Failed to load more workouts:", e);

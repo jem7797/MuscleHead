@@ -125,7 +125,8 @@ const NotificationCenterScreen = () => {
 
   const fetchNotifications = useCallback(async (pageNum: number = 0, append: boolean = false) => {
     const result = await getNotifications(pageNum, PAGE_SIZE);
-    setNotifications((prev) => (append ? [...prev, ...result.content] : result.content));
+    const content = Array.isArray(result.content) ? result.content : [];
+    setNotifications((prev) => (append ? [...prev, ...content] : content));
     setTotalElements(result.totalElements);
     setPage(pageNum);
     return result;

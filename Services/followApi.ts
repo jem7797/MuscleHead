@@ -28,14 +28,19 @@ export interface FollowRequestResponse {
  * Current user follows followeeSubId
  */
 export const follow = async (followeeSubId: string): Promise<void> => {
+  console.log("[Follow API] Sending follow request for followeeSubId:", followeeSubId);
   const response = await apiRequest(`/follow/api/follow/${followeeSubId}`, {
     method: "POST",
     body: JSON.stringify({}),
   });
+  const responseText = await response.text();
+  console.log("[Follow API] Follow response status:", response.status, "body:", responseText || "(empty)");
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(err || `Follow failed: ${response.status}`);
+    const err = responseText || `Follow failed: ${response.status}`;
+    console.error("[Follow API] Follow request failed:", err);
+    throw new Error(err);
   }
+  console.log("[Follow API] Follow request succeeded");
 };
 
 /**
@@ -59,7 +64,7 @@ export const getFollowers = async (subId: string): Promise<any[]> => {
     method: "GET",
   });
   const data = await parseJsonResponse<any>(response);
-  return Array.isArray(data) ? data : data?.content ?? data?.followers ?? [];
+  return Array.isArray(data) ? data : Array.isArray(data?.content) ? data.content : Array.isArray(data?.followers) ? data.followers : [];
 };
 
 /**
@@ -70,7 +75,7 @@ export const getFollowing = async (subId: string): Promise<any[]> => {
     method: "GET",
   });
   const data = await parseJsonResponse<any>(response);
-  return Array.isArray(data) ? data : data?.content ?? data?.following ?? [];
+  return Array.isArray(data) ? data : Array.isArray(data?.content) ? data.content : Array.isArray(data?.following) ? data.following : [];
 };
 
 /**
@@ -149,7 +154,7 @@ export const getMutualFriends = async (userSubId: string): Promise<any[]> => {
 export const getFollowRequests = async (): Promise<FollowRequestResponse[]> => {
   const response = await apiRequest("/follow/api/requests", { method: "GET" });
   const data = await parseJsonResponse<any>(response);
-  const arr = Array.isArray(data) ? data : data?.content ?? data?.requests ?? [];
+  const arr = Array.isArray(data) ? data : Array.isArray(data?.content) ? data.content : Array.isArray(data?.requests) ? data.requests : [];
   return arr as FollowRequestResponse[];
 };
 

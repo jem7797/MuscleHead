@@ -66,7 +66,8 @@ export const AchievementProvider = ({ children }: { children: ReactNode }) => {
 
     try {
       const result = await getNotifications(0, 20);
-      const medalNotifications = (result.content ?? []).filter(
+      const content = Array.isArray(result.content) ? result.content : [];
+      const medalNotifications = content.filter(
         (n) => n.type === "MEDAL_EARNED" && n.medalId != null
       );
       const toShow = medalNotifications.filter(

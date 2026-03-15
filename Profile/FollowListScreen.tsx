@@ -6,6 +6,7 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import BackButton from "../Components/BackButton";
@@ -122,9 +123,18 @@ const FollowListScreen = () => {
         });
       } else if (reqStatus === "pending") {
         setRequestPendingUserIds((prev) => new Set(prev).add(id));
+      } else {
+        addToFollowingCount(1);
+        setFollowedUserIds((prev) => new Set(prev).add(id));
+        setRequestPendingUserIds((prev) => {
+          const next = new Set(prev);
+          next.delete(id);
+          return next;
+        });
       }
-    } catch {
-      // No optimistic update
+    } catch (e) {
+      console.error("[Follow UI] FollowList follow failed:", e);
+      Alert.alert("Follow failed", e instanceof Error ? e.message : "Could not follow. Please try again.");
     }
   };
 

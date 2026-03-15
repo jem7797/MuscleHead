@@ -60,7 +60,7 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
     setLoading(true);
     try {
       const res = await getPostsByUser(subId);
-      const posts = res.content ?? [];
+      const posts = Array.isArray(res.content) ? res.content : [];
       setAllPosts(posts);
       setLikedPosts(new Set(posts.filter((p) => p.userLiked).map((p) => p.postId)));
     } catch {

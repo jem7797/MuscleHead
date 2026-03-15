@@ -33,6 +33,7 @@ const SearchScreen = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
+  const [followLoadingSubId, setFollowLoadingSubId] = useState<string | null>(null);
 
   const trimmedQuery = query.trim();
   const canSearch = trimmedQuery.length >= 2;
@@ -46,19 +47,20 @@ const SearchScreen = () => {
 
       try {
         const res = await searchUsers(trimmedQuery, pageNum, PAGE_SIZE);
+        const content = Array.isArray(res.content) ? res.content : [];
         if (append) {
-          setUsers((prev) => [...prev, ...res.content]);
+          setUsers((prev) => [...prev, ...content]);
         } else {
-          setUsers(res.content);
+          setUsers(content);
         }
         setPage(res.number);
         setTotalPages(res.totalPages);
 
-        if (currentUserId && res.content.length > 0) {
+        if (currentUserId && content.length > 0) {
           const followed = new Set<string>();
           const pending = new Set<string>();
           await Promise.all(
-            res.content.map(async (u) => {
+            content.map(async (u) => {
               const subId = u.sub_id ?? (u as { subId?: string }).subId;
               if (!subId || subId === currentUserId) return;
               const [isFollowing, reqStatus] = await Promise.all([
@@ -137,13 +139,17 @@ const SearchScreen = () => {
   const handleFollowPress = async (user: { sub_id?: string; subId?: string }) => {
     const subId = user.sub_id ?? user.subId;
     if (!subId || !currentUserId) return;
+    setFollowLoadingSubId(subId);
+    console.log("[Follow UI] Search follow pressed, subId:", subId);
     try {
       await follow(subId);
-      const [isFollowing, reqStatus] = await Promise.all([
+      console.log("[Follow UI] Search follow API completed, checking status...");
+      const [nowFollowing, reqStatus] = await Promise.all([
         checkFollow(currentUserId, subId),
         checkFollowRequestStatus(currentUserId, subId),
       ]);
-      if (isFollowing) {
+      console.log("[Follow UI] Search checkFollow:", nowFollowing, "checkFollowRequestStatus:", reqStatus);
+      if (nowFollowing) {
         addToFollowingCount(1);
         setFollowedUserIds((prev) => new Set(prev).add(subId));
         setRequestPendingUserIds((prev) => {
@@ -151,11 +157,26 @@ const SearchScreen = () => {
           next.delete(subId);
           return next;
         });
+        console.log("[Follow UI] Search state change: isFollowing=true");
       } else if (reqStatus === "pending") {
         setRequestPendingUserIds((prev) => new Set(prev).add(subId));
+        console.log("[Follow UI] Search state change: requestPending=true");
+      } else {
+        addToFollowingCount(1);
+        setFollowedUserIds((prev) => new Set(prev).add(subId));
+        setRequestPendingUserIds((prev) => {
+          const next = new Set(prev);
+          next.delete(subId);
+          return next;
+        });
+        console.log("[Follow UI] Search state change: optimistically isFollowing=true");
       }
-    } catch {
-      // No optimistic update
+    } catch (e) {
+      console.error("[Follow UI] Search follow failed:", e);
+      Alert.alert("Follow failed", e instanceof Error ? e.message : "Could not follow. Please try again.");
+    } finally {
+      setFollowLoadingSubId(null);
+      console.log("[Follow UI] Search followLoadingSubId cleared");
     }
   };
 
@@ -215,6 +236,7 @@ const SearchScreen = () => {
             currentUserId={currentUserId}
             followedUserIds={followedUserIds}
             requestPendingUserIds={requestPendingUserIds}
+            followLoadingSubId={followLoadingSubId}
             onFollowPress={handleFollowPress}
             onUnfollowPress={handleUnfollowPress}
             onUserPress={handleUserPress}

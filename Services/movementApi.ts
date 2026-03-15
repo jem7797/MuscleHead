@@ -32,6 +32,6 @@ export const getMovements = async (): Promise<Movement[]> => {
     method: "GET",
   });
   const data = await parseJsonResponse<any>(response);
-  const arr = Array.isArray(data) ? data : data?.content ?? data?.items ?? [];
+  const arr = Array.isArray(data) ? data : Array.isArray(data?.content) ? data.content : Array.isArray(data?.items) ? data.items : [];
   return arr.map(toMovement).filter((m) => m.id && m.name);
 };
