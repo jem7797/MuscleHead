@@ -33,6 +33,7 @@ const ProfileEditPage = () => {
     height,
     weight,
     isNatty,
+    gender,
     pfpLink,
     privacySetting,
     setPrivacySetting,
@@ -44,8 +45,14 @@ const ProfileEditPage = () => {
   const [editedBio, setEditedBio] = useState(bio ?? "");
   const [feet, setFeet] = useState("");
   const [inches, setInches] = useState("");
-  const [editedWeight, setEditedWeight] = useState(weight != null ? String(weight) : "");
+  const [editedWeight, setEditedWeight] = useState(
+    weight != null ? String(weight) : ""
+  );
   const [editedNatty, setEditedNatty] = useState(isNatty ?? true);
+  // true => Male, false => Female
+  const [editedGender, setEditedGender] = useState(
+    (gender ?? "Male") === "Male"
+  );
   const [saving, setSaving] = useState(false);
   const [uploadingPfp, setUploadingPfp] = useState(false);
   const [pfpImgError, setPfpImgError] = useState(false);
@@ -87,7 +94,8 @@ const ProfileEditPage = () => {
       return totalInches !== (height ?? 0);
     })() ||
     (parseFloat(editedWeight) || 0) !== (weight ?? 0) ||
-    editedNatty !== (isNatty ?? true);
+    editedNatty !== (isNatty ?? true) ||
+    (editedGender ? "Male" : "Female") !== (gender ?? "Male");
 
   const handlePfpPress = async () => {
     if (!userId || uploadingPfp) return;
@@ -128,7 +136,7 @@ const ProfileEditPage = () => {
         weight: weightVal,
         nattyStatus: editedNatty,
         privacySetting: selectedPrivacySetting,
-        
+        gender: editedGender ? "Male" : "Female",
       });
       navigation.goBack();
     } catch (e) {
@@ -278,7 +286,21 @@ const ProfileEditPage = () => {
           </View>
 
 
-
+          <View style={styles.section}>
+            <View style={styles.switchRow}>
+              <Text style={styles.label}>Gender</Text>
+              <Switch
+                value={editedGender}
+                onValueChange={setEditedGender}
+                trackColor={{ false: "#e0e6f0", true: "#202c76" }}
+                thumbColor="#fff"
+              />
+            </View>
+            <Text style={styles.hint}>
+              {editedGender ? "Male" : "Female"}
+            </Text>
+          </View>
+          
 
 <View style = {{paddingBottom: isDropdownOpen ? 170: 0}}>
           <PrivacyDropdown

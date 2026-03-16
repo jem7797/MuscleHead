@@ -74,7 +74,7 @@ privacySetting: string;
   nemesisSubIds: string[];
  
   /** "Male" | "Female" | null - used to show appropriate muscle diagram */
-  gender: string | null;
+  gender: string 
   setNemesisSubIds: (ids: string[] | ((prev: string[]) => string[])) => void;
 
   setgiven_name: (name: string) => void;
@@ -97,6 +97,7 @@ privacySetting: string;
     nattyStatus?: boolean;
     profilePicUrl?: string;
     privacySetting?: string;
+    gender?: "Male" | "Female";
   }) => Promise<void>;
   setShowRealNameValue: (revealName: boolean) => void;
   setProfileLoading: (loadStatus: boolean) => void;
@@ -147,7 +148,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (__DEV__ && pfpLink) console.log("[pfp] current URL:", pfpLink);
   }, [pfpLink]);
   const [nemesisSubIds, setNemesisSubIdsInternal] = useState<string[]>([]);
-  const [gender, setGender] = useState<string | null>(null);
+  const [gender, setGender] = useState<string>();
 
   const setNemesisSubIds = useCallback(
     (idsOrUpdater: string[] | ((prev: string[]) => string[])) => {
@@ -208,7 +209,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setNumberOfPosts(undefined);
     setProfilePicUrl(undefined);
     setProfilePicVersion(null);
-    setGender(null);
+    setGender("");
     setNemesisSubIdsInternal([]);
     clearNemesisSubIds().catch(() => {});
   };
@@ -262,6 +263,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     nattyStatus?: boolean;
     profilePicUrl?: string;
     privacySetting?: string;
+    gender?: "Male" | "Female";
   }) => {
     if (!userId) return;
     // PATCH: send only the fields being changed
@@ -273,9 +275,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (updates.weight !== undefined) payload.weight = updates.weight;
     if (updates.nattyStatus !== undefined)
       payload.natty_status = updates.nattyStatus;
-
-if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacySetting;
-
+    if (updates.privacySetting !== undefined)
+      payload.privacy_setting = updates.privacySetting;
+    if (updates.gender !== undefined)
+      payload.gender = updates.gender;
     if (updates.profilePicUrl !== undefined)
       payload.profilePicUrl = updates.profilePicUrl;
     const hasProfileUpdates =
@@ -285,7 +288,8 @@ if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacy
       updates.weight !== undefined ||
       updates.nattyStatus !== undefined ||
       updates.privacySetting !== undefined ||
-      updates.profilePicUrl !== undefined;
+      updates.profilePicUrl !== undefined ||
+      updates.gender !== undefined;
     if (!hasProfileUpdates) return;
     const response = await updateUser(userId, payload);
     if (__DEV__) console.log("[PATCH] updateUser response:", response);
@@ -293,8 +297,9 @@ if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacy
     if (updates.bio !== undefined) setBio(updates.bio);
     if (updates.height !== undefined) setHeight(updates.height);
     if (updates.weight !== undefined) setWeight(updates.weight);
-  if(updates.privacySetting !== undefined) setPrivacySetting(updates.privacySetting);
-  
+    if (updates.privacySetting !== undefined)
+      setPrivacySetting(updates.privacySetting);
+    if (updates.gender !== undefined) setGender(updates.gender);
     if (updates.nattyStatus !== undefined) setIsNatty(updates.nattyStatus);
     if (updates.profilePicUrl !== undefined) {
       const resUrl = response?.profilePicUrl ?? response?.profile_pic_url ?? response?.pfp_link;
@@ -390,8 +395,10 @@ if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacy
       const baseUrl = raw ? String(raw).split("?")[0] : undefined;
       setProfilePicUrl(baseUrl ?? undefined);
       setProfilePicVersion(typeof version === "number" ? version : null);
-      const g = userData.gender ?? null;
-      setGender(typeof g === "string" ? g : null);
+      const g = userData.gender;
+      const genderValue = typeof g === "string" ? g : undefined;
+      setGender(genderValue);
+      console.log("[UserContext] Loaded gender:", genderValue);
     } catch (error: any) {
       console.log("Failed to fetch user profile:", id);
       if (error?.status === 403) {
@@ -459,7 +466,7 @@ if(updates.privacySetting != undefined)payload.privacy_setting = updates.privacy
         isProfileLoading,
         nemesisSubIds,
         setNemesisSubIds,
-        gender: gender ?? null,
+        gender: gender ?? "Male",
 
         // Auth methods
         setgiven_name,

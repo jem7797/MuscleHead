@@ -19,6 +19,8 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
   const MuscleBack = gender === "Female" ? MuscleWomanBack : MuscleManBack;
 
+  
+
   if (isBack) {
     return (
       <View style={styles.muscleManWrapper}>
