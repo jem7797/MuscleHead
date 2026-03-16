@@ -201,6 +201,5 @@ export const checkFollowRequestStatus = async (
     method: "GET",
   });
   const data = await parseJsonResponse<any>(response);
-  const status = (data?.status ?? data ?? "").toString().toLowerCase();
-  return status === "pending" ? "pending" : "none";
+  return data.status;
 };

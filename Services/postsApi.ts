@@ -175,6 +175,7 @@ export const deletePost = async (id: number | string): Promise<void> => {
     err.status = response.status;
     throw err;
   }
+  
 };
 
 /**
