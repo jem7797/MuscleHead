@@ -4,7 +4,11 @@ import { Image } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
-import { useNavigation, useRoute, useFocusEffect } from "@react-navigation/native";
+import {
+  useNavigation,
+  useRoute,
+  useFocusEffect,
+} from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
 import { getNotifications } from "../Services/notificationsApi";
 const NavBar = () => {
@@ -36,29 +40,69 @@ const NavBar = () => {
       return () => {
         isActive = false;
       };
-    }, [])
+    }, []),
   );
   return (
     <View style={styles.container}>
       <View style={styles.box}>
-        <TouchableOpacity onPress={() => privacySetting == "hidden" ? navigation.navigate("hiddenFeed") : navigation.navigate("Community")}> 
+        <TouchableOpacity
+          onPress={() =>
+            privacySetting == "hidden"
+              ? navigation.navigate("hiddenFeed")
+              : navigation.navigate("Community")
+          }
+        >
           <View style={isCommunityActive ? styles.highlightCircle : undefined}>
-            <FontAwesome6 name="people-group" size={24} color={isCommunityActive ? "#fff" : "black"} />
+            <FontAwesome6
+              name="people-group"
+              size={24}
+              color={isCommunityActive ? "#fff" : "black"}
+            />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => privacySetting == "hidden" ? navigation.navigate("hiddenSearch") : navigation.navigate("Search")}>
+        <TouchableOpacity
+          onPress={() =>
+            privacySetting == "hidden"
+              ? navigation.navigate("hiddenSearch")
+              : navigation.navigate("Search")
+          }
+        >
           <View style={isSearchActive ? styles.highlightCircle : undefined}>
-            <Feather name="search" size={24} color={isSearchActive ? "#fff" : "black"} />
+            <Feather
+              name="search"
+              size={24}
+              color={isSearchActive ? "#fff" : "black"}
+            />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("WorkoutInputMainPage")}>
-          <View style={active === "WorkoutInputMainPage" ? styles.highlightCircle : undefined}>
-            <Ionicons name="barbell-sharp" size={30} color={active === "WorkoutInputMainPage" ? "#fff" : "black"} />
+        <TouchableOpacity
+          onPress={() => navigation.navigate("WorkoutInputMainPage")}
+        >
+          <View
+            style={
+              active === "WorkoutInputMainPage"
+                ? styles.highlightCircle
+                : undefined
+            }
+          >
+            <Ionicons
+              name="barbell-sharp"
+              size={30}
+              color={active === "WorkoutInputMainPage" ? "#fff" : "black"}
+            />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
-          <View style={active === "Notifications" ? styles.highlightCircle : undefined}>
-            <Ionicons name="notifications" size={24} color={active === "Notifications" ? "#fff" : "black"} />
+          <View
+            style={
+              active === "Notifications" ? styles.highlightCircle : undefined
+            }
+          >
+            <Ionicons
+              name="notifications"
+              size={24}
+              color={active === "Notifications" ? "#fff" : "black"}
+            />
             {unreadCount > 0 && (
               <View style={styles.notificationBadge}>
                 <Text style={styles.notificationBadgeText}>
@@ -68,8 +112,10 @@ const NavBar = () => {
             )}
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Profile")}> 
-          <View style={active === "Profile" ? styles.highlightCircle : undefined}>
+        <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
+          <View
+            style={active === "Profile" ? styles.highlightCircle : undefined}
+          >
             {showPfp ? (
               <Image
                 source={{ uri: pfpLink }}
@@ -77,7 +123,11 @@ const NavBar = () => {
                 onError={() => setPfpError(true)}
               />
             ) : (
-              <Ionicons name="person" size={24} color={active === "Profile" ? "#fff" : "black"} />
+              <Ionicons
+                name="person"
+                size={24}
+                color={active === "Profile" ? "#fff" : "black"}
+              />
             )}
           </View>
         </TouchableOpacity>
@@ -88,16 +138,16 @@ const NavBar = () => {
 
 const styles = StyleSheet.create({
   container: {
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  right: 0,
-  paddingVertical: 3,
-  paddingBottom: 8, 
-  borderTopWidth: 1, 
-  borderColor: "#a2a2a282",
-  backgroundColor: "#fff",
-},
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingVertical: 3,
+    paddingBottom: 8,
+    borderTopWidth: 1,
+    borderColor: "#a2a2a282",
+    backgroundColor: "#fff",
+  },
 
   box: {
     alignContent: "center",
@@ -127,8 +177,8 @@ const styles = StyleSheet.create({
   },
   notificationBadge: {
     position: "absolute",
-    top: 5,
-    right: 5,
+    top: -5,
+    right: -8,
     minWidth: 16,
     height: 16,
     borderRadius: 8,

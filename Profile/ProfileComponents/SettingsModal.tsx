@@ -1,6 +1,16 @@
 import React from "react";
-import { Modal, View, Text, StyleSheet, Pressable, TouchableOpacity } from "react-native";
+import {
+  Modal,
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  TouchableOpacity,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { MaterialIcons } from "@expo/vector-icons";
+import { useUser } from "../../Contexts/UserContext";
+import { CommonActions, useNavigation } from "@react-navigation/native";
 
 /**
  * SettingsModal Component
@@ -14,7 +24,28 @@ interface SettingsModalProps {
   onFollowRequestsPress?: () => void;
 }
 
-const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose, onEditProfile, onAccoladesPress, onFollowRequestsPress }) => {
+const SettingsModal: React.FC<SettingsModalProps> = ({
+  visible,
+  onClose,
+  onEditProfile,
+  onAccoladesPress,
+  onFollowRequestsPress,
+}) => {
+  const navigation = useNavigation<any>();
+
+  const { logOut } = useUser();
+
+  const handleLogOut = async () => {
+    onClose();
+    await logOut();
+    navigation.dispatch(
+      CommonActions.reset({
+        index: 0,
+        routes: [{ name: "Welcome" }],
+      }),
+    );
+  };
+
   return (
     <Modal
       visible={visible}
@@ -70,9 +101,12 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ visible, onClose, onEditP
               <Text style={styles.settingsText}>Follow Requests</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.settingsItem}>
-              <Ionicons name="lock-closed-outline" size={22} color="#1f2a44" />
-              <Text style={styles.settingsText}>Privacy</Text>
+            <TouchableOpacity
+              style={styles.settingsItem}
+              onPress={() => handleLogOut()}
+            >
+              <MaterialIcons name="logout" size={22} color="red" />
+              <Text style={styles.settingsText}>Log Out</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -131,4 +165,3 @@ const styles = StyleSheet.create({
 });
 
 export default SettingsModal;
-

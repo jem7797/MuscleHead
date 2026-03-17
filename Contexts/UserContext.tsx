@@ -19,6 +19,7 @@ import {
   clearNemesisSubIds,
 } from "../Services/nemesisStorage";
 import { getProfilePicUrl } from "../utils/profilePicUrl";
+import { Amplify } from "aws-amplify";
 
 interface Rank {
   id: number;
@@ -101,6 +102,7 @@ privacySetting: string;
   }) => Promise<void>;
   setShowRealNameValue: (revealName: boolean) => void;
   setProfileLoading: (loadStatus: boolean) => void;
+  logOut: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -347,6 +349,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
 
+const logOut = async() =>{
+
+try{
+  await  signOut();
+  setUserId("");
+  setIsAuth(false);
+  clearProfile();
+}catch(err){
+  console.log(err);
+  
+}
+}
+
+
+
 
 
   const fetchUserProfile = async (sub?: string) => {
@@ -482,6 +499,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setShowRealNameValue,
         setProfileLoading,
         setPrivacySetting,
+        logOut,
       }}
     >
       {children}
