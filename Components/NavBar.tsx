@@ -10,7 +10,10 @@ import {
   useFocusEffect,
 } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
-import { getNotifications } from "../Services/notificationsApi";
+import {
+  getNotifications,
+  markAllNotificationsAsRead,
+} from "../Services/notificationsApi";
 const NavBar = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
@@ -42,6 +45,19 @@ const NavBar = () => {
       };
     }, []),
   );
+
+
+  const handleNotificationClick = async () => {
+    try {
+      await markAllNotificationsAsRead();
+      setUnreadCount(0);
+    } catch {
+      // Ignore errors; still navigate
+    }
+    navigation.navigate("Notifications");
+  };
+
+
   return (
     <View style={styles.container}>
       <View style={styles.box}>
@@ -92,7 +108,7 @@ const NavBar = () => {
             />
           </View>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate("Notifications")}>
+        <TouchableOpacity onPress={() => handleNotificationClick()}>
           <View
             style={
               active === "Notifications" ? styles.highlightCircle : undefined

@@ -28,7 +28,7 @@ import CommunityScreen from "./Community";
 import CreatePostScreen from "./Community/CreatePostScreen";
 import FriendsListScreen from "./Community/FriendsListScreen";
 import SearchScreen from "./Search/SearchMainPage";
-import NotificationCenterScreen from "./Leaderboard/LeaderboardMainPage";
+import NotificationCenterScreen from "./Notifications /NotificationsPage";
 import ProfileScreen from "./Profile/ProfileMain";
 import ProfileEditPage from "./Profile/ProfileEditPage";
 import AccoladesScreen from "./Profile/AccoladesScreen";

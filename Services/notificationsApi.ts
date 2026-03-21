@@ -3,8 +3,9 @@
  *
  * GET /notification/api/ - Paginated list of notifications (Spring Pageable)
  * PATCH /notification/api/{id}/read - Mark notification as read (204 No Content)
+ * PATCH /notification/api/read-all - Mark all notifications for current user as read
  *
- * Both endpoints use the authenticated user's sub_id from the JWT.
+ * All endpoints use the authenticated user's sub_id from the JWT.
  */
 
 import { apiRequest, parseJsonResponse } from "./apiConfig";
@@ -67,6 +68,17 @@ export const markNotificationAsRead = async (id: number): Promise<void> => {
   if (!response.ok) {
     const err = await response.text();
     throw new Error(err || `Mark read failed: ${response.status}`);
+  }
+  // 204 No Content - no body to parse
+};
+
+export const markAllNotificationsAsRead = async (): Promise<void> => {
+  const response = await apiRequest("/notification/api/read-all", {
+    method: "PATCH",
+  });
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(err || `Mark all read failed: ${response.status}`);
   }
   // 204 No Content - no body to parse
 };

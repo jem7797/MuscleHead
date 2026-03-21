@@ -19,7 +19,8 @@ import {
   clearNemesisSubIds,
 } from "../Services/nemesisStorage";
 import { getProfilePicUrl } from "../utils/profilePicUrl";
-import { Amplify } from "aws-amplify";
+import { updateUserAttributes } from 'aws-amplify/auth';
+
 
 interface Rank {
   id: number;
@@ -246,8 +247,21 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Profile methods
-  const changeUsername = (newUsername: string) => {
+  const changeUsername = async(newUsername: string) => {
+    setIsLoading(true);
+    try{
+    await updateUserAttributes({
+      userAttributes: {
+        name: newUsername,
+      }
+    
+    });
     setUsername(newUsername);
+  }catch(error){
+    console.log(error);
+  }finally{
+    setIsLoading(false);
+  }
   };
 
   const setShowRealNameValue = (revealNameStatus: boolean) => {

@@ -14,6 +14,15 @@ import {
 } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  Dumbbell,
+  Trophy,
+  Heart,
+  MessageCircle,
+  UserPlus,
+  Bell,
+  type LucideProps,
+} from "lucide-react-native";
 import NavBar from "../Components/NavBar";
 import { useUser } from "../Contexts/UserContext";
 import { useInvite } from "../Contexts/InviteContext";
@@ -70,6 +79,15 @@ const getIconForType = (type: string): string => {
     default:
       return "notifications";
   }
+};
+
+const iconMap: Record<string, React.ComponentType<LucideProps>> = {
+  fitness: Dumbbell,
+  trophy: Trophy,
+  heart: Heart,
+  chatbubble: MessageCircle,
+  "person-add": UserPlus,
+  notifications: Bell,
 };
 
 const isAchievement = (n: Notification) =>
@@ -288,12 +306,13 @@ const NotificationCenterScreen = () => {
       const message = invite.message ?? "You've been invited to join a live workout!";
       const timeAgo = formatTimeAgo(invite.sent_at);
       const isProcessing = inviteActionId === invite.id;
+      const InviteIcon = iconMap["fitness"] ?? Bell;
 
       return (
         <View style={styles.notificationCard}>
           <View style={styles.notificationRow}>
             <View style={[styles.iconWrapper, styles.inviteIconWrapper]}>
-              <Ionicons name="fitness" size={24} color="#3b6fb8" />
+              <InviteIcon size={24} color="#3b6fb8" />
             </View>
             <View style={styles.content}>
               <Text style={styles.message}>{message}</Text>
@@ -378,6 +397,7 @@ const NotificationCenterScreen = () => {
     const n = item.data;
     const timeAgo = formatTimeAgo(n.createdAt);
     const icon = getIconForType(n.type);
+    const IconComponent = iconMap[icon] ?? Bell;
     const achievement = isAchievement(n);
     const expanded = expandedIds.has(n.id);
     const rawDisplayName = achievement
@@ -402,8 +422,7 @@ const NotificationCenterScreen = () => {
               achievement && styles.achievementIconWrapper,
             ]}
           >
-            <Ionicons
-              name={icon as React.ComponentProps<typeof Ionicons>["name"]}
+            <IconComponent
               size={24}
               color={achievement ? "#ffd700" : "#202c76"}
             />
