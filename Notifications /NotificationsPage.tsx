@@ -32,7 +32,10 @@ import {
   Notification,
 } from "../Services/notificationsApi";
 import { createAchievementPost } from "../Services/postsApi";
-import { getPendingInvites } from "../Services/liveSessionApi";
+import {
+  getPendingInvites,
+  getSessionInviteId,
+} from "../Services/liveSessionApi";
 import type { SessionInvite } from "../Services/liveSessionApi";
 import { acceptInvite, declineInvite } from "../lib/sessionService";
 import {
@@ -41,7 +44,10 @@ import {
   declineFollowRequest,
   type FollowRequestResponse,
 } from "../Services/followApi";
-import { getProfilePicUrl, type UserWithProfilePic } from "../utils/profilePicUrl";
+import {
+  getProfilePicUrl,
+  type UserWithProfilePic,
+} from "../utils/profilePicUrl";
 import { Image } from "expo-image";
 
 const formatTimeAgo = (dateStr?: string): string => {
@@ -95,7 +101,10 @@ const isAchievement = (n: Notification) =>
 
 const PAGE_SIZE = 20;
 
-if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
+if (
+  Platform.OS === "android" &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -124,8 +133,12 @@ const NotificationCenterScreen = () => {
   const [expandedIds, setExpandedIds] = useState<Set<number>>(new Set());
   const [postingMedalId, setPostingMedalId] = useState<number | null>(null);
   const [inviteActionId, setInviteActionId] = useState<string | null>(null);
-  const [followRequests, setFollowRequests] = useState<FollowRequestResponse[]>([]);
-  const [followRequestActionId, setFollowRequestActionId] = useState<string | null>(null);
+  const [followRequests, setFollowRequests] = useState<FollowRequestResponse[]>(
+    [],
+  );
+  const [followRequestActionId, setFollowRequestActionId] = useState<
+    string | null
+  >(null);
 
   const handleShareAchievement = async (n: Notification) => {
     const achievementId = n.medalId;
@@ -135,25 +148,33 @@ const NotificationCenterScreen = () => {
       await createAchievementPost(achievementId);
       Alert.alert("Shared!", "Your achievement has been posted to the feed.");
     } catch (e) {
-      Alert.alert("Could not share", e instanceof Error ? e.message : "Please try again.");
+      Alert.alert(
+        "Could not share",
+        e instanceof Error ? e.message : "Please try again.",
+      );
     } finally {
       setPostingMedalId(null);
     }
   };
 
-  const fetchNotifications = useCallback(async (pageNum: number = 0, append: boolean = false) => {
-    const result = await getNotifications(pageNum, PAGE_SIZE);
-    const content = Array.isArray(result.content) ? result.content : [];
-    setNotifications((prev) => (append ? [...prev, ...content] : content));
-    setTotalElements(result.totalElements);
-    setPage(pageNum);
-    return result;
-  }, []);
+  const fetchNotifications = useCallback(
+    async (pageNum: number = 0, append: boolean = false) => {
+      const result = await getNotifications(pageNum, PAGE_SIZE);
+      const content = Array.isArray(result.content) ? result.content : [];
+      setNotifications((prev) => (append ? [...prev, ...content] : content));
+      setTotalElements(result.totalElements);
+      setPage(pageNum);
+      return result;
+    },
+    [],
+  );
 
   const fetchPendingInvites = useCallback(async () => {
     try {
       const invites = await getPendingInvites();
-      setPendingInvites(invites.filter((i) => i.status === "pending"));
+      setPendingInvites(
+        invites.filter((i) => (i.status ?? "").toLowerCase() === "pending"),
+      );
     } catch {
       setPendingInvites([]);
     }
@@ -181,7 +202,7 @@ const NotificationCenterScreen = () => {
   useFocusEffect(
     useCallback(() => {
       loadInitial();
-    }, [loadInitial])
+    }, [loadInitial]),
   );
 
   const onRefresh = async () => {
@@ -204,11 +225,18 @@ const NotificationCenterScreen = () => {
 
   const handleAcceptInvite = async (invite: SessionInvite) => {
     if (inviteActionId) return;
-    setInviteActionId(invite.id);
+    const inviteId = getSessionInviteId(invite);
+    if (!inviteId) {
+      Alert.alert("Error", "This invite is missing an ID. Try refreshing.");
+      return;
+    }
+    setInviteActionId(inviteId);
     try {
-      await acceptInvite({ inviteId: invite.id });
-      removeInvite(invite.id);
-      setPendingInvites((prev) => prev.filter((i) => i.id !== invite.id));
+      await acceptInvite({ inviteId });
+      removeInvite(inviteId);
+      setPendingInvites((prev) =>
+        prev.filter((i) => getSessionInviteId(i) !== inviteId),
+      );
       if (userId) {
         navigation.navigate("LiveSession", {
           sessionId: invite.session_id,
@@ -229,11 +257,18 @@ const NotificationCenterScreen = () => {
 
   const handleDeclineInvite = async (invite: SessionInvite) => {
     if (inviteActionId) return;
-    setInviteActionId(invite.id);
+    const inviteId = getSessionInviteId(invite);
+    if (!inviteId) {
+      console.warn("Decline invite: missing id");
+      return;
+    }
+    setInviteActionId(inviteId);
     try {
-      await declineInvite({ inviteId: invite.id });
-      removeInvite(invite.id);
-      setPendingInvites((prev) => prev.filter((i) => i.id !== invite.id));
+      await declineInvite({ inviteId });
+      removeInvite(inviteId);
+      setPendingInvites((prev) =>
+        prev.filter((i) => getSessionInviteId(i) !== inviteId),
+      );
     } catch (e) {
       console.error("Failed to decline invite:", e);
     } finally {
@@ -248,7 +283,10 @@ const NotificationCenterScreen = () => {
       await acceptFollowRequest(req.id);
       setFollowRequests((prev) => prev.filter((r) => r.id !== req.id));
     } catch (e) {
-      Alert.alert("Error", e instanceof Error ? e.message : "Could not accept request.");
+      Alert.alert(
+        "Error",
+        e instanceof Error ? e.message : "Could not accept request.",
+      );
     } finally {
       setFollowRequestActionId(null);
     }
@@ -269,7 +307,10 @@ const NotificationCenterScreen = () => {
 
   const feedItems: FeedItem[] = [
     ...pendingInvites.map((inv) => ({ kind: "invite" as const, data: inv })),
-    ...followRequests.map((req) => ({ kind: "followRequest" as const, data: req })),
+    ...followRequests.map((req) => ({
+      kind: "followRequest" as const,
+      data: req,
+    })),
     ...notifications.map((n) => ({ kind: "notification" as const, data: n })),
   ];
 
@@ -294,7 +335,7 @@ const NotificationCenterScreen = () => {
       try {
         await markNotificationAsRead(n.id);
         setNotifications((prev) =>
-          prev.map((x) => (x.id === n.id ? { ...x, read: true } : x))
+          prev.map((x) => (x.id === n.id ? { ...x, read: true } : x)),
         );
       } catch {}
     }
@@ -303,9 +344,13 @@ const NotificationCenterScreen = () => {
   const renderItem = ({ item }: { item: FeedItem }) => {
     if (item.kind === "invite") {
       const invite = item.data;
-      const message = invite.message ?? "You've been invited to join a live workout!";
+      const senderName = invite.host_user_name ?? "Someone";
+
+      const message =
+      `${senderName} invited you to a live session!`;
       const timeAgo = formatTimeAgo(invite.sent_at);
-      const isProcessing = inviteActionId === invite.id;
+      const inviteRowId = getSessionInviteId(invite);
+      const isProcessing = inviteActionId === inviteRowId;
       const InviteIcon = iconMap["fitness"] ?? Bell;
 
       return (
@@ -321,19 +366,25 @@ const NotificationCenterScreen = () => {
           </View>
           <View style={styles.inviteActions}>
             <TouchableOpacity
-              style={[styles.declineButton, isProcessing && styles.buttonDisabled]}
+              style={[
+                styles.declineButton,
+                isProcessing && styles.buttonDisabled,
+              ]}
               onPress={() => handleDeclineInvite(invite)}
               disabled={isProcessing}
             >
               <Text style={styles.declineButtonText}>Decline</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.acceptButton, isProcessing && styles.buttonDisabled]}
+              style={[
+                styles.acceptButton,
+                isProcessing && styles.buttonDisabled,
+              ]}
               onPress={() => handleAcceptInvite(invite)}
               disabled={isProcessing}
             >
               <Text style={styles.acceptButtonText}>
-                {inviteActionId === invite.id ? "Joining..." : "Accept"}
+                {inviteActionId === inviteRowId ? "Joining..." : "Accept"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -345,7 +396,8 @@ const NotificationCenterScreen = () => {
       const req = item.data;
       const requester = req.requester ?? {};
       const subId = requester.sub_id ?? requester.subId;
-      const displayName = requester.username ?? requester.first_name ?? "Someone";
+      const displayName =
+        requester.username ?? requester.first_name ?? "Someone";
       const pfpUrl = getProfilePicUrl(requester as UserWithProfilePic);
       const timeAgo = formatTimeAgo(req.createdAt);
       const isProcessing = followRequestActionId === req.id;
@@ -354,7 +406,9 @@ const NotificationCenterScreen = () => {
         <View style={styles.notificationCard}>
           <TouchableOpacity
             style={styles.notificationRow}
-            onPress={() => subId && navigation.navigate("UserProfile", { subId })}
+            onPress={() =>
+              subId && navigation.navigate("UserProfile", { subId })
+            }
             activeOpacity={0.7}
           >
             <View style={[styles.iconWrapper, styles.followRequestIconWrapper]}>
@@ -367,21 +421,29 @@ const NotificationCenterScreen = () => {
               )}
             </View>
             <View style={styles.content}>
-              <Text style={styles.message}>{displayName} requested to follow you</Text>
+              <Text style={styles.message}>
+                {displayName} requested to follow you
+              </Text>
               <Text style={styles.timeAgo}>{timeAgo}</Text>
             </View>
             <Ionicons name="chevron-forward" size={20} color="#9aa6bd" />
           </TouchableOpacity>
           <View style={styles.inviteActions}>
             <TouchableOpacity
-              style={[styles.declineButton, isProcessing && styles.buttonDisabled]}
+              style={[
+                styles.declineButton,
+                isProcessing && styles.buttonDisabled,
+              ]}
               onPress={() => handleDeclineFollowRequest(req)}
               disabled={isProcessing}
             >
               <Text style={styles.declineButtonText}>Decline</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.acceptButton, isProcessing && styles.buttonDisabled]}
+              style={[
+                styles.acceptButton,
+                isProcessing && styles.buttonDisabled,
+              ]}
               onPress={() => handleAcceptFollowRequest(req)}
               disabled={isProcessing}
             >
@@ -403,14 +465,20 @@ const NotificationCenterScreen = () => {
     const rawDisplayName = achievement
       ? (n.medalName ?? n.message ?? "Achievement unlocked!")
       : n.message;
-    const displayName = achievement ? rawDisplayName.replace(/_/g, " ") : rawDisplayName;
+    const displayName = achievement
+      ? rawDisplayName.replace(/_/g, " ")
+      : rawDisplayName;
     const rawDescription = achievement
       ? (n.medalDescription ?? n.message)
       : null;
-    const description = rawDescription ? rawDescription.replace(/_/g, " ") : rawDescription;
+    const description = rawDescription
+      ? rawDescription.replace(/_/g, " ")
+      : rawDescription;
 
     return (
-      <View style={[styles.notificationCard, n.read && styles.notificationRead]}>
+      <View
+        style={[styles.notificationCard, n.read && styles.notificationRead]}
+      >
         <TouchableOpacity
           style={styles.notificationRow}
           onPress={() => handleNotificationPress(n)}
@@ -446,7 +514,10 @@ const NotificationCenterScreen = () => {
             <Text style={styles.descriptionText}>{description}</Text>
             {n.medalId != null && (
               <TouchableOpacity
-                style={[styles.shareButton, postingMedalId === n.id && styles.shareButtonDisabled]}
+                style={[
+                  styles.shareButton,
+                  postingMedalId === n.id && styles.shareButtonDisabled,
+                ]}
                 onPress={() => handleShareAchievement(n)}
                 disabled={postingMedalId != null}
               >
@@ -484,19 +555,21 @@ const NotificationCenterScreen = () => {
           <Ionicons name="notifications-outline" size={64} color="#a2a2a2" />
           <Text style={styles.emptyTitle}>No notifications yet</Text>
           <Text style={styles.emptySubtext}>
-            When someone follows you, requests to follow you, invites you to a workout, or interacts with your content, you'll see it here.
+            When someone follows you, requests to follow you, invites you to a
+            workout, or interacts with your content, you'll see it here.
           </Text>
         </View>
       ) : (
         <FlatList
           data={feedItems}
-          keyExtractor={(item) =>
-            item.kind === "invite"
-              ? `invite-${item.data.id}`
-              : item.kind === "followRequest"
-                ? `followReq-${item.data.id}`
-                : String(item.data.id)
-          }
+          keyExtractor={(item, index) => {
+            if (item.kind === "invite") {
+              return `invite-${getSessionInviteId(item.data) || index}`;
+            }
+            if (item.kind === "followRequest")
+              return `followReq-${item.data.id}`;
+            return String(item.data.id);
+          }}
           renderItem={renderItem}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}

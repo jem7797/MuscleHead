@@ -8,12 +8,14 @@ import {
   endSession as apiEndSession,
   getSession,
   getPendingInvites,
+  getSessionInviteId,
   type LiveWorkoutSession,
   type LiveSessionExercise,
   type SessionInvite,
 } from "../Services/liveSessionApi";
 
 export type { LiveWorkoutSession, LiveSessionExercise, SessionInvite };
+export { getSessionInviteId };
 
 const INVITE_POLL_INTERVAL_MS = 5000;
 
@@ -158,21 +160,25 @@ export async function endSession({ sessionId }: { sessionId: string }): Promise<
  * Stops polling on 401/403 to avoid spamming when auth is invalid.
  */
 export function listenForInvites({
-  userId,
-  onInviteReceived,
+    onInviteReceived,
 }: {
   userId: string;
   onInviteReceived: (invite: SessionInvite) => void;
+
 }): () => void {
+
   const seenIds = new Set<string>();
   let intervalId: ReturnType<typeof setInterval> | null = null;
+
 
   const poll = async () => {
     try {
       const invites = await getPendingInvites();
       for (const invite of invites) {
-        if (invite.status === "pending" && !seenIds.has(invite.id)) {
-          seenIds.add(invite.id);
+        const inviteId = getSessionInviteId(invite);
+        if (!inviteId) continue;
+        if (invite.status === "pending" && !seenIds.has(inviteId)) {
+          seenIds.add(inviteId);
           onInviteReceived(invite);
         }
       }

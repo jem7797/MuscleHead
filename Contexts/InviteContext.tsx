@@ -6,6 +6,7 @@ import React, {
   ReactNode,
 } from "react";
 import type { SessionInvite } from "../lib/sessionService";
+import { getSessionInviteId } from "../Services/liveSessionApi";
 
 interface InviteContextType {
   inviteQueue: SessionInvite[];
@@ -22,8 +23,10 @@ export const InviteProvider = ({ children }: { children: ReactNode }) => {
   const activeInvite = inviteQueue[0] ?? null;
 
   const addInvite = useCallback((invite: SessionInvite) => {
+    const id = getSessionInviteId(invite);
+    if (!id) return;
     setInviteQueue((prev) => {
-      if (prev.some((i) => i.id === invite.id)) return prev;
+      if (prev.some((i) => getSessionInviteId(i) === id)) return prev;
       return [...prev, invite];
     });
   }, []);
@@ -33,7 +36,9 @@ export const InviteProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const removeInvite = useCallback((inviteId: string) => {
-    setInviteQueue((prev) => prev.filter((i) => i.id !== inviteId));
+    setInviteQueue((prev) =>
+      prev.filter((i) => getSessionInviteId(i) !== inviteId),
+    );
   }, []);
 
   return (
