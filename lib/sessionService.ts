@@ -13,11 +13,19 @@ import {
   type LiveSessionExercise,
   type SessionInvite,
 } from "../Services/liveSessionApi";
+import { AppState } from "react-native";
 
 export type { LiveWorkoutSession, LiveSessionExercise, SessionInvite };
 export { getSessionInviteId };
 
 const INVITE_POLL_INTERVAL_MS = 5000;
+let isActivelyPolling = true;
+const subscription = AppState.addEventListener('change', nextAppState =>{
+
+  isActivelyPolling = nextAppState === "active";
+
+});
+
 
 /**
  * Creates a new live workout session.
@@ -45,14 +53,22 @@ export async function sendInvite({
 /**
  * Accepts an invite by ID.
  */
-export async function acceptInvite({ inviteId }: { inviteId: string }): Promise<void> {
+export async function acceptInvite({
+  inviteId,
+}: {
+  inviteId: string;
+}): Promise<void> {
   return apiAcceptInvite({ inviteId });
 }
 
 /**
  * Declines an invite by ID.
  */
-export async function declineInvite({ inviteId }: { inviteId: string }): Promise<void> {
+export async function declineInvite({
+  inviteId,
+}: {
+  inviteId: string;
+}): Promise<void> {
   return apiDeclineInvite({ inviteId });
 }
 
@@ -89,13 +105,14 @@ export function subscribeToSession({
       },
       (payload) => {
         onExerciseUpdate({
-          event: (payload as { eventType?: string; event?: string }).eventType ??
+          event:
+            (payload as { eventType?: string; event?: string }).eventType ??
             (payload as { event?: string }).event ??
             "INSERT",
           new: (payload as unknown as { new?: LiveSessionExercise }).new,
           old: (payload as unknown as { old?: LiveSessionExercise }).old,
         });
-      }
+      },
     )
     .subscribe();
 
@@ -150,7 +167,11 @@ export async function logExercise({
 /**
  * Ends a session (host only).
  */
-export async function endSession({ sessionId }: { sessionId: string }): Promise<void> {
+export async function endSession({
+  sessionId,
+}: {
+  sessionId: string;
+}): Promise<void> {
   return apiEndSession({ sessionId });
 }
 
@@ -160,18 +181,18 @@ export async function endSession({ sessionId }: { sessionId: string }): Promise<
  * Stops polling on 401/403 to avoid spamming when auth is invalid.
  */
 export function listenForInvites({
-    onInviteReceived,
+  onInviteReceived,
 }: {
-  userId: string;
   onInviteReceived: (invite: SessionInvite) => void;
-
 }): () => void {
-
   const seenIds = new Set<string>();
   let intervalId: ReturnType<typeof setInterval> | null = null;
 
-
   const poll = async () => {
+
+      if(!isActivelyPolling)return;
+
+
     try {
       const invites = await getPendingInvites();
       for (const invite of invites) {
@@ -187,7 +208,7 @@ export function listenForInvites({
       if (status === 401 || status === 403) {
         console.warn(
           "[LiveSession] Stopping invite polling due to auth failure (401/403). " +
-            "Sign out and back in, or check backend Cognito App Client ID matches your token's 'aud' claim."
+            "Sign out and back in, or check backend Cognito App Client ID matches your token's 'aud' claim.",
         );
         if (intervalId) {
           clearInterval(intervalId);
@@ -197,6 +218,7 @@ export function listenForInvites({
         console.warn("[LiveSession] Failed to fetch pending invites:", e);
       }
     }
+  
   };
 
   poll();
@@ -211,12 +233,11 @@ export function listenForInvites({
  * Fetches session details with exercises from the backend.
  */
 export async function fetchSessionExercises(
-  sessionId: string
+  sessionId: string,
 ): Promise<LiveSessionExercise[]> {
   const session = await getSession(sessionId);
   const exercises = session.exercises ?? [];
   return exercises.sort(
-    (a, b) =>
-      new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime()
+    (a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime(),
   );
 }
