@@ -175,7 +175,7 @@ const UserProfileScreen = () => {
       console.log('session:', session);
       console.log('sessionId:', session?.id);
       await sendInvite({ sessionId: session.id, toUserId: subId });
-      navigation.navigate("LiveSession", {
+      navigation.navigate("MultiplayerWaitingScreen", {
         sessionId: session.id,
         currentUserId,
         hostUserId: currentUserId,

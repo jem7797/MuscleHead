@@ -7,7 +7,8 @@ import {
   declineInvite as apiDeclineInvite,
   endSession as apiEndSession,
   getSession,
-  getPendingInvites,
+  getUnseenPendingInvites,
+  markInviteToastSeen as apiMarkInviteToastSeen,
   getSessionInviteId,
   type LiveWorkoutSession,
   type LiveSessionExercise,
@@ -176,7 +177,7 @@ export async function endSession({
 }
 
 /**
- * Listens for incoming invites by polling GET /api/live-sessions/invites/pending.
+ * Listens for incoming invites by polling GET /api/live-sessions/invites/pending/unseen.
  * Returns unsubscribe function for cleanup.
  * Stops polling on 401/403 to avoid spamming when auth is invalid.
  */
@@ -194,7 +195,7 @@ export function listenForInvites({
 
 
     try {
-      const invites = await getPendingInvites();
+      const invites = await getUnseenPendingInvites();
       for (const invite of invites) {
         const inviteId = getSessionInviteId(invite);
         if (!inviteId) continue;
@@ -227,6 +228,18 @@ export function listenForInvites({
   return () => {
     if (intervalId) clearInterval(intervalId);
   };
+}
+
+/**
+ * Marks an invite toast as seen for the current recipient.
+ * Safe to call multiple times for the same invite.
+ */
+export async function markInviteToastSeen({
+  inviteId,
+}: {
+  inviteId: string;
+}): Promise<void> {
+  return apiMarkInviteToastSeen({ inviteId });
 }
 
 /**

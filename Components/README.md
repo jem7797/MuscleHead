@@ -25,8 +25,8 @@ Provides shared building blocks used across screens: navigation bar, buttons, he
 | File | Purpose |
 |------|---------|
 | `AchievementToast.tsx` | Xbox-style pill for MEDAL_EARNED. Uses `AchievementContext`; on tap navigates to Notifications. |
-| `InviteToast.tsx` | Same pattern for session invites. Uses `InviteContext`; on tap goes to Notifications. |
-| `InviteNotification.tsx` | No UI. Subscribes to `listenForInvites` and pushes invites into `InviteContext`. |
+| `InviteToast.tsx` | Same pattern for session invites. Uses `InviteContext`; marks invite as toast-seen when displayed; on tap goes to Notifications. |
+| `InviteNotification.tsx` | No UI. Subscribes to `listenForInvites` and pushes unseen invites into `InviteContext`. |
 
 **Why split InviteNotification and InviteToast?** – Listening (polling) and display are separate. The listener runs in the background; the toast shows when an invite is added to the queue. Clean separation of concerns.
 
@@ -71,6 +71,8 @@ Both follow the same flow:
 2. First item is **active** and shown in a pill.
 3. Timer or tap dismisses it and moves to the next.
 4. Tap navigates to Notifications (where details live).
+
+For invites, the displayed toast is also marked as seen via backend API so old pending invites are not replayed on app restart.
 
 This keeps toasts simple, non-blocking, and consistent.
 

@@ -97,6 +97,14 @@ const LiveSessionScreen: React.FC = () => {
     });
     unsubscribe = unsub;
 
+
+
+
+
+
+
+
+
     return () => {
       if (unsubscribe) unsubscribe();
     };
@@ -131,16 +139,7 @@ const LiveSessionScreen: React.FC = () => {
 
   const displayExercises = activeTab === "host" ? hostExercises : guestExercises;
 
-  const isWaitingForGuest = !guestUserId || guestUserId === "";
 
-  const [dots, setDots] = useState(0);
-  useEffect(() => {
-    if (!isWaitingForGuest) return;
-    const id = setInterval(() => {
-      setDots((d) => (d + 1) % 4);
-    }, 400);
-    return () => clearInterval(id);
-  }, [isWaitingForGuest]);
 
   const listContent =
     loading ? (
@@ -180,35 +179,7 @@ const LiveSessionScreen: React.FC = () => {
       </View>
     );
 
-  if (isWaitingForGuest) {
-    return (
-      <View style={styles.container}>
-        <PageHeader
-          title="Live Workout"
-          rightComponent={
-            isHost ? (
-              <TouchableOpacity
-                onPress={handleEndSession}
-                disabled={ending}
-                style={styles.endButton}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.endButtonText}>
-                  {ending ? "Ending..." : "End Session"}
-                </Text>
-              </TouchableOpacity>
-            ) : undefined
-          }
-        />
-        <View style={styles.waitingOnly}>
-          <Text style={styles.waitingText}>
-            Waiting for guest to join{".".repeat(dots)}
-          </Text>
-        </View>
-      </View>
-    );
-  }
-
+ 
   return (
     <View style={styles.container}>
       <PageHeader

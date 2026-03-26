@@ -7,7 +7,7 @@ Live workout sessions: host/guest tabs, real-time exercise sync via Supabase, in
 ## What It Does
 
 - Host creates a session, invites a friend
-- Guest receives invite (toast → Notifications), accepts → joins
+- Guest receives invite toast for unseen pending invites (toast → Notifications), accepts → joins
 - Both see Host and Guest tabs with separate exercise lists
 - Exercises sync in real time via Supabase `postgres_changes`
 - Host can end the session
@@ -45,8 +45,8 @@ LiveSession is full-screen; NavBar is hidden so the layout isn’t cramped. Back
 ## How It Connects to the Rest of the App
 
 - **lib/sessionService** – `subscribeToSession`, `logExercise`, `fetchSessionExercises`, `endSession`
-- **Services/liveSessionApi** – `getSession`, `getPendingInvites` (for Notifications tab)
-- **InviteToast / InviteNotification** – User gets invite → toast → Notifications → Accept → navigates here
+- **Services/liveSessionApi** – `getSession`, `getPendingInvites` (Notifications), `getUnseenPendingInvites` + `markInviteToastSeen` (toast flow)
+- **InviteToast / InviteNotification** – Poll unseen invites, show toast, mark toast as seen, then user can Accept in Notifications and navigate here
 - **Community/FriendsListScreen** – Invite to Session creates session and navigates here
 - **Components/WorkoutInputSection** – Shared workout input UI
 - **constants/workoutByMuscleGroup, exerciseToMuscles** – Exercise catalog

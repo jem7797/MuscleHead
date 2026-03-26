@@ -180,3 +180,28 @@ export async function getPendingInvites(): Promise<SessionInvite[]> {
   const list = Array.isArray(data) ? data : (data.invites ?? []);
   return list.map((row) => normalizeSessionInvite(row));
 }
+
+/**
+ * GET /api/live-sessions/invites/pending/unseen
+ * Returns pending invites the recipient has not seen in toast yet.
+ */
+export async function getUnseenPendingInvites(): Promise<SessionInvite[]> {
+  const response = await apiRequest(`${BASE}/invites/pending/unseen`, {}, false);
+  const data = await parseJsonResponse<RawInvite[] | { invites?: RawInvite[] }>(response);
+  const list = Array.isArray(data) ? data : (data.invites ?? []);
+  return list.map((row) => normalizeSessionInvite(row));
+}
+
+/**
+ * POST /api/live-sessions/invites/{inviteId}/toast-seen
+ * Marks a recipient invite toast as seen. Backend is idempotent (204).
+ */
+export async function markInviteToastSeen({ inviteId }: { inviteId: string }): Promise<void> {
+  const response = await apiRequest(`${BASE}/invites/${inviteId}/toast-seen`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  }, false);
+  if (!response.ok) {
+    await parseJsonResponse(response);
+  }
+}

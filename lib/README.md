@@ -7,7 +7,7 @@ Libraries and integrations: Supabase, live session orchestration.
 ## What It Does
 
 - **supabase.ts** – Supabase client and `isSupabaseConfigured`. Used for real-time exercise updates in live sessions.
-- **sessionService.ts** – High-level live session API: create session, invite, accept/decline, subscribe to exercises, log exercise, end session. Combines REST (liveSessionApi) and Supabase.
+- **sessionService.ts** – High-level live session API: create session, invite, accept/decline, subscribe to exercises, log exercise, end session, and invite toast lifecycle helpers. Combines REST (liveSessionApi) and Supabase.
 
 ---
 
@@ -16,7 +16,7 @@ Libraries and integrations: Supabase, live session orchestration.
 | File | Purpose |
 |------|---------|
 | `supabase.ts` | Creates Supabase client from env. Exports `supabase` and `isSupabaseConfigured()`. |
-| `sessionService.ts` | Orchestrates live sessions. Wraps liveSessionApi; adds Supabase subscription for real-time exercises; polls for invites via `listenForInvites`. |
+| `sessionService.ts` | Orchestrates live sessions. Wraps liveSessionApi; adds Supabase subscription for real-time exercises; polls unseen invites via `listenForInvites`; marks toast delivery via `markInviteToastSeen`. |
 
 ---
 
@@ -30,9 +30,9 @@ Live sessions use both REST (invites, session CRUD) and Supabase (real-time exer
 
 Session and invite CRUD go through the REST API. Supabase is used only for `postgres_changes` on `live_session_exercises`. That keeps auth and business logic in the backend and uses Supabase just for real-time sync.
 
-### listenForInvites: polling, not websockets
+### listenForInvites: polling unseen invites
 
-Pending invites are fetched by polling `getPendingInvites` every 5 seconds. When the backend adds push/websocket support, this can be swapped without changing the rest of the app.
+Invite toasts are fetched by polling `getUnseenPendingInvites` every 5 seconds. Each displayed toast is marked via `markInviteToastSeen`, so old pending invites do not replay after app restart.
 
 ### Stop polling on auth failure
 
@@ -45,6 +45,7 @@ If `getPendingInvites` returns 401/403, polling stops. This avoids repeated fail
 - **liveSessionApi** – All REST calls for live sessions
 - **supabase** – Real-time subscription for exercises
 - **InviteNotification** – Uses `listenForInvites`
-- **LeaderboardMainPage** – Uses `acceptInvite`, `declineInvite`, `getPendingInvites` (via liveSessionApi)
+- **NotificationsPage** – Uses `acceptInvite`, `declineInvite`, `getPendingInvites` (via liveSessionApi)
+- **InviteToast** – Uses `markInviteToastSeen` once an invite is displayed
 - **LiveSessionScreen** – Uses `subscribeToSession`, `logExercise`, `fetchSessionExercises`, `endSession`
 - **FriendsListScreen, UserProfileScreen** – Use `createLiveSession`, `sendInvite`

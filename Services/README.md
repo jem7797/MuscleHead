@@ -19,7 +19,7 @@ Provides typed functions for each backend domain: users, posts, follow, notifica
 | `postsApi.ts` | getFeed, getPost, createPost, patchPost, deletePost, presigned URL for images. |
 | `followApi.ts` | follow, unfollow, checkFollow, getFollowers, getFollowing, getMutualFriends. Plus: getFollowRequests, accept/decline, checkFollowRequestStatus (private-account flow). |
 | `notificationsApi.ts` | getNotifications, markNotificationAsRead. |
-| `liveSessionApi.ts` | createLiveSession, sendInvite, acceptInvite, declineInvite, getSession, getPendingInvites, endSession. |
+| `liveSessionApi.ts` | createLiveSession, sendInvite, acceptInvite, declineInvite, getSession, getPendingInvites, getUnseenPendingInvites, markInviteToastSeen, endSession. |
 | `sessionLogApi.ts` | Submit workout, get newly awarded medals. |
 | `workoutScheduleApi.ts` | Schedule CRUD. |
 | `workoutTemplateApi.ts` | Template CRUD. |
@@ -49,6 +49,10 @@ Images (posts, profile pics) go through: 1) get presigned URL from backend, 2) u
 ### 403 handling
 
 When the API returns 403, `parseJsonResponse` logs a hint (token/aud/permissions). Invite polling in `lib/sessionService` stops on 401/403 to avoid repeated errors.
+
+### Invite toast replay prevention
+
+The invite toast flow now uses two dedicated endpoints: `getUnseenPendingInvites` to fetch unseen pending invites only, and `markInviteToastSeen` to mark each toast as seen. This prevents old pending invites from replaying after app restart while keeping pending invites actionable in Notifications until accept/decline.
 
 ---
 

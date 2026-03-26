@@ -1,6 +1,5 @@
 import { useEffect } from "react";
-import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import {
   NavigationContainer,
   createNavigationContainerRef,
@@ -39,6 +38,8 @@ import MuscleDetailScreen from "./MuscleDetail/MuscleDetailScreen";
 import LiveSessionScreen from "./Live/LiveSessionScreen";
 import HiddenFeed from "./Community/HiddenFeed";
 import HiddenSearch from "./Search/HiddenSearchPage";
+import MultiplayerWaitingScreen from "./Live/MultiplayerWaitingScreen";
+
 import "@aws-amplify/react-native";
 import { Amplify } from "aws-amplify";
 import awsConfig from "./aws-exports";
@@ -55,7 +56,6 @@ import { InviteProvider } from "./Contexts/InviteContext";
 import AchievementToast from "./Components/AchievementToast";
 import InviteToast from "./Components/InviteToast";
 import InviteNotification from "./Components/InviteNotification";
-
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -230,6 +230,13 @@ export default function App() {
                           component={LiveSessionScreen}
                           options={{ animation: "none" }}
                         />
+
+                        <Stack.Screen
+                        name = "MultiplayerWaitingScreen"
+                        component={MultiplayerWaitingScreen}
+                        />
+
+
                       </Stack.Navigator>
                     </NavigationContainer>
                       <AchievementToast navigationRef={navigationRef} />

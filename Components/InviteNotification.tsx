@@ -15,7 +15,6 @@ const InviteNotification = () => {
     if (!userId || !isAuthenticated) return;
 
     const unsubscribe = listenForInvites({
-      userId,
       onInviteReceived: (invite: SessionInvite) => {
         addInvite(invite);
       },

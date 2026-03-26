@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useInvite } from "../Contexts/InviteContext";
+import { getSessionInviteId, markInviteToastSeen } from "../lib/sessionService";
 
 const NAV_BAR_HEIGHT = 70;
 const DISPLAY_DURATION_MS = 5000;
@@ -35,6 +36,13 @@ const InviteToast = ({ navigationRef }: InviteToastProps) => {
 
   useEffect(() => {
     if (!activeInvite) return;
+    const inviteId = getSessionInviteId(activeInvite);
+    if (inviteId) {
+      // Best-effort mark so old pending invites do not replay on restart.
+      markInviteToastSeen({ inviteId }).catch((e) => {
+        console.warn("[LiveSession] Failed to mark toast seen:", e);
+      });
+    }
     translateY.setValue(SLIDE_DISTANCE);
     opacity.setValue(0);
     Animated.parallel([
