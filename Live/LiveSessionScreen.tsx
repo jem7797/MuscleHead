@@ -98,13 +98,6 @@ const LiveSessionScreen: React.FC = () => {
     unsubscribe = unsub;
 
 
-
-
-
-
-
-
-
     return () => {
       if (unsubscribe) unsubscribe();
     };

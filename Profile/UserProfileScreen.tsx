@@ -10,7 +10,11 @@ import {
   Alert,
 } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useRoute, useNavigation, useFocusEffect } from "@react-navigation/native";
+import {
+  useRoute,
+  useNavigation,
+  useFocusEffect,
+} from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import BackButton from "../Components/BackButton";
 import StatsRow from "./ProfileComponents/StatsRow";
@@ -18,7 +22,13 @@ import BioSection from "./ProfileComponents/BioSection";
 import MetricsRow from "./ProfileComponents/MetricsRow";
 import ProfilePostsSection from "./ProfileComponents/ProfilePostsSection";
 import { getUser, updateUserNemesis, removeNemesis } from "../Services/userApi";
-import { follow, unfollow, checkFollow, checkMutualFollow, checkFollowRequestStatus } from "../Services/followApi";
+import {
+  follow,
+  unfollow,
+  checkFollow,
+  checkMutualFollow,
+  checkFollowRequestStatus,
+} from "../Services/followApi";
 import { createLiveSession, sendInvite } from "../lib/sessionService";
 import { useUser } from "../Contexts/UserContext";
 import { getProfilePicUrl } from "../utils/profilePicUrl";
@@ -32,12 +42,22 @@ const formatHeight = (totalInches?: number | null) => {
 };
 
 /** Normalize IDs for comparison (handles sub_id vs subId, casing, etc.) */
-const normalizeId = (id: string) => String(id ?? "").trim().toLowerCase();
+const normalizeId = (id: string) =>
+  String(id ?? "")
+    .trim()
+    .toLowerCase();
 
 const UserProfileScreen = () => {
   const route = useRoute<any>();
   const navigation = useNavigation<any>();
-  const { userId: currentUserId, addToFollowingCount, nemesisSubIds, setNemesisSubIds, refreshUserProfile, pfpLink } = useUser();
+  const {
+    userId: currentUserId,
+    addToFollowingCount,
+    nemesisSubIds,
+    setNemesisSubIds,
+    refreshUserProfile,
+    pfpLink,
+  } = useUser();
   const subId = route.params?.subId ?? route.params?.sub_id;
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -47,7 +67,9 @@ const UserProfileScreen = () => {
   const [followLoading, setFollowLoading] = useState(false);
   const [nemesisLoading, setNemesisLoading] = useState(false);
   const [nemesisModalVisible, setNemesisModalVisible] = useState(false);
-  const [nemesisModalMode, setNemesisModalMode] = useState<"add" | "remove">("add");
+  const [nemesisModalMode, setNemesisModalMode] = useState<"add" | "remove">(
+    "add",
+  );
   const [isMutualFollow, setIsMutualFollow] = useState(false);
   const [inviteLoading, setInviteLoading] = useState(false);
 
@@ -82,7 +104,7 @@ const UserProfileScreen = () => {
   useFocusEffect(
     useCallback(() => {
       if (subId) fetchUser();
-    }, [subId, fetchUser])
+    }, [subId, fetchUser]),
   );
 
   useEffect(() => {
@@ -91,13 +113,17 @@ const UserProfileScreen = () => {
     Promise.all([
       checkFollow(currentUserId, subId),
       checkFollowRequestStatus(currentUserId, subId),
-    ]).then(([following, reqStatus]) => {
-      if (!cancelled) {
-        setIsFollowing(following);
-        setRequestPending(!following && reqStatus === "pending");
-      }
-    }).catch(() => {});
-    return () => { cancelled = true; };
+    ])
+      .then(([following, reqStatus]) => {
+        if (!cancelled) {
+          setIsFollowing(following);
+          setRequestPending(!following && reqStatus === "pending");
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
   }, [subId, currentUserId]);
 
   useEffect(() => {
@@ -113,10 +139,14 @@ const UserProfileScreen = () => {
       .catch(() => {
         if (!cancelled) setIsMutualFollow(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [subId, currentUserId, isFollowing]);
 
-  const isNemesis = subId ? nemesisSubIds.some((id) => normalizeId(id) === normalizeId(subId)) : false;
+  const isNemesis = subId
+    ? nemesisSubIds.some((id) => normalizeId(id) === normalizeId(subId))
+    : false;
 
   const handleFollowPress = async () => {
     if (!subId || followLoading) return;
@@ -125,7 +155,16 @@ const UserProfileScreen = () => {
     try {
       if (isFollowing) {
         addToFollowingCount(-1);
-        setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: Math.max(0, (prev.number_of_followers ?? 0) - 1) });
+        setUser(
+          (prev: { number_of_followers?: number } | null) =>
+            prev && {
+              ...prev,
+              number_of_followers: Math.max(
+                0,
+                (prev.number_of_followers ?? 0) - 1,
+              ),
+            },
+        );
         await unfollow(subId);
         setIsFollowing(false);
         setRequestPending(false);
@@ -134,15 +173,28 @@ const UserProfileScreen = () => {
         // Can't cancel request from UI; do nothing
       } else {
         await follow(subId);
-        console.log("[Follow UI] Follow API completed, checking follow status...");
+        console.log(
+          "[Follow UI] Follow API completed, checking follow status...",
+        );
         const [nowFollowing, reqStatus] = await Promise.all([
           checkFollow(currentUserId!, subId),
           checkFollowRequestStatus(currentUserId!, subId),
         ]);
-        console.log("[Follow UI] checkFollow:", nowFollowing, "checkFollowRequestStatus:", reqStatus);
+        console.log(
+          "[Follow UI] checkFollow:",
+          nowFollowing,
+          "checkFollowRequestStatus:",
+          reqStatus,
+        );
         if (nowFollowing) {
           addToFollowingCount(1);
-          setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + 1 });
+          setUser(
+            (prev: { number_of_followers?: number } | null) =>
+              prev && {
+                ...prev,
+                number_of_followers: (prev.number_of_followers ?? 0) + 1,
+              },
+          );
           setIsFollowing(true);
           setRequestPending(false);
           console.log("[Follow UI] State change: isFollowing=true");
@@ -152,15 +204,26 @@ const UserProfileScreen = () => {
         } else {
           // Backend may not have updated check yet; optimistically show Following
           addToFollowingCount(1);
-          setUser((prev: { number_of_followers?: number } | null) => prev && { ...prev, number_of_followers: (prev.number_of_followers ?? 0) + 1 });
+          setUser(
+            (prev: { number_of_followers?: number } | null) =>
+              prev && {
+                ...prev,
+                number_of_followers: (prev.number_of_followers ?? 0) + 1,
+              },
+          );
           setIsFollowing(true);
           setRequestPending(false);
-          console.log("[Follow UI] State change: optimistically isFollowing=true (check not yet true)");
+          console.log(
+            "[Follow UI] State change: optimistically isFollowing=true (check not yet true)",
+          );
         }
       }
     } catch (e) {
       console.error("[Follow UI] Follow failed:", e);
-      Alert.alert("Follow failed", e instanceof Error ? e.message : "Could not follow. Please try again.");
+      Alert.alert(
+        "Follow failed",
+        e instanceof Error ? e.message : "Could not follow. Please try again.",
+      );
     } finally {
       setFollowLoading(false);
       console.log("[Follow UI] followLoading set to false");
@@ -172,20 +235,20 @@ const UserProfileScreen = () => {
     setInviteLoading(true);
     try {
       const session = await createLiveSession();
-      console.log('session:', session);
-      console.log('sessionId:', session?.id);
+      console.log("session:", session);
+      console.log("sessionId:", session?.id);
       await sendInvite({ sessionId: session.id, toUserId: subId });
       navigation.navigate("MultiplayerWaitingScreen", {
         sessionId: session.id,
         currentUserId,
         hostUserId: currentUserId,
-        guestUserId: null,
+        guestUserId: subId,
       });
     } catch (e) {
       console.error("Failed to invite to session:", e);
       Alert.alert(
         "Error",
-        e instanceof Error ? e.message : "Could not send invite."
+        e instanceof Error ? e.message : "Could not send invite.",
       );
     } finally {
       setInviteLoading(false);
@@ -207,7 +270,9 @@ const UserProfileScreen = () => {
     const isAdding = nemesisModalMode === "add";
     if (isAdding) {
       setNemesisModalVisible(false);
-      const alreadyHas = nemesisSubIds.some((id) => normalizeId(id) === normalizeId(subId));
+      const alreadyHas = nemesisSubIds.some(
+        (id) => normalizeId(id) === normalizeId(subId),
+      );
       const newList = alreadyHas ? nemesisSubIds : [...nemesisSubIds, subId];
       setNemesisSubIds(newList);
       try {
@@ -259,7 +324,10 @@ const UserProfileScreen = () => {
   ];
   const metrics = [
     { icon: "ruler", value: formatHeight(user.height) },
-    { icon: "weight", value: user.weight != null ? `${user.weight} lb` : "N/A" },
+    {
+      icon: "weight",
+      value: user.weight != null ? `${user.weight} lb` : "N/A",
+    },
     { icon: "syringe", value: user.nattyStatus ? "Natty" : "Not Natty" },
   ];
 
@@ -267,10 +335,15 @@ const UserProfileScreen = () => {
     <View style={styles.container}>
       <View style={styles.header}>
         <BackButton />
-        <Text style={styles.headerTitle} numberOfLines={1}>{displayName}</Text>
+        <Text style={styles.headerTitle} numberOfLines={1}>
+          {displayName}
+        </Text>
         {!isCurrentUser ? (
           <TouchableOpacity
-            style={[styles.nemesisButton, isNemesis && styles.nemesisButtonActive]}
+            style={[
+              styles.nemesisButton,
+              isNemesis && styles.nemesisButtonActive,
+            ]}
             onPress={handleNemesisButtonPress}
             disabled={nemesisLoading}
           >
@@ -314,7 +387,13 @@ const UserProfileScreen = () => {
                 disabled={followLoading || requestPending}
               >
                 <Text style={styles.followButtonText}>
-                  {followLoading ? "..." : requestPending ? "Requested" : isFollowing ? "Following" : "Follow"}
+                  {followLoading
+                    ? "..."
+                    : requestPending
+                      ? "Requested"
+                      : isFollowing
+                        ? "Following"
+                        : "Follow"}
                 </Text>
               </TouchableOpacity>
               {isMutualFollow && (
@@ -333,14 +412,32 @@ const UserProfileScreen = () => {
         </View>
         <StatsRow
           stats={stats}
-          onFollowingPress={() => subId && navigation.navigate("FollowList", { subId, mode: "following", displayName })}
-          onFollowersPress={() => subId && navigation.navigate("FollowList", { subId, mode: "followers", displayName })}
+          onFollowingPress={() =>
+            subId &&
+            navigation.navigate("FollowList", {
+              subId,
+              mode: "following",
+              displayName,
+            })
+          }
+          onFollowersPress={() =>
+            subId &&
+            navigation.navigate("FollowList", {
+              subId,
+              mode: "followers",
+              displayName,
+            })
+          }
         />
         <BioSection bio={bio} />
         <View style={styles.metricsSection}>
           <MetricsRow metrics={metrics} />
         </View>
-        <ProfilePostsSection subId={subId} currentUserId={currentUserId} nemesisSubIds={nemesisSubIds} />
+        <ProfilePostsSection
+          subId={subId}
+          currentUserId={currentUserId}
+          nemesisSubIds={nemesisSubIds}
+        />
         <View style={{ height: 120 }} />
       </ScrollView>
 
@@ -365,7 +462,7 @@ const UserProfileScreen = () => {
             <Text style={styles.modalText}>
               {nemesisModalMode === "add"
                 ? `Are you sure you would like to set ${displayName} as a nemesis? This will send notifications to you when they do a workout and when they post`
-                : `Are you sure you'd like to remove ${displayName} as a nemesis?` }
+                : `Are you sure you'd like to remove ${displayName} as a nemesis?`}
             </Text>
             <View style={styles.modalButtons}>
               <TouchableOpacity
@@ -378,13 +475,18 @@ const UserProfileScreen = () => {
                 style={[
                   styles.modalButton,
                   styles.modalButtonConfirm,
-                  { backgroundColor: nemesisModalMode === "remove" ? "#8b0000" : "#5a6a7e" },
+                  {
+                    backgroundColor:
+                      nemesisModalMode === "remove" ? "#8b0000" : "#5a6a7e",
+                  },
                 ]}
                 onPress={handleNemesisModalConfirm}
                 disabled={nemesisLoading}
               >
                 <Text style={styles.modalButtonConfirmText}>
-                  {nemesisModalMode === "add" ? "Set Nemesis" : "Remove Nemesis"}
+                  {nemesisModalMode === "add"
+                    ? "Set Nemesis"
+                    : "Remove Nemesis"}
                 </Text>
               </TouchableOpacity>
             </View>

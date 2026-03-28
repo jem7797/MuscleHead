@@ -3,6 +3,7 @@ import PageHeader from "../Components/PageHeader";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { endSession } from "../lib/sessionService";
+import { subscribeToStatus } from "../lib/sessionStatusService";
 
 interface RouteParams {
   sessionId: string;
@@ -18,8 +19,7 @@ const MultiplayerWaitingScreen = () => {
   const params = route.params as RouteParams;
   const { sessionId, currentUserId, hostUserId, guestUserId } = params;
   const isHost = currentUserId === hostUserId;
-  const isWaitingForGuest = !guestUserId || guestUserId === "";
-
+  const [isWaitingForGuest, setIsWaitingForGuest] = useState(true);
   const [ending, setEnding] = useState(false);
 
   const [dots, setDots] = useState(0);
@@ -32,7 +32,36 @@ const MultiplayerWaitingScreen = () => {
   }, [isWaitingForGuest]);
 
 
+  useEffect(() => {
+    if (!sessionId) {
+      return;
+    }
 
+    const { unsubscribe } = subscribeToStatus({
+      sessionId,
+
+      onStatusUpdate(payload) {
+        if (payload.event === "UPDATE" && payload.new?.status) {
+          const status = payload.new.status;
+          if (status === "in_progress") {
+            setIsWaitingForGuest(false);
+            navigation.navigate("LiveSession", {
+              sessionId,
+              currentUserId,
+              hostUserId,
+              guestUserId: isHost ? guestUserId : currentUserId,
+            });
+          } else if (status === "ENDED") {
+            navigation.navigate("WorkoutInputMainPage");
+          }
+        }
+      },
+    });
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [sessionId, navigation, currentUserId, hostUserId, guestUserId, isHost]);
 
   const handleEndSession = async () => {
     setEnding(true);

@@ -64,7 +64,9 @@ const FriendsListScreen = () => {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [currentUserId]);
 
   const handleUserPress = (user: FriendUser) => {
@@ -83,12 +85,12 @@ const FriendsListScreen = () => {
         sessionId: session.id,
         currentUserId,
         hostUserId: currentUserId,
-        guestUserId: null,
+        guestUserId: subId,
       });
     } catch (e) {
       Alert.alert(
         "Error",
-        e instanceof Error ? e.message : "Could not send invite."
+        e instanceof Error ? e.message : "Could not send invite.",
       );
     } finally {
       setInvitingId(null);
@@ -169,7 +171,12 @@ const FriendsListScreen = () => {
       </View>
       {users.length > 0 && (
         <View style={styles.searchBar}>
-          <Ionicons name="search" size={20} color="#9aa6bd" style={styles.searchIcon} />
+          <Ionicons
+            name="search"
+            size={20}
+            color="#9aa6bd"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.searchInput}
             placeholder="Search friends..."
@@ -208,7 +215,9 @@ const FriendsListScreen = () => {
       ) : (
         <FlatList
           data={filteredUsers}
-          keyExtractor={(item, i) => (item.sub_id ?? item.subId ?? `u-${i}`) as string}
+          keyExtractor={(item, i) =>
+            (item.sub_id ?? item.subId ?? `u-${i}`) as string
+          }
           renderItem={renderUser}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}

@@ -21,12 +21,9 @@ export { getSessionInviteId };
 
 const INVITE_POLL_INTERVAL_MS = 5000;
 let isActivelyPolling = true;
-const subscription = AppState.addEventListener('change', nextAppState =>{
-
+const subscription = AppState.addEventListener("change", (nextAppState) => {
   isActivelyPolling = nextAppState === "active";
-
 });
-
 
 /**
  * Creates a new live workout session.
@@ -190,9 +187,7 @@ export function listenForInvites({
   let intervalId: ReturnType<typeof setInterval> | null = null;
 
   const poll = async () => {
-
-      if(!isActivelyPolling)return;
-
+    if (!isActivelyPolling) return;
 
     try {
       const invites = await getUnseenPendingInvites();
@@ -219,7 +214,6 @@ export function listenForInvites({
         console.warn("[LiveSession] Failed to fetch pending invites:", e);
       }
     }
-  
   };
 
   poll();
