@@ -4,13 +4,18 @@ import { Ionicons } from "@expo/vector-icons";
 
 interface AddWorkoutButtonProps {
   onPress: () => void;
+  disabled?: boolean;
 }
 
-const AddWorkoutButton: React.FC<AddWorkoutButtonProps> = ({ onPress }) => {
+const AddWorkoutButton: React.FC<AddWorkoutButtonProps> = ({ onPress, disabled = false }) => {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.addWorkoutButton}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={[styles.addWorkoutButton, disabled && styles.addWorkoutButtonDisabled]}
+      disabled={disabled}
+    >
       <Ionicons name="add" size={18} color="#888" />
-      <Text style={styles.addWorkoutText}>Add Workout</Text>
+      <Text style={[styles.addWorkoutText, disabled && styles.addWorkoutTextDisabled]}>Add Workout</Text>
     </TouchableOpacity>
   );
 };
@@ -33,6 +38,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: "500",
     marginLeft: 4,
+  },
+  addWorkoutButtonDisabled: {
+    opacity: 0.5,
+  },
+  addWorkoutTextDisabled: {
+    color: "#9ca3af",
   },
 });
 

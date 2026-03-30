@@ -46,18 +46,21 @@ const INITIAL_WORKOUT: WorkoutItem = {
   ],
 };
 
-interface WorkoutInputSectionProps {
+export interface WorkoutInputSectionProps {
   onDone: (workouts: WorkoutItem[]) => void | Promise<void>;
   /** Optional content to show above the workout input (e.g. logged exercises list) */
   listContent?: React.ReactNode;
   /** When provided, called when user checks a set complete. Used for live sessions to log on check. */
   onSetComplete?: (exerciseName: string, reps: number, weight: number | null) => void | Promise<void>;
+  /** When false, inputs and actions are disabled and the block is shown as read-only. Defaults to true. */
+  editable?: boolean;
 }
 
 const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
   onDone,
   listContent,
   onSetComplete,
+  editable = true,
 }) => {
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
@@ -216,7 +219,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
         if (field === "completed") {
           const newCompleted = value as boolean;
           newSets[setIndex] = { ...s, completed: newCompleted };
-          if (onSetComplete && newCompleted && w.workout) {
+          if (editable && onSetComplete && newCompleted && w.workout) {
             const reps = parseInt(s.reps, 10);
             const weight = s.weight.trim() ? parseFloat(s.weight) : null;
             if (!isNaN(reps) && reps >= 0) {
@@ -249,9 +252,14 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
       >
         {listContent}
 
+        <View style={styles.inputBlock}>
         <View style={styles.previewSection}>
           <View style={styles.timerAndMaxRow}>
-            <TouchableOpacity onPress={toggleTimer} style={styles.timerButton}>
+            <TouchableOpacity
+              onPress={toggleTimer}
+              style={[styles.timerButton, !editable && styles.controlDisabled]}
+              disabled={!editable}
+            >
               <Ionicons name={isTimerRunning ? "pause" : "play"} size={16} color="#202c76" />
               <Text style={styles.timerText}>{formatTime(timerSeconds)}</Text>
             </TouchableOpacity>
@@ -270,9 +278,10 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
 
           <View style={styles.musclePreviewContainer}>
             <TouchableOpacity
-              style={styles.musclePreviewTouchable}
+              style={[styles.musclePreviewTouchable, !editable && styles.controlDisabled]}
               onPress={handleRotate}
               activeOpacity={0.9}
+              disabled={!editable}
             >
               <View style={isBack ? styles.backViewWrapper : styles.frontViewWrapper}>
                 <WorkedMusclesProvider frontWorked={frontWorked} backWorked={backWorked}>
@@ -284,7 +293,11 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
                 </WorkedMusclesProvider>
               </View>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.rotateButton} onPress={handleRotate}>
+            <TouchableOpacity
+              style={[styles.rotateButton, !editable && styles.controlDisabled]}
+              onPress={handleRotate}
+              disabled={!editable}
+            >
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
                 <Ionicons name="swap-horizontal" size={18} color="#202c76" />
               </Animated.View>
@@ -297,8 +310,12 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
             ? WORKOUT_BY_MUSCLE_GROUP[workoutItem.muscleGroup] ?? []
             : [];
           return (
-            <WorkoutBox
+            <View
               key={workoutItem.id}
+              style={[!editable && styles.workoutBoxReadOnlyShell]}
+              pointerEvents={editable ? "auto" : "none"}
+            >
+            <WorkoutBox
               workout={workoutItem}
               muscleGroups={muscleGroups}
               availableWorkouts={availableWorkouts}
@@ -310,13 +327,25 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
               onRemoveSet={(i) => removeSet(workoutItem.id, i)}
               onUpdateSet={(i, f, v) => updateSet(workoutItem.id, i, f, v as string | boolean)}
             />
+            </View>
           );
         })}
 
-        <AddWorkoutButton onPress={addWorkout} />
+        <AddWorkoutButton onPress={addWorkout} disabled={!editable} />
+        {!editable && (
+          <View style={styles.readOnlyOverlay} pointerEvents="auto">
+            <Text style={styles.readOnlyOverlayText}>Viewing read-only — switch to your tab to edit</Text>
+          </View>
+        )}
+        </View>
       </ScrollView>
 
-      <PrimaryButton label="Done" variant="footer" onPress={handleDone} />
+      <PrimaryButton
+        label="Done"
+        variant="footer"
+        onPress={handleDone}
+        disabled={!editable}
+      />
     </View>
   );
 };
@@ -325,6 +354,36 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white" },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 100 },
+  inputBlock: {
+    position: "relative",
+  },
+  readOnlyOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(255, 255, 255, 0.22)",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    paddingTop: 20,
+    paddingHorizontal: 12,
+    zIndex: 8,
+    borderRadius: 12,
+  },
+  readOnlyOverlayText: {
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#475569",
+    textAlign: "center",
+    backgroundColor: "rgba(255, 255, 255, 0.92)",
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    overflow: "hidden",
+  },
+  controlDisabled: {
+    opacity: 0.95,
+  },
+  workoutBoxReadOnlyShell: {
+    opacity: 1,
+  },
   previewSection: {
     flexDirection: "row",
     justifyContent: "space-between",

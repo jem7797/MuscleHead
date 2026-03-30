@@ -32,14 +32,15 @@ const LiveSessionScreen: React.FC = () => {
   const params = route.params as RouteParams;
   const { sessionId, currentUserId, hostUserId, guestUserId: initialGuestUserId } = params;
 
-  const [hostExercises, setHostExercises] = useState<LiveSessionExercise[]>([]);
-  const [guestExercises, setGuestExercises] = useState<LiveSessionExercise[]>([]);
-  const [activeTab, setActiveTab] = useState<TabKey>("host");
-  const [loading, setLoading] = useState(true);
-  const [ending, setEnding] = useState(false);
-
   const isHost = currentUserId === hostUserId;
   const guestUserId = initialGuestUserId ?? "";
+
+  const [hostExercises, setHostExercises] = useState<LiveSessionExercise[]>([]);
+  const [guestExercises, setGuestExercises] = useState<LiveSessionExercise[]>([]);
+  const [activeTab, setActiveTab] = useState<TabKey>(isHost ? "host" : "guest");
+  const canEdit = activeTab === (isHost ? "host" : "guest");
+  const [loading, setLoading] = useState(true);
+  const [ending, setEnding] = useState(false);
 
   const sortIntoLists = useCallback(
     (exercises: LiveSessionExercise[]) => {
@@ -197,6 +198,7 @@ const LiveSessionScreen: React.FC = () => {
         onDone={async () => {}}
         listContent={listContent}
         onSetComplete={handleSetComplete}
+        editable={canEdit}
       />
     </View>
   );
