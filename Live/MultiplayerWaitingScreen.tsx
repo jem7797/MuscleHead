@@ -4,6 +4,7 @@ import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { endSession } from "../lib/sessionService";
 import { subscribeToStatus } from "../lib/sessionStatusService";
+import { supabase } from "../lib/supabase";
 
 interface RouteParams {
   sessionId: string;
@@ -31,34 +32,70 @@ const MultiplayerWaitingScreen = () => {
     return () => clearInterval(id);
   }, [isWaitingForGuest]);
 
-
   useEffect(() => {
     if (!sessionId) {
       return;
     }
 
-    const { unsubscribe } = subscribeToStatus({
-      sessionId,
+    let unsubscribe: (() => void) | null = null;
+    let cancelled = false;
 
-      onStatusUpdate(payload) {
-        if (payload.event === "UPDATE" && payload.new?.status) {
-          const status = payload.new.status;
-          if (status === "in_progress") {
-            setIsWaitingForGuest(false);
-            navigation.navigate("LiveSession", {
-              sessionId,
-              currentUserId,
-              hostUserId,
-              guestUserId: isHost ? guestUserId : currentUserId,
-            });
-          } else if (status === "ENDED") {
-            navigation.navigate("WorkoutInputMainPage");
-          }
+    const setup = async () => {
+      try {
+        // 1) Sign in anonymously for Supabase auth.
+        const { data, error } = await supabase.auth.signInAnonymously();
+        console.log('[Auth] signInAnonymously data:', JSON.stringify(data));
+        console.log('[Auth] signInAnonymously error:', JSON.stringify(error));
+
+        // 2) Read Supabase session and token.
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        console.log("[MultiplayerWaiting] supabase session access token", session?.access_token);
+        if (!session?.access_token) {
+          throw new Error("Supabase session access token missing.");
         }
-      },
-    });
+
+        // 3) Set Realtime auth token.
+        await Promise.resolve(supabase.realtime.setAuth(session.access_token));
+
+        // 4) Subscribe after auth is set.
+        if (cancelled) return;
+        const sub = subscribeToStatus({
+          sessionId,
+          onStatusUpdate(payload) {
+            console.log("[MultiplayerWaiting] session status", {
+              sessionId,
+              payloadEvent: payload.event,
+              newStatus: payload.new?.status,
+              oldStatus: payload.old?.status,
+            });
+            if (payload.event === "UPDATE" && payload.new?.status) {
+              const status = payload.new.status;
+              if (status === "in_progress") {
+                setIsWaitingForGuest(false);
+                navigation.navigate("LiveSession", {
+                  sessionId,
+                  currentUserId,
+                  hostUserId,
+                  guestUserId: isHost ? guestUserId : currentUserId,
+                });
+              } else if (status === "ENDED") {
+                navigation.navigate("WorkoutInputMainPage");
+              }
+            }
+          },
+        });
+        unsubscribe = sub.unsubscribe;
+      } catch (e) {
+        console.error("[MultiplayerWaiting] Failed before subscribeToStatus:", e);
+      }
+    };
+
+    setup();
 
     return () => {
+      cancelled = true;
       if (unsubscribe) unsubscribe();
     };
   }, [sessionId, navigation, currentUserId, hostUserId, guestUserId, isHost]);

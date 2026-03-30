@@ -9,7 +9,16 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  realtime: {
+    params: {
+      apikey: supabaseAnonKey,
+    },
+    logger: (kind: string, msg: string, data: unknown) => {
+      console.log(`[Realtime ${kind}]`, msg, data);
+    },
+  },
+});
 
 export function isSupabaseConfigured(): boolean {
   return !!(supabaseUrl && supabaseAnonKey);

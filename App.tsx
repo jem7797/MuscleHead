@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import {
   NavigationContainer,
   createNavigationContainerRef,
@@ -56,6 +56,7 @@ import { InviteProvider } from "./Contexts/InviteContext";
 import AchievementToast from "./Components/AchievementToast";
 import InviteToast from "./Components/InviteToast";
 import InviteNotification from "./Components/InviteNotification";
+import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -63,6 +64,10 @@ const Stack = createNativeStackNavigator();
 const navigationRef = createNavigationContainerRef();
 
 export default function App() {
+  const [isSupabaseAuthReady, setIsSupabaseAuthReady] = useState(
+    !isSupabaseConfigured(),
+  );
+
   useEffect(() => {
     Audio.setAudioModeAsync({
       playsInSilentModeIOS: true,
@@ -70,6 +75,35 @@ export default function App() {
       staysActiveInBackground: false,
     }).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!isSupabaseConfigured()) {
+      setIsSupabaseAuthReady(true);
+      return;
+    }
+
+    supabase.auth
+      .signInAnonymously()
+      .catch((e) => {
+        console.warn("[Supabase] Anonymous sign-in failed:", e);
+      })
+      .finally(() => {
+        if (!cancelled) setIsSupabaseAuthReady(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!isSupabaseAuthReady) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#1f2a44" />
+      </View>
+    );
+  }
 
   return (
     <UserProvider>
