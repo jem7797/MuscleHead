@@ -92,7 +92,7 @@ export function subscribeToSession({
   }
 
   const channel = supabase
-    .channel(`session:${sessionId}`)
+    .channel(`session-exercises:${sessionId}`)
     .on(
       "postgres_changes",
       {

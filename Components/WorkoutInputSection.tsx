@@ -64,6 +64,8 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
   listContent,
   onSetComplete,
   editable = true,
+  readOnlyFrontWorked,
+  readOnlyBackWorked,
 }) => {
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
@@ -96,6 +98,10 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
   }, [workouts]);
 
   const { frontWorked, backWorked } = useMemo(() => {
+    if (!editable && readOnlyFrontWorked && readOnlyBackWorked) {
+      return { frontWorked: readOnlyFrontWorked, backWorked: readOnlyBackWorked };
+    }
+
     const front: string[] = [];
     const back: string[] = [];
     workouts.forEach((workout) => {
@@ -111,7 +117,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
       frontWorked: Array.from(new Set(front)),
       backWorked: Array.from(new Set(back)),
     };
-  }, [workouts]);
+  }, [workouts, editable, readOnlyFrontWorked, readOnlyBackWorked]);
 
   const spin = useMemo(
     () =>

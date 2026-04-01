@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
 import { useRoute, useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
 import WorkoutInputSection, { type WorkoutItem } from "../Components/WorkoutInputSection";
+import SpectatorView from "../Components/SpectatorView";
 import {
   subscribeToSession,
   logExercise,
@@ -16,6 +17,9 @@ import {
   endSession,
   type LiveSessionExercise,
 } from "../lib/sessionService";
+import { supabase } from "../lib/supabase";
+import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
+import { getUser } from "../Services/userApi";
 
 type TabKey = "host" | "guest";
 
@@ -41,6 +45,40 @@ const LiveSessionScreen: React.FC = () => {
   const canEdit = activeTab === (isHost ? "host" : "guest");
   const [loading, setLoading] = useState(true);
   const [ending, setEnding] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
+  const [hostIsMale, setHostIsMale] = useState<boolean | null>(null);
+  const [guestIsMale, setGuestIsMale] = useState<boolean | null>(null);
+  const subscriptionRef = useRef<(() => void) | null>(null);
+
+  const otherExercises = isHost ? guestExercises : hostExercises;
+
+  const { otherFrontWorked, otherBackWorked } = useMemo(() => {
+    const front: string[] = [];
+    const back: string[] = [];
+
+    otherExercises.forEach((ex) => {
+      const m = EXERCISE_TO_MUSCLES[ex.exercise_name];
+      if (m) {
+        front.push(...m.front);
+        back.push(...m.back);
+      }
+    });
+
+    return {
+      otherFrontWorked: Array.from(new Set(front)),
+      otherBackWorked: Array.from(new Set(back)),
+    };
+  }, [otherExercises]);
+
+  const otherIsMale = useMemo(() => {
+    const isViewingGuest = isHost && !canEdit;
+    const isViewingHost = !isHost && !canEdit;
+
+    if (isViewingGuest && guestIsMale != null) return guestIsMale;
+    if (isViewingHost && hostIsMale != null) return hostIsMale;
+
+    return true;
+  }, [isHost, canEdit, hostIsMale, guestIsMale]);
 
   const sortIntoLists = useCallback(
     (exercises: LiveSessionExercise[]) => {
@@ -64,8 +102,48 @@ const LiveSessionScreen: React.FC = () => {
     const load = async () => {
       setLoading(true);
       try {
+        const { error: signInError } = await supabase.auth.signInAnonymously();
+        if (signInError) console.error("[Auth] Sign in failed:", signInError.message);
+
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
+        if (!session?.access_token) throw new Error("Supabase session missing");
+
+        await supabase.realtime.setAuth(session.access_token);
+
         const exercises = await fetchSessionExercises(sessionId);
         sortIntoLists(exercises);
+
+        const { unsubscribe: unsub } = subscribeToSession({
+          sessionId,
+          onExerciseUpdate: (payload) => {
+            if (payload.event === "INSERT" && payload.new) {
+              const ex = payload.new;
+              if (ex.user_id === hostUserId) {
+                setHostExercises((prev) => {
+                  const next = [...prev, ex];
+                  next.sort(
+                    (a, b) =>
+                      new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime()
+                  );
+                  return next;
+                });
+              } else if (ex.user_id === guestUserId) {
+                setGuestExercises((prev) => {
+                  const next = [...prev, ex];
+                  next.sort(
+                    (a, b) =>
+                      new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime()
+                  );
+                  return next;
+                });
+              }
+            }
+          },
+        });
+        unsubscribe = unsub;
+        subscriptionRef.current = unsub;
       } catch (e) {
         console.error("Failed to load exercises:", e);
       } finally {
@@ -75,34 +153,37 @@ const LiveSessionScreen: React.FC = () => {
 
     load();
 
-    const { unsubscribe: unsub } = subscribeToSession({
-      sessionId,
-      onExerciseUpdate: (payload) => {
-        if (payload.event === "INSERT" && payload.new) {
-          const ex = payload.new;
-          if (ex.user_id === hostUserId) {
-            setHostExercises((prev) => {
-              const next = [...prev, ex];
-              next.sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
-              return next;
-            });
-          } else if (ex.user_id === guestUserId) {
-            setGuestExercises((prev) => {
-              const next = [...prev, ex];
-              next.sort((a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime());
-              return next;
-            });
-          }
-        }
-      },
-    });
-    unsubscribe = unsub;
-
-
     return () => {
       if (unsubscribe) unsubscribe();
+      if (subscriptionRef.current) {
+        subscriptionRef.current();
+        subscriptionRef.current = null;
+      }
     };
   }, [sessionId, hostUserId, guestUserId, sortIntoLists]);
+
+  useEffect(() => {
+    const loadParticipantGenders = async () => {
+      try {
+        const [hostUser, guestUser] = await Promise.all([
+          getUser(hostUserId),
+          guestUserId ? getUser(guestUserId) : Promise.resolve(null),
+        ]);
+
+        const hostGender = (hostUser?.gender as string | undefined) ?? undefined;
+        const guestGender = (guestUser as any)?.gender as string | undefined;
+
+        setHostIsMale(hostGender === "Female" ? false : true);
+        if (guestUserId) {
+          setGuestIsMale(guestGender === "Female" ? false : true);
+        }
+      } catch (e) {
+        console.warn("[LiveSession] Failed to load participant genders:", e);
+      }
+    };
+
+    loadParticipantGenders();
+  }, [hostUserId, guestUserId]);
 
   const handleSetComplete = async (
     exerciseName: string,
@@ -131,49 +212,29 @@ const LiveSessionScreen: React.FC = () => {
     }
   };
 
-  const displayExercises = activeTab === "host" ? hostExercises : guestExercises;
-
-
-
-  const listContent =
-    loading ? (
-      <View style={styles.centeredLoading}>
-        <ActivityIndicator size="large" color="#1f2a44" />
-      </View>
-    ) : (
-      <View style={styles.listSection}>
-        <View style={styles.tabRow}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "host" && styles.tabActive]}
-            onPress={() => setActiveTab("host")}
-          >
-            <Text style={[styles.tabText, activeTab === "host" && styles.tabTextActive]}>
-              Host
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === "guest" && styles.tabActive]}
-            onPress={() => setActiveTab("guest")}
-          >
-            <Text style={[styles.tabText, activeTab === "guest" && styles.tabTextActive]}>
-              Guest
-            </Text>
-          </TouchableOpacity>
-        </View>
-        {displayExercises.length > 0 &&
-          displayExercises.map((item) => (
-            <View key={item.id} style={styles.exerciseRow}>
-              <Text style={styles.exerciseName}>{item.exercise_name}</Text>
-              <Text style={styles.exerciseDetail}>
-                {item.sets} × {item.reps}
-                {item.weight != null ? ` @ ${item.weight} lb` : ""}
-              </Text>
-            </View>
-          ))}
-      </View>
+  const computeStats = (exercises: LiveSessionExercise[]) => {
+    return exercises.reduce(
+      (acc, ex) => {
+        acc.totalSets += ex.sets ?? 0;
+        const reps = ex.reps ?? 0;
+        acc.totalReps += (ex.sets ?? 0) * reps;
+        const weight = ex.weight ?? 0;
+        acc.totalVolume += (ex.sets ?? 0) * reps * weight;
+        return acc;
+      },
+      { totalSets: 0, totalReps: 0, totalVolume: 0 },
     );
+  };
 
- 
+  const handleDone = async () => {
+    if (!isHost) return;
+    if (subscriptionRef.current) {
+      subscriptionRef.current();
+      subscriptionRef.current = null;
+    }
+    setShowSummary(true);
+  };
+
   return (
     <View style={styles.container}>
       <PageHeader
@@ -194,12 +255,76 @@ const LiveSessionScreen: React.FC = () => {
         }
       />
 
-      <WorkoutInputSection
-        onDone={async () => {}}
-        listContent={listContent}
-        onSetComplete={handleSetComplete}
-        editable={canEdit}
-      />
+      <View style={styles.tabRow}>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "host" && styles.tabActive]}
+          onPress={() => setActiveTab("host")}
+        >
+          <Text style={[styles.tabText, activeTab === "host" && styles.tabTextActive]}>
+            Host
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, activeTab === "guest" && styles.tabActive]}
+          onPress={() => setActiveTab("guest")}
+        >
+          <Text style={[styles.tabText, activeTab === "guest" && styles.tabTextActive]}>
+            Guest
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <View style={styles.centeredLoading}>
+          <ActivityIndicator size="large" color="#1f2a44" />
+        </View>
+      ) : showSummary ? (
+        (() => {
+          const hostStats = computeStats(hostExercises);
+          const guestStats = computeStats(guestExercises);
+          return (
+            <View style={styles.summaryContainer}>
+              <Text style={styles.summaryTitle}>Session Summary</Text>
+              <View style={styles.summaryRowHeader}>
+                <Text style={styles.summaryColLabel}></Text>
+                <Text style={styles.summaryColLabel}>Host</Text>
+                <Text style={styles.summaryColLabel}>Guest</Text>
+              </View>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryMetric}>Total Sets</Text>
+                <Text style={styles.summaryValue}>{hostStats.totalSets}</Text>
+                <Text style={styles.summaryValue}>{guestStats.totalSets}</Text>
+              </View>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryMetric}>Total Reps</Text>
+                <Text style={styles.summaryValue}>{hostStats.totalReps}</Text>
+                <Text style={styles.summaryValue}>{guestStats.totalReps}</Text>
+              </View>
+              <View style={styles.summaryRow}>
+                <Text style={styles.summaryMetric}>Total Volume (lb)</Text>
+                <Text style={styles.summaryValue}>{hostStats.totalVolume}</Text>
+                <Text style={styles.summaryValue}>{guestStats.totalVolume}</Text>
+              </View>
+            </View>
+          );
+        })()
+      ) : canEdit ? (
+        <WorkoutInputSection
+          onDone={async () => {
+            await handleDone();
+          }}
+          listContent={null}
+          onSetComplete={handleSetComplete}
+          editable={canEdit}
+        />
+      ) : (
+        <SpectatorView
+          exercises={otherExercises}
+          frontWorked={otherFrontWorked}
+          backWorked={otherBackWorked}
+          isMale={otherIsMale}
+        />
+      )}
     </View>
   );
 };
@@ -253,6 +378,53 @@ const styles = StyleSheet.create({
     paddingVertical: 48,
     alignItems: "center",
     justifyContent: "center",
+  },
+  summaryContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 32,
+  },
+  summaryTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#1f2a44",
+    marginBottom: 16,
+    textAlign: "center",
+  },
+  summaryRowHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e0e6f0",
+    marginBottom: 4,
+  },
+  summaryColLabel: {
+    flex: 1,
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#64748b",
+    textAlign: "center",
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f1f5f9",
+  },
+  summaryMetric: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#1f2a44",
+  },
+  summaryValue: {
+    flex: 1,
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#0f172a",
+    textAlign: "center",
   },
   exerciseRow: {
     paddingVertical: 12,
