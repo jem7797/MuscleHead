@@ -54,6 +54,9 @@ export interface WorkoutInputSectionProps {
   onSetComplete?: (exerciseName: string, reps: number, weight: number | null) => void | Promise<void>;
   /** When false, inputs and actions are disabled and the block is shown as read-only. Defaults to true. */
   editable?: boolean;
+  /** Optional muscle highlight data for read-only mode (e.g. other user's logged exercises). */
+  readOnlyFrontWorked?: string[];
+  readOnlyBackWorked?: string[];
 }
 
 const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
