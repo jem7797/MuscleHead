@@ -20,6 +20,7 @@ import {
 import { supabase } from "../lib/supabase";
 import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
 import { getUser } from "../Services/userApi";
+import { subscribeToStatus } from "../lib/sessionStatusService";
 
 type TabKey = "host" | "guest";
 
@@ -49,6 +50,26 @@ const LiveSessionScreen: React.FC = () => {
   const [hostIsMale, setHostIsMale] = useState<boolean | null>(null);
   const [guestIsMale, setGuestIsMale] = useState<boolean | null>(null);
   const subscriptionRef = useRef<(() => void) | null>(null);
+  const statusSubscriptionRef = useRef<(() => void) | null>(null);
+
+  const tearDownExerciseSubscription = useCallback(() => {
+    if (subscriptionRef.current) {
+      subscriptionRef.current();
+      subscriptionRef.current = null;
+    }
+  }, []);
+
+  const tearDownStatusSubscription = useCallback(() => {
+    if (statusSubscriptionRef.current) {
+      statusSubscriptionRef.current();
+      statusSubscriptionRef.current = null;
+    }
+  }, []);
+
+  const tearDownAllRealtime = useCallback(() => {
+    tearDownExerciseSubscription();
+    tearDownStatusSubscription();
+  }, [tearDownExerciseSubscription, tearDownStatusSubscription]);
 
   const otherExercises = isHost ? guestExercises : hostExercises;
 
@@ -97,8 +118,6 @@ const LiveSessionScreen: React.FC = () => {
   );
 
   useEffect(() => {
-    let unsubscribe: (() => void) | null = null;
-
     const load = async () => {
       setLoading(true);
       try {
@@ -115,7 +134,7 @@ const LiveSessionScreen: React.FC = () => {
         const exercises = await fetchSessionExercises(sessionId);
         sortIntoLists(exercises);
 
-        const { unsubscribe: unsub } = subscribeToSession({
+        const { unsubscribe: unsubExercises } = subscribeToSession({
           sessionId,
           onExerciseUpdate: (payload) => {
             if (payload.event === "INSERT" && payload.new) {
@@ -142,8 +161,20 @@ const LiveSessionScreen: React.FC = () => {
             }
           },
         });
-        unsubscribe = unsub;
-        subscriptionRef.current = unsub;
+        subscriptionRef.current = unsubExercises;
+
+        const { unsubscribe: unsubStatus } = subscribeToStatus({
+          sessionId,
+          onStatusUpdate: (payload) => {
+            const status = payload.new?.status;
+            if (!status) return;
+            const ended = String(status).toUpperCase() === "ENDED";
+            if (!ended) return;
+            tearDownAllRealtime();
+            setShowSummary(true);
+          },
+        });
+        statusSubscriptionRef.current = unsubStatus;
       } catch (e) {
         console.error("Failed to load exercises:", e);
       } finally {
@@ -154,13 +185,16 @@ const LiveSessionScreen: React.FC = () => {
     load();
 
     return () => {
-      if (unsubscribe) unsubscribe();
       if (subscriptionRef.current) {
         subscriptionRef.current();
         subscriptionRef.current = null;
       }
+      if (statusSubscriptionRef.current) {
+        statusSubscriptionRef.current();
+        statusSubscriptionRef.current = null;
+      }
     };
-  }, [sessionId, hostUserId, guestUserId, sortIntoLists]);
+  }, [sessionId, hostUserId, guestUserId, sortIntoLists, tearDownAllRealtime]);
 
   useEffect(() => {
     const loadParticipantGenders = async () => {
@@ -204,7 +238,8 @@ const LiveSessionScreen: React.FC = () => {
     setEnding(true);
     try {
       await endSession({ sessionId });
-      navigation.goBack();
+      tearDownAllRealtime();
+      setShowSummary(true);
     } catch (e) {
       console.error("Failed to end session:", e);
     } finally {
@@ -226,21 +261,12 @@ const LiveSessionScreen: React.FC = () => {
     );
   };
 
-  const handleDone = async () => {
-    if (!isHost) return;
-    if (subscriptionRef.current) {
-      subscriptionRef.current();
-      subscriptionRef.current = null;
-    }
-    setShowSummary(true);
-  };
-
   return (
     <View style={styles.container}>
       <PageHeader
         title="Live Workout"
         rightComponent={
-          isHost ? (
+          isHost && !showSummary ? (
             <TouchableOpacity
               onPress={handleEndSession}
               disabled={ending}
@@ -255,24 +281,26 @@ const LiveSessionScreen: React.FC = () => {
         }
       />
 
-      <View style={styles.tabRow}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "host" && styles.tabActive]}
-          onPress={() => setActiveTab("host")}
-        >
-          <Text style={[styles.tabText, activeTab === "host" && styles.tabTextActive]}>
-            Host
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === "guest" && styles.tabActive]}
-          onPress={() => setActiveTab("guest")}
-        >
-          <Text style={[styles.tabText, activeTab === "guest" && styles.tabTextActive]}>
-            Guest
-          </Text>
-        </TouchableOpacity>
-      </View>
+      {!showSummary && (
+        <View style={styles.tabRow}>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "host" && styles.tabActive]}
+            onPress={() => setActiveTab("host")}
+          >
+            <Text style={[styles.tabText, activeTab === "host" && styles.tabTextActive]}>
+              Host
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, activeTab === "guest" && styles.tabActive]}
+            onPress={() => setActiveTab("guest")}
+          >
+            <Text style={[styles.tabText, activeTab === "guest" && styles.tabTextActive]}>
+              Guest
+            </Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {loading ? (
         <View style={styles.centeredLoading}>
@@ -305,17 +333,23 @@ const LiveSessionScreen: React.FC = () => {
                 <Text style={styles.summaryValue}>{hostStats.totalVolume}</Text>
                 <Text style={styles.summaryValue}>{guestStats.totalVolume}</Text>
               </View>
+              <TouchableOpacity
+                style={styles.summaryCloseButton}
+                onPress={() => navigation.goBack()}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.summaryCloseButtonText}>Close</Text>
+              </TouchableOpacity>
             </View>
           );
         })()
       ) : canEdit ? (
         <WorkoutInputSection
-          onDone={async () => {
-            await handleDone();
-          }}
+          onDone={async () => {}}
           listContent={null}
           onSetComplete={handleSetComplete}
           editable={canEdit}
+          showDoneButton={false}
         />
       ) : (
         <SpectatorView
@@ -425,6 +459,19 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#0f172a",
     textAlign: "center",
+  },
+  summaryCloseButton: {
+    marginTop: 28,
+    alignSelf: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    backgroundColor: "#1f2a44",
+  },
+  summaryCloseButtonText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#fff",
   },
   exerciseRow: {
     paddingVertical: 12,

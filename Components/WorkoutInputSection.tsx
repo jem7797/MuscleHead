@@ -57,6 +57,8 @@ export interface WorkoutInputSectionProps {
   /** Optional muscle highlight data for read-only mode (e.g. other user's logged exercises). */
   readOnlyFrontWorked?: string[];
   readOnlyBackWorked?: string[];
+  /** When false, hides the footer Done button (e.g. live sessions). Defaults to true. */
+  showDoneButton?: boolean;
 }
 
 const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
@@ -66,6 +68,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
   editable = true,
   readOnlyFrontWorked,
   readOnlyBackWorked,
+  showDoneButton = true,
 }) => {
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
@@ -256,7 +259,10 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
     <View style={styles.container}>
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[
+          styles.scrollContent,
+          !showDoneButton && styles.scrollContentNoFooter,
+        ]}
         showsVerticalScrollIndicator={false}
       >
         {listContent}
@@ -349,12 +355,14 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
         </View>
       </ScrollView>
 
-      <PrimaryButton
-        label="Done"
-        variant="footer"
-        onPress={handleDone}
-        disabled={!editable}
-      />
+      {showDoneButton && (
+        <PrimaryButton
+          label="Done"
+          variant="footer"
+          onPress={handleDone}
+          disabled={!editable}
+        />
+      )}
     </View>
   );
 };
@@ -363,6 +371,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "white" },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 100 },
+  scrollContentNoFooter: { paddingBottom: 24 },
   inputBlock: {
     position: "relative",
   },
