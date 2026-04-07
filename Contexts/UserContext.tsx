@@ -12,6 +12,7 @@ import {
   getUser,
   getCurrentUserProfile,
   updateUser,
+  deleteUser,
 } from "../Services/userApi";
 import { getNameForRank } from "../rankMapping";
 import {
@@ -104,6 +105,7 @@ privacySetting: string;
   setShowRealNameValue: (revealName: boolean) => void;
   setProfileLoading: (loadStatus: boolean) => void;
   logOut: () => void;
+  deleteCurrentUser: () => Promise<void>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -374,7 +376,16 @@ try{
   console.log(err);
   
 }
-}
+};
+
+const deleteCurrentUser = async () => {
+  if (!userId) return;
+  await deleteUser(userId);
+  await signOut();
+  setUserId("");
+  setIsAuth(false);
+  clearProfile();
+};
 
 
 
@@ -514,6 +525,7 @@ try{
         setProfileLoading,
         setPrivacySetting,
         logOut,
+        deleteCurrentUser,
       }}
     >
       {children}

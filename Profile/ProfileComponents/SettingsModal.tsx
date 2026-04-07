@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Modal,
   View,
@@ -22,6 +22,7 @@ interface SettingsModalProps {
   onEditProfile?: () => void;
   onAccoladesPress?: () => void;
   onFollowRequestsPress?: () => void;
+  onRequestDeleteAccount?: () => void;
 }
 
 const SettingsModal: React.FC<SettingsModalProps> = ({
@@ -30,6 +31,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
   onEditProfile,
   onAccoladesPress,
   onFollowRequestsPress,
+  onRequestDeleteAccount,
 }) => {
   const navigation = useNavigation<any>();
 
@@ -46,6 +48,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     );
   };
 
+ 
   return (
     <Modal
       visible={visible}
@@ -107,6 +110,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
             >
               <MaterialIcons name="logout" size={22} color="red" />
               <Text style={styles.settingsText}>Log Out</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.settingsItem}
+              onPress={() => {
+                onClose();
+                onRequestDeleteAccount?.();
+              }}
+            >
+              <MaterialIcons name="dangerous" size={22} color="red" />
+              <Text style={styles.settingsText}>Delete Account</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import TopBar from "./ProfileComponents/TopBar";
@@ -13,12 +13,6 @@ import MetricsRow from "./ProfileComponents/MetricsRow";
 import ContentSection from "./ProfileComponents/ContentSection";
 import { useUser } from "../Contexts/UserContext";
 
-/**
- * ProfileScreen Component
- * Main profile page that displays user information, stats, and content tabs
- * Composed of multiple smaller components for better organization and maintainability
- */
-
 const formatHeight = (totalInches?: number | null) => {
   if (totalInches === undefined || totalInches === null) {
     return `0'0"`;
@@ -30,6 +24,7 @@ const formatHeight = (totalInches?: number | null) => {
 
 const ProfileScreen = () => {
   const navigation = useNavigation<any>();
+
   const {
     bio,
     xp,
@@ -41,9 +36,10 @@ const ProfileScreen = () => {
     isNatty,
     userId,
     nemesisSubIds,
+    deleteCurrentUser,
   } = useUser();
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  
 
   // User metric data (height, weight, natty status) — N/A when null/undefined
   const metricData = [
@@ -57,8 +53,7 @@ const ProfileScreen = () => {
     },
     {
       icon: "syringe",
-      value:
-         isNatty ? "Natty": "Not Natty",
+      value: isNatty ? "Natty" : "Not Natty",
     },
   ];
 
@@ -70,6 +65,35 @@ const ProfileScreen = () => {
   ];
 
   const toggleSettings = () => setIsSettingsOpen((p) => !p);
+
+  const handleDeleteAccountRequest = () => {
+    setIsSettingsOpen(false);
+
+    setTimeout(() => {
+      Alert.alert(
+        "Are you sure you want to delete your account?",
+        "This action will permanently will delete your account and all data associated with it",
+        [
+          {text: "Cancel", style: "cancel"},
+          {
+            text:"Delete",
+            style: "destructive",
+          onPress: async() =>{
+            try {
+              await deleteCurrentUser();
+              navigation.reset({
+                index: 0,
+                routes: [{ name: "Welcome" }],
+              });
+            } catch (error) {
+              Alert.alert("Unable to delete account", "Please try again.");
+            }
+          }
+          }
+        ]
+      );
+    });
+  };
 
   return (
     <View style={styles.container}>
@@ -84,8 +108,22 @@ const ProfileScreen = () => {
 
         <StatsRow
           stats={stats}
-          onFollowingPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "following", displayName: "Your" })}
-          onFollowersPress={() => userId && navigation.navigate("FollowList", { subId: userId, mode: "followers", displayName: "Your" })}
+          onFollowingPress={() =>
+            userId &&
+            navigation.navigate("FollowList", {
+              subId: userId,
+              mode: "following",
+              displayName: "Your",
+            })
+          }
+          onFollowersPress={() =>
+            userId &&
+            navigation.navigate("FollowList", {
+              subId: userId,
+              mode: "followers",
+              displayName: "Your",
+            })
+          }
         />
 
         <BioSection bio={bio || "Add a bio in your profile settings."} />
@@ -97,7 +135,11 @@ const ProfileScreen = () => {
           <MetricsRow metrics={metricData} />
         </View>
 
-        <ContentSection subId={userId} currentUserId={userId} nemesisSubIds={nemesisSubIds} />
+        <ContentSection
+          subId={userId}
+          currentUserId={userId}
+          nemesisSubIds={nemesisSubIds}
+        />
 
         {/* spacer so content isn't obscured by bottom nav */}
         <View style={{ height: 24 }} />
@@ -109,6 +151,7 @@ const ProfileScreen = () => {
         onEditProfile={() => navigation.navigate("ProfileEdit")}
         onAccoladesPress={() => navigation.navigate("Accolades")}
         onFollowRequestsPress={() => navigation.navigate("FollowRequests")}
+        onRequestDeleteAccount={handleDeleteAccountRequest}
       />
 
       <NavBar />

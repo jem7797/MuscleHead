@@ -319,13 +319,14 @@ export const searchUsers = async (
 export const deleteUser = async (sub: string): Promise<any> => {
   // Backend expects subId in the URL path (not as query parameter)
   const response = await apiRequest(
-    `/user/api/${sub}`, // Path parameter like PUT
+    `/user/api/me`, // Path parameter like PUT
+    
     {
       method: "DELETE",
     },
     false
   );
-
+  if (response.status === 204) return;
   return parseJsonResponse(response);
 };
 
