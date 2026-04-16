@@ -64,19 +64,9 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
       }
       
       // Step 1: Confirm the sign up with the verification code
-      console.log("Step 1: Confirming sign up with code...");
       try {
         await confirmSignUp({ username, confirmationCode: finalCode });
-        console.log("Step 1: Sign up confirmed successfully");
       } catch (confirmError: any) {
-        console.error("Step 1 FAILED - confirmSignUp error:", confirmError);
-        console.error("Confirm error details:", {
-          name: confirmError?.name,
-          message: confirmError?.message,
-          code: confirmError?.code,
-          underlyingError: confirmError?.underlyingError,
-        });
-        
         // Check for specific error types
         if (confirmError?.name === 'CodeMismatchException') {
           Alert.alert("Invalid Code", "The verification code is incorrect. Please check and try again.");
@@ -95,27 +85,15 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
       }
       
       // Step 2: Get password from context
-      console.log("Step 2: Getting password from context...");
       const password = getAndClearTempPassword();
       if (!password) {
         throw new Error("Password not found. Please try signing up again.");
       }
-      console.log("Step 2: Password retrieved successfully");
       
       // Step 3: Automatically sign in the user after successful confirmation
-      console.log("Step 3: Signing in user...");
       try {
         await signIn({ username, password });
-        console.log("Step 3: Sign in successful");
       } catch (signInError: any) {
-        console.error("Step 3 FAILED - signIn error:", signInError);
-        console.error("Sign in error details:", {
-          name: signInError?.name,
-          message: signInError?.message,
-          code: signInError?.code,
-          underlyingError: signInError?.underlyingError,
-        });
-        
         // Check for specific sign-in errors
         if (signInError?.name === 'NotAuthorizedException') {
           Alert.alert("Sign In Failed", "Invalid username or password. Please try again.");
@@ -129,7 +107,6 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
       }
       
       // Step 4: Create user in backend database (now we have authenticated session with ID token)
-      console.log("Step 4: Creating user in backend database...");
       try {
         // Get the user's sub ID from Cognito (now that we're authenticated)
         const { userId: sub } = await getCurrentUser();
@@ -138,26 +115,16 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
           throw new Error("Failed to get user ID from Cognito.");
         }
         
-        console.log("Step 4: User sub retrieved:", sub);
-        
         // Create user in backend (include height/weight if provided from sign up)
         const optionalFields =
           height != null && weight != null
             ? { height: Number(height), weight: Number(weight) }
             : undefined;
-        const userData = await createUser(username, sub, email, given_name, birthDate, optionalFields);
-        console.log("Step 4: User created in backend database:", userData);
+        await createUser(username, sub, email, given_name, birthDate, optionalFields);
         setIsAuth(true);
         
        
       } catch (createUserError: any) {
-        console.error("Step 4 FAILED - createUser error:", createUserError);
-        console.error("Create user error details:", {
-          message: createUserError?.message,
-          status: createUserError?.status,
-          stack: createUserError?.stack,
-        });
-
         await signOut();
         setIsAuth(false);
         const is403 = createUserError?.status === 403;
@@ -170,18 +137,9 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
       }
 
       // Step 5: Navigate to continue sign up screen
-      console.log("Step 5: Navigating to ContinueSignUp...");
       navigation.navigate("ContinueSignUp", { username, email });
 
     } catch (err: any) {
-      // Log the full error for debugging
-      console.error("Error in handleConfirm:", err);
-      console.error("Error name:", err?.name);
-      console.error("Error message:", err?.message);
-      console.error("Error code:", err?.code);
-      console.error("Underlying error:", err?.underlyingError);
-      console.error("Full error object:", JSON.stringify(err, null, 2));
-      
       // Extract meaningful error message
       let errorMessage = "Failed to confirm sign up";
       

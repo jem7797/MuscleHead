@@ -121,8 +121,7 @@ const WorkoutInputMainPage = () => {
         }
       }
       setSchedule(newSchedule);
-    } catch (e) {
-      console.warn("Failed to save schedule:", e);
+    } catch {
     } finally {
       setScheduleSaving(false);
     }

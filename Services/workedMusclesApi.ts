@@ -42,7 +42,6 @@ export const getWorkedMuscles = async (
       method: "GET",
     });
     const data = await parseJsonResponse<WorkedMusclesResponse>(response);
-    console.log("[workedMuscles] GET raw response:", JSON.stringify(data));
 
     const parseEntries = (arr: unknown): WorkedMuscleEntry[] => {
       if (!Array.isArray(arr)) return [];
@@ -55,8 +54,7 @@ export const getWorkedMuscles = async (
       frontWorked: parseEntries(data?.frontWorked),
       backWorked: parseEntries(data?.backWorked),
     };
-  } catch (err) {
-    console.error("error in getworked muscles", err)
+  } catch {
     return { frontWorked: [], backWorked: [] };
   }
 };
@@ -90,10 +88,9 @@ export const postWorkedMuscles = async (
       false // Don't add sub - backend expects only userId in body
     );
     if (!response.ok) {
-      const errBody = await response.text();
-      console.warn("[workedMuscles] POST failed:", response.status, errBody);
+      await response.text();
     }
-  } catch (e) {
-    console.warn("[workedMuscles] POST error:", e);
+  } catch {
+    /* ignore */
   }
 };

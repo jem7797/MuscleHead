@@ -28,19 +28,15 @@ export interface FollowRequestResponse {
  * Current user follows followeeSubId
  */
 export const follow = async (followeeSubId: string): Promise<void> => {
-  console.log("[Follow API] Sending follow request for followeeSubId:", followeeSubId);
   const response = await apiRequest(`/follow/api/follow/${followeeSubId}`, {
     method: "POST",
     body: JSON.stringify({}),
   });
   const responseText = await response.text();
-  console.log("[Follow API] Follow response status:", response.status, "body:", responseText || "(empty)");
   if (!response.ok) {
     const err = responseText || `Follow failed: ${response.status}`;
-    console.error("[Follow API] Follow request failed:", err);
     throw new Error(err);
   }
-  console.log("[Follow API] Follow request succeeded");
 };
 
 /**

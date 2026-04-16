@@ -39,9 +39,7 @@ const InviteToast = ({ navigationRef }: InviteToastProps) => {
     const inviteId = getSessionInviteId(activeInvite);
     if (inviteId) {
       // Best-effort mark so old pending invites do not replay on restart.
-      markInviteToastSeen({ inviteId }).catch((e) => {
-        console.warn("[LiveSession] Failed to mark toast seen:", e);
-      });
+      markInviteToastSeen({ inviteId }).catch(() => {});
     }
     translateY.setValue(SLIDE_DISTANCE);
     opacity.setValue(0);

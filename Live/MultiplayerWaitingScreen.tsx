@@ -43,15 +43,12 @@ const MultiplayerWaitingScreen = () => {
     const setup = async () => {
       try {
         // 1) Sign in anonymously for Supabase auth.
-        const { data, error } = await supabase.auth.signInAnonymously();
-        console.log('[Auth] signInAnonymously data:', JSON.stringify(data));
-        console.log('[Auth] signInAnonymously error:', JSON.stringify(error));
+        await supabase.auth.signInAnonymously();
 
         // 2) Read Supabase session and token.
         const {
           data: { session },
         } = await supabase.auth.getSession();
-        console.log("[MultiplayerWaiting] supabase session access token", session?.access_token);
         if (!session?.access_token) {
           throw new Error("Supabase session access token missing.");
         }
@@ -64,12 +61,6 @@ const MultiplayerWaitingScreen = () => {
         const sub = subscribeToStatus({
           sessionId,
           onStatusUpdate(payload) {
-            console.log("[MultiplayerWaiting] session status", {
-              sessionId,
-              payloadEvent: payload.event,
-              newStatus: payload.new?.status,
-              oldStatus: payload.old?.status,
-            });
             if (payload.event === "UPDATE" && payload.new?.status) {
               const status = payload.new.status;
               if (status === "in_progress") {
@@ -87,8 +78,7 @@ const MultiplayerWaitingScreen = () => {
           },
         });
         unsubscribe = sub.unsubscribe;
-      } catch (e) {
-        console.error("[MultiplayerWaiting] Failed before subscribeToStatus:", e);
+      } catch {
       }
     };
 
@@ -105,8 +95,7 @@ const MultiplayerWaitingScreen = () => {
     try {
       await endSession({ sessionId });
       navigation.goBack();
-    } catch (e) {
-      console.error("Failed to end session:", e);
+    } catch {
     } finally {
       setEnding(false);
     }

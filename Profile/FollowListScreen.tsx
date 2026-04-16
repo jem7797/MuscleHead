@@ -133,7 +133,6 @@ const FollowListScreen = () => {
         });
       }
     } catch (e) {
-      console.error("[Follow UI] FollowList follow failed:", e);
       Alert.alert("Follow failed", e instanceof Error ? e.message : "Could not follow. Please try again.");
     }
   };

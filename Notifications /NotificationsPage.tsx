@@ -259,7 +259,6 @@ const NotificationCenterScreen = () => {
     if (inviteActionId) return;
     const inviteId = getSessionInviteId(invite);
     if (!inviteId) {
-      console.warn("Decline invite: missing id");
       return;
     }
     setInviteActionId(inviteId);
@@ -269,8 +268,7 @@ const NotificationCenterScreen = () => {
       setPendingInvites((prev) =>
         prev.filter((i) => getSessionInviteId(i) !== inviteId),
       );
-    } catch (e) {
-      console.error("Failed to decline invite:", e);
+    } catch {
     } finally {
       setInviteActionId(null);
     }
@@ -298,8 +296,7 @@ const NotificationCenterScreen = () => {
     try {
       await declineFollowRequest(req.id);
       setFollowRequests((prev) => prev.filter((r) => r.id !== req.id));
-    } catch (e) {
-      console.error("Failed to decline follow request:", e);
+    } catch {
     } finally {
       setFollowRequestActionId(null);
     }

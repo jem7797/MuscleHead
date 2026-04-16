@@ -128,7 +128,6 @@ export const createAchievementPost = async (
     isTrophy: true,
     achievementId,
   };
-  console.log('CREATE POST body:', JSON.stringify(body));
   const response = await apiRequest(
     "/posts/api",
     { method: "POST", body: JSON.stringify(body) },
@@ -198,7 +197,6 @@ export const getPostsByUser = async (
   });
   const data = await parseJsonResponse<FeedPageResponse>(response);
   const content = Array.isArray(data?.content) ? data.content : [];
-  console.log('GET posts response:', JSON.stringify(content));
   return {
     ...data,
     content,

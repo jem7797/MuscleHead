@@ -46,19 +46,11 @@ const SignUpScreen = () => {
         // Check if a user is currently signed in
         const user = await getCurrentUser();
         if (user) {
-          console.log("[SignUp] Existing user found, signing out...");
           await signOut();
-          console.log("[SignUp] Successfully signed out existing user");
         }
       } catch (error: any) {
         // If getCurrentUser throws, no user is signed in - that's fine
-        // Only log if it's an unexpected error
-        if (error.name !== "UserUnAuthenticatedException") {
-          console.log(
-            "[SignUp] No existing user session (or error checking):",
-            error.name,
-          );
-        }
+        void error;
       }
     };
 
@@ -163,22 +155,13 @@ const SignUpScreen = () => {
       try {
         const existingUser = await getCurrentUser();
         if (existingUser) {
-          console.log(
-            "[SignUp] User already signed in, signing out before signup...",
-          );
           await signOut();
-          console.log("[SignUp] Successfully signed out before signup");
           // Small delay to ensure sign-out completes
           await new Promise((resolve) => setTimeout(resolve, 500));
         }
       } catch (checkError: any) {
         // If getCurrentUser throws, no user is signed in - that's fine
-        if (checkError.name !== "UserUnAuthenticatedException") {
-          console.log(
-            "[SignUp] Error checking for existing user:",
-            checkError.name,
-          );
-        }
+        void checkError;
       }
 
       // STEP 2: Sign up with AWS Cognito
@@ -212,9 +195,6 @@ const SignUpScreen = () => {
         );
       }
 
-      console.log("Cognito sign up successful. User ID (sub):", sub);
-      console.log("Next step:", nextStep);
-
       // STEP 3: Store password temporarily in context for auto-login after email confirmation
       setTempPasswordForSignup(password);
 
@@ -236,11 +216,6 @@ const SignUpScreen = () => {
       });
     } catch (error: any) {
       // Handle any errors during the sign up process
-      console.error("Error during sign up:", error);
-      console.error("Error name:", error?.name);
-      console.error("Error message:", error?.message);
-      console.error("Full error:", JSON.stringify(error, null, 2));
-
       // Special handling for "already signed in" error
       // Check multiple possible error formats
       const errorMessage = (error?.message || "").toLowerCase();
@@ -253,22 +228,16 @@ const SignUpScreen = () => {
         errorName === "AlreadyAuthenticatedException";
 
       if (isAlreadySignedIn) {
-        console.log(
-          "[SignUp] User already signed in error detected, signing out...",
-        );
         try {
           // Sign out the existing user
           await signOut();
-          console.log(
-            "[SignUp] Successfully signed out, please try signing up again",
-          );
           Alert.alert(
             "Already Signed In",
             "You were already signed in. We've signed you out. Please try signing up again.",
             [{ text: "OK" }],
           );
         } catch (signOutError: any) {
-          console.error("[SignUp] Failed to sign out:", signOutError);
+          void signOutError;
           Alert.alert(
             "Sign Up Failed",
             "You are already signed in. Please sign out first, then try again.",

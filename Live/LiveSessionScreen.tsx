@@ -121,8 +121,7 @@ const LiveSessionScreen: React.FC = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const { error: signInError } = await supabase.auth.signInAnonymously();
-        if (signInError) console.error("[Auth] Sign in failed:", signInError.message);
+        await supabase.auth.signInAnonymously();
 
         const {
           data: { session },
@@ -175,8 +174,7 @@ const LiveSessionScreen: React.FC = () => {
           },
         });
         statusSubscriptionRef.current = unsubStatus;
-      } catch (e) {
-        console.error("Failed to load exercises:", e);
+      } catch {
       } finally {
         setLoading(false);
       }
@@ -211,8 +209,7 @@ const LiveSessionScreen: React.FC = () => {
         if (guestUserId) {
           setGuestIsMale(guestGender === "Female" ? false : true);
         }
-      } catch (e) {
-        console.warn("[LiveSession] Failed to load participant genders:", e);
+      } catch {
       }
     };
 
@@ -240,8 +237,7 @@ const LiveSessionScreen: React.FC = () => {
       await endSession({ sessionId });
       tearDownAllRealtime();
       setShowSummary(true);
-    } catch (e) {
-      console.error("Failed to end session:", e);
+    } catch {
     } finally {
       setEnding(false);
     }

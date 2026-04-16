@@ -202,16 +202,10 @@ export function listenForInvites({
     } catch (e: unknown) {
       const status = (e as { status?: number })?.status;
       if (status === 401 || status === 403) {
-        console.warn(
-          "[LiveSession] Stopping invite polling due to auth failure (401/403). " +
-            "Sign out and back in, or check backend Cognito App Client ID matches your token's 'aud' claim.",
-        );
         if (intervalId) {
           clearInterval(intervalId);
           intervalId = null;
         }
-      } else {
-        console.warn("[LiveSession] Failed to fetch pending invites:", e);
       }
     }
   };

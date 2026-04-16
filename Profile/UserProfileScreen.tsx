@@ -151,7 +151,6 @@ const UserProfileScreen = () => {
   const handleFollowPress = async () => {
     if (!subId || followLoading) return;
     setFollowLoading(true);
-    console.log("[Follow UI] Follow button pressed, subId:", subId);
     try {
       if (isFollowing) {
         addToFollowingCount(-1);
@@ -168,24 +167,14 @@ const UserProfileScreen = () => {
         await unfollow(subId);
         setIsFollowing(false);
         setRequestPending(false);
-        console.log("[Follow UI] State change: unfollowed");
       } else if (requestPending) {
         // Can't cancel request from UI; do nothing
       } else {
         await follow(subId);
-        console.log(
-          "[Follow UI] Follow API completed, checking follow status...",
-        );
         const [nowFollowing, reqStatus] = await Promise.all([
           checkFollow(currentUserId!, subId),
           checkFollowRequestStatus(currentUserId!, subId),
         ]);
-        console.log(
-          "[Follow UI] checkFollow:",
-          nowFollowing,
-          "checkFollowRequestStatus:",
-          reqStatus,
-        );
         if (nowFollowing) {
           addToFollowingCount(1);
           setUser(
@@ -197,10 +186,8 @@ const UserProfileScreen = () => {
           );
           setIsFollowing(true);
           setRequestPending(false);
-          console.log("[Follow UI] State change: isFollowing=true");
         } else if (reqStatus === "pending") {
           setRequestPending(true);
-          console.log("[Follow UI] State change: requestPending=true");
         } else {
           // Backend may not have updated check yet; optimistically show Following
           addToFollowingCount(1);
@@ -213,20 +200,15 @@ const UserProfileScreen = () => {
           );
           setIsFollowing(true);
           setRequestPending(false);
-          console.log(
-            "[Follow UI] State change: optimistically isFollowing=true (check not yet true)",
-          );
         }
       }
     } catch (e) {
-      console.error("[Follow UI] Follow failed:", e);
       Alert.alert(
         "Follow failed",
         e instanceof Error ? e.message : "Could not follow. Please try again.",
       );
     } finally {
       setFollowLoading(false);
-      console.log("[Follow UI] followLoading set to false");
     }
   };
 
@@ -235,8 +217,6 @@ const UserProfileScreen = () => {
     setInviteLoading(true);
     try {
       const session = await createLiveSession();
-      console.log("session:", session);
-      console.log("sessionId:", session?.id);
       await sendInvite({ sessionId: session.id, toUserId: subId });
       navigation.navigate("MultiplayerWaitingScreen", {
         sessionId: session.id,
@@ -245,7 +225,6 @@ const UserProfileScreen = () => {
         guestUserId: subId,
       });
     } catch (e) {
-      console.error("Failed to invite to session:", e);
       Alert.alert(
         "Error",
         e instanceof Error ? e.message : "Could not send invite.",

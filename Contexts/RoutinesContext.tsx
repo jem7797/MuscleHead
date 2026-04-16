@@ -29,8 +29,7 @@ export const RoutinesProvider = ({ children }: { children: ReactNode }) => {
     try {
       const templates = await getWorkoutTemplates();
       setRoutines((templates as RoutineTemplate[]) ?? []);
-    } catch (e) {
-      console.warn("Failed to fetch routines:", e);
+    } catch {
       setRoutines([]);
     } finally {
       setIsLoading(false);

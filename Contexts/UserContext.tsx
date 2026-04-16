@@ -149,9 +149,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
 
 
-  useEffect(() => {
-    if (__DEV__ && pfpLink) console.log("[pfp] current URL:", pfpLink);
-  }, [pfpLink]);
   const [nemesisSubIds, setNemesisSubIdsInternal] = useState<string[]>([]);
   const [gender, setGender] = useState<string>();
 
@@ -238,8 +235,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         setIsAuth(false);
         clearProfile();
       }
-    } catch (error) {
-      console.log("Error getting Sub: ", error);
+    } catch {
       setUserId("");
       setIsAuth(false);
       clearProfile();
@@ -259,8 +255,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     
     });
     setUsername(newUsername);
-  }catch(error){
-    console.log(error);
+  }catch{
   }finally{
     setIsLoading(false);
   }
@@ -310,7 +305,6 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       updates.gender !== undefined;
     if (!hasProfileUpdates) return;
     const response = await updateUser(userId, payload);
-    if (__DEV__) console.log("[PATCH] updateUser response:", response);
     if (updates.username !== undefined) setUsername(updates.username);
     if (updates.bio !== undefined) setBio(updates.bio);
     if (updates.height !== undefined) setHeight(updates.height);
@@ -372,9 +366,7 @@ try{
   setUserId("");
   setIsAuth(false);
   clearProfile();
-}catch(err){
-  console.log(err);
-  
+}catch{
 }
 };
 
@@ -440,9 +432,7 @@ const deleteCurrentUser = async () => {
       const g = userData.gender;
       const genderValue = typeof g === "string" ? g : undefined;
       setGender(genderValue);
-      console.log("[UserContext] Loaded gender:", genderValue);
     } catch (error: any) {
-      console.log("Failed to fetch user profile:", id);
       if (error?.status === 403) {
         await signOut();
         setUserId("");

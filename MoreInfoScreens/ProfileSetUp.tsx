@@ -97,7 +97,6 @@ const ProfileSetUp = () => {
 
     try {
       // Step 1: Verify user is authenticated and refresh session if needed
-      console.log("[ProfileSetUp] Verifying authentication...");
       let session;
       try {
         session = await fetchAuthSession({ forceRefresh: true });
@@ -105,16 +104,7 @@ const ProfileSetUp = () => {
         if (!session.tokens?.idToken) {
           throw new Error("No ID token available. Please sign in again.");
         }
-        console.log("[ProfileSetUp] Authentication verified - ID token available");
-        // Log token preview for debugging
-        const idToken = session.tokens.idToken;
-        const tokenStr = typeof idToken === 'string' ? idToken : String(idToken);
-        const preview = tokenStr.length > 20 
-          ? `${tokenStr.substring(0, 10)}...${tokenStr.substring(tokenStr.length - 10)}`
-          : tokenStr;
-        console.log(`[ProfileSetUp] ID token preview: ${preview}`);
-      } catch (authError: any) {
-        console.error("[ProfileSetUp] Authentication check failed:", authError);
+      } catch {
         throw new Error("You are not signed in. Please sign in and try again.");
       }
 
@@ -123,16 +113,13 @@ const ProfileSetUp = () => {
       if (!sub) {
         throw new Error("Unable to get user information. Please try signing in again.");
       }
-      console.log("[ProfileSetUp] User sub retrieved:", sub);
 
       // Step 2.5: Get required user attributes from Cognito (needed for backend validation)
       // The backend requires these fields even for updates, so we fetch them from Cognito
       let userAttributes;
       try {
         userAttributes = await fetchUserAttributes();
-        console.log("[ProfileSetUp] User attributes retrieved from Cognito");
-      } catch (attrError: any) {
-        console.error("[ProfileSetUp] Failed to fetch user attributes:", attrError);
+      } catch {
         throw new Error("Unable to retrieve user information. Please try signing in again.");
       }
 
@@ -154,11 +141,8 @@ const ProfileSetUp = () => {
       try {
         existingUser = await getUser(sub);
         birthYear = existingUser.birth_year;
-        console.log("[ProfileSetUp] Existing user found in backend, birth_year:", birthYear);
-      } catch (getUserError: any) {
+      } catch {
         // User doesn't exist yet - this is OK, we'll need to include birth_year when creating/updating
-        console.log("[ProfileSetUp] User not found in backend (may need to be created)");
-        
         // If DOB is not available from backend, we can't proceed without it
         // For now, throw an error - the user should have been created during signup
         throw new Error("User profile not found. Please try signing out and signing in again, or contact support.");
@@ -215,7 +199,6 @@ const ProfileSetUp = () => {
       // Navigate to main app
       navigation.navigate("WorkoutInputMainPage");
     } catch (error: any) {
-      console.error("Error saving profile data:", error);
       Alert.alert(
         "Save Failed",
         error.message || "Failed to save your profile. Please check your connection and try again.",

@@ -85,9 +85,7 @@ export default function App() {
 
     supabase.auth
       .signInAnonymously()
-      .catch((e) => {
-        console.warn("[Supabase] Anonymous sign-in failed:", e);
-      })
+      .catch(() => {})
       .finally(() => {
         if (!cancelled) setIsSupabaseAuthReady(true);
       });

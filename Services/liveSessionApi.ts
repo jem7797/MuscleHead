@@ -114,7 +114,6 @@ export async function sendInvite({
     method: "POST",
     body: JSON.stringify({ toUserId, message: message ?? null }),
   }, false);
-  if (__DEV__) console.log("invite sent");
 
   if (!response.ok) {
     await parseJsonResponse(response);

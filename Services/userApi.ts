@@ -280,7 +280,6 @@ export const searchUsers = async (
   }
 
   const text = await response.text();
-  console.log("Raw search response:", text);
   if (!text || text.trim() === "") {
     return EMPTY_SEARCH_RESPONSE(size, page);
   }
@@ -304,8 +303,7 @@ export const searchUsers = async (
       number: data.number ?? page,
       size: data.size ?? size,
     };
-  } catch (e) {
-    console.error("[API] Search invalid JSON:", text.slice(0, 200));
+  } catch {
     return EMPTY_SEARCH_RESPONSE(size, page);
   }
 };

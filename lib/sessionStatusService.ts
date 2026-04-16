@@ -14,18 +14,8 @@ export function subscribeToStatus({
   }) => void;
 }): { channel: RealtimeChannel | null; unsubscribe: () => void } {
   if (!isSupabaseConfigured()) {
-    console.log(
-      "[live_workout_sessions realtime] skip: Supabase not configured (sessionId=%s)",
-      sessionId,
-    );
     return { channel: null, unsubscribe: () => {} };
   }
-
-  console.log("[live_workout_sessions realtime] subscribing", {
-    channelName: `session-status:${sessionId}`,
-    table: "live_workout_sessions",
-    filter: `id=eq.${sessionId}`,
-  });
 
   const channel = supabase
     .channel(`session-status:${sessionId}`)
@@ -43,17 +33,6 @@ export function subscribeToStatus({
         const oldData = (payload as unknown as { old?: { status?: string } })
           .old;
 
-        const pgEvent =
-          (payload as { eventType?: string; event?: string }).eventType ??
-          (payload as { event?: string }).event ??
-          "?";
-        console.log("[live_workout_sessions]", {
-          sessionId,
-          postgresEvent: pgEvent,
-          oldStatus: oldData?.status,
-          newStatus: newData?.status,
-        });
-
         if (newData?.status == oldData?.status) {
           return;
         }
@@ -68,16 +47,9 @@ export function subscribeToStatus({
         });
       },
     )
-    .subscribe((status, err) => {
-      console.log("[live_workout_sessions realtime] channel subscribe", {
-        sessionId,
-        status,
-        channelError: err?.message ?? null,
-      });
-    });
+    .subscribe(() => {});
 
   const unsubscribe = () => {
-    console.log("[live_workout_sessions realtime] unsubscribe", { sessionId });
     supabase.removeChannel(channel);
   };
 

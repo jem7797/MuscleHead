@@ -71,8 +71,7 @@ export const WorkoutsProvider = ({ children }: { children: ReactNode }) => {
       setCurrentPage(0);
       setTotalPages(res.totalPages);
       setTotalElements(res.totalElements);
-    } catch (e) {
-      console.warn("Failed to fetch workouts:", e);
+    } catch {
       setWorkouts([]);
     } finally {
       setIsLoading(false);
@@ -92,8 +91,7 @@ export const WorkoutsProvider = ({ children }: { children: ReactNode }) => {
       const content = Array.isArray(res.content) ? res.content : [];
       setWorkouts((prev) => [...prev, ...mapLogsToWorkouts(content)]);
       setCurrentPage(nextPage);
-    } catch (e) {
-      console.warn("Failed to load more workouts:", e);
+    } catch {
     } finally {
       setIsLoadingMore(false);
     }
