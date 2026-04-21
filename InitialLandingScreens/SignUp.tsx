@@ -350,7 +350,10 @@ const SignUpScreen = () => {
                 <Text style={[styles.genderButtonText, gender === "Male" && styles.genderButtonTextSelected]}>Male</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.genderButton, gender === "Female" && styles.genderButtonSelected]}
+                style={[
+                  styles.genderButton,
+                  gender === "Female" && styles.genderButtonFemaleSelected,
+                ]}
                 onPress={() => setGenderLocal("Female")}
               >
                 <Text style={[styles.genderButtonText, gender === "Female" && styles.genderButtonTextSelected]}>Female</Text>
@@ -495,6 +498,9 @@ const styles = StyleSheet.create({
   },
   genderButtonSelected: {
     backgroundColor: "#3b6fb8",
+  },
+  genderButtonFemaleSelected: {
+    backgroundColor: "#ff2bd6",
   },
   genderButtonText: {
     color: "#fff",
