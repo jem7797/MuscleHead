@@ -267,7 +267,7 @@ const SignUpScreen = () => {
           style={styles.mainContainer}
         >
           <Image
-            source={require("../assets/muscleheadlogo.png")}
+            source={require("../assets/AlternateMuscleHeadLogo.png")}
             style={styles.logo}
           />
 

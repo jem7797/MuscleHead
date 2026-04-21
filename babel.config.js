@@ -1,7 +1,8 @@
 module.exports = function (api) {
-  api.cache(true);
+  api.cache.using(() => process.env.NODE_ENV);
+  const isProduction = process.env.NODE_ENV === "production";
   return {
     presets: ["babel-preset-expo"],
-    plugins: [...(api.env("production") ? ["transform-remove-console"] : [])],
+    plugins: [...(isProduction ? ["transform-remove-console"] : [])],
   };
 };
