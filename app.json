@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "MeatHead",
-    "slug": "MeatHead",
+    "name": "MuscleHead",
+    "slug": "MuscleHead",
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -12,11 +12,11 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.jem7797.MeatHead",
+      "bundleIdentifier": "com.jem7797.MuscleHead",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "MeatHead needs access to your photo library to set your profile picture.",
-        "NSCameraUsageDescription": "MeatHead needs camera access to take photos for your posts."
+        "NSPhotoLibraryUsageDescription": "MuscleHead needs access to your photo library to set your profile picture.",
+        "NSCameraUsageDescription": "MuscleHead needs camera access to take photos for your posts."
       }
     },
     "android": {
@@ -25,7 +25,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.jem7797.MeatHead"
+      "package": "com.jem7797.MuscleHead"
     },
     "web": {
     },

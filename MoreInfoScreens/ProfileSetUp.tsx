@@ -245,7 +245,7 @@ const ProfileSetUp = () => {
     },
     {
       label: "Stat Tracking",
-      description: "Allow MeatHead to track your workout data to send you notifications, track progress, and more",
+      description: "Allow MuscleHead to track your workout data to send you notifications, track progress, and more",
       value: statTracking,
       onValueChange: (value: boolean) => {
         setStatTracking(value);
