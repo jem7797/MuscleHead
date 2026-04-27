@@ -10,6 +10,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signUp, signOut, getCurrentUser } from "aws-amplify/auth";
@@ -19,10 +21,14 @@ import { useUser } from "../Contexts/UserContext";
 import { useOnboarding } from "../Contexts/OnboardingContext";
 import PrimaryButton from "../Components/PrimaryButton";
 import { Image } from "expo-image";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Asset } from "expo-asset";
+import { WebView } from "react-native-webview";
 // Note: createUser will be called after email confirmation and sign-in
 // when we have an authenticated session
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const CONSENT_STORAGE_KEY = "musclehead_signup_consent";
 
 const SignUpScreen = () => {
   const navigation = useNavigation();
@@ -37,6 +43,13 @@ const SignUpScreen = () => {
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
   const [weight, setWeightLocal] = useState("");
+  const [acceptedTos, setAcceptedTos] = useState(false);
+  const [acceptedPrivacyPolicy, setAcceptedPrivacyPolicy] = useState(false);
+  const [legalDocOpen, setLegalDocOpen] = useState<"tos" | "privacy" | null>(null);
+  const [tosPdfUri, setTosPdfUri] = useState<string | null>(null);
+  const [privacyPdfUri, setPrivacyPdfUri] = useState<string | null>(null);
+  const [loadingTosPdf, setLoadingTosPdf] = useState(false);
+  const [loadingPrivacyPdf, setLoadingPrivacyPdf] = useState(false);
 
   // Automatically sign out any existing user when this screen loads
   // This allows testing signup multiple times without manual sign-out
@@ -56,6 +69,74 @@ const SignUpScreen = () => {
 
     clearExistingSession();
   }, []); // Run once when component mounts
+
+  useEffect(() => {
+    const loadConsent = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(CONSENT_STORAGE_KEY);
+        if (!saved) return;
+        const parsed = JSON.parse(saved);
+        setAcceptedTos(Boolean(parsed.acceptedTos));
+        setAcceptedPrivacyPolicy(Boolean(parsed.acceptedPrivacyPolicy));
+      } catch (error) {
+        void error;
+      }
+    };
+
+    loadConsent();
+  }, []);
+
+  const persistConsent = async (nextTos: boolean, nextPrivacyPolicy: boolean) => {
+    setAcceptedTos(nextTos);
+    setAcceptedPrivacyPolicy(nextPrivacyPolicy);
+    try {
+      await AsyncStorage.setItem(
+        CONSENT_STORAGE_KEY,
+        JSON.stringify({
+          acceptedTos: nextTos,
+          acceptedPrivacyPolicy: nextPrivacyPolicy,
+        }),
+      );
+    } catch (error) {
+      void error;
+    }
+  };
+
+  const openLegalDoc = async (doc: "tos" | "privacy") => {
+    if (doc === "tos" && !acceptedTos) {
+      await persistConsent(true, acceptedPrivacyPolicy);
+    }
+    if (doc === "privacy" && !acceptedPrivacyPolicy) {
+      await persistConsent(acceptedTos, true);
+    }
+    if (doc === "tos" && !tosPdfUri) {
+      setLoadingTosPdf(true);
+      try {
+        const tosAsset = Asset.fromModule(require("../assets/MeatHead_ToS (1).pdf"));
+        await tosAsset.downloadAsync();
+        setTosPdfUri(tosAsset.localUri ?? tosAsset.uri ?? null);
+      } catch (error) {
+        Alert.alert("Error", "Unable to load Terms of Service right now.");
+      } finally {
+        setLoadingTosPdf(false);
+      }
+    }
+    if (doc === "privacy" && !privacyPdfUri) {
+      setLoadingPrivacyPdf(true);
+      try {
+        const privacyAsset = Asset.fromModule(
+          require("../assets/MeatHead_PrivacyPolicy.pdf"),
+        );
+        await privacyAsset.downloadAsync();
+        setPrivacyPdfUri(privacyAsset.localUri ?? privacyAsset.uri ?? null);
+      } catch (error) {
+        Alert.alert("Error", "Unable to load privacy policy right now.");
+      } finally {
+        setLoadingPrivacyPdf(false);
+      }
+    }
+    setLegalDocOpen(doc);
+  };
 
   const formatDobInput = (text: string) => {
     const digits = text.replace(/\D/g, "").slice(0, 8);
@@ -118,6 +199,13 @@ const SignUpScreen = () => {
     }
     if (isNaN(weightLbs) || weightLbs < 50 || weightLbs > 600) {
       Alert.alert("Error", "Please enter a valid weight in lbs (50-600).");
+      return;
+    }
+    if (!acceptedTos || !acceptedPrivacyPolicy) {
+      Alert.alert(
+        "Consent Required",
+        "Please accept the Terms of Service and Privacy Policy to continue.",
+      );
       return;
     }
     const birthDateYYYYMMDD = parseDobToYYYYMMDD(birthDate);
@@ -400,6 +488,59 @@ const SignUpScreen = () => {
               blurOnSubmit
             />
 
+            <View style={styles.consentContainer}>
+              <View style={styles.consentRow}>
+                <TouchableOpacity
+                  onPress={() => persistConsent(!acceptedTos, acceptedPrivacyPolicy)}
+                  activeOpacity={0.8}
+                >
+                <View style={[styles.checkbox, acceptedTos && styles.checkboxChecked]}>
+                  {acceptedTos ? <Text style={styles.checkboxCheckmark}>✓</Text> : null}
+                </View>
+                </TouchableOpacity>
+                <Text style={styles.consentText}>
+                  I agree to the{" "}
+                  <Text
+                    style={styles.consentLink}
+                    onPress={() => {
+                      openLegalDoc("tos");
+                    }}
+                  >
+                    Terms of Service
+                  </Text>
+                </Text>
+              </View>
+
+              <View style={styles.consentRow}>
+                <TouchableOpacity
+                  onPress={() => persistConsent(acceptedTos, !acceptedPrivacyPolicy)}
+                  activeOpacity={0.8}
+                >
+                <View
+                  style={[
+                    styles.checkbox,
+                    acceptedPrivacyPolicy && styles.checkboxChecked,
+                  ]}
+                >
+                  {acceptedPrivacyPolicy ? (
+                    <Text style={styles.checkboxCheckmark}>✓</Text>
+                  ) : null}
+                </View>
+                </TouchableOpacity>
+                <Text style={styles.consentText}>
+                  I agree to the{" "}
+                  <Text
+                    style={styles.consentLink}
+                    onPress={() => {
+                      openLegalDoc("privacy");
+                    }}
+                  >
+                    Privacy Policy
+                  </Text>
+                </Text>
+              </View>
+            </View>
+
             <PrimaryButton
               label="Sign Up"
               variant="continue"
@@ -419,6 +560,66 @@ const SignUpScreen = () => {
           </View>
         </LinearGradient>
       </ScrollView>
+      <Modal
+        visible={legalDocOpen !== null}
+        animationType="slide"
+        presentationStyle="fullScreen"
+        onRequestClose={() => setLegalDocOpen(null)}
+      >
+        <View style={styles.legalModalRoot}>
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setLegalDocOpen(null)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.closeButtonText}>X</Text>
+          </TouchableOpacity>
+
+          {legalDocOpen === "tos" ? (
+            loadingTosPdf ? (
+              <View style={styles.placeholderContainer}>
+                <ActivityIndicator size="large" color="#3b6fb8" />
+                <Text style={styles.placeholderText}>Loading Terms of Service...</Text>
+              </View>
+            ) : tosPdfUri ? (
+              <WebView
+                source={{ uri: tosPdfUri }}
+                style={styles.pdfViewer}
+                originWhitelist={["*"]}
+                allowFileAccess
+              />
+            ) : (
+              <View style={styles.placeholderContainer}>
+                <Text style={styles.placeholderText}>
+                  Could not load the Terms of Service PDF.
+                </Text>
+              </View>
+            )
+          ) : null}
+
+          {legalDocOpen === "privacy" ? (
+            loadingPrivacyPdf ? (
+              <View style={styles.placeholderContainer}>
+                <ActivityIndicator size="large" color="#3b6fb8" />
+                <Text style={styles.placeholderText}>Loading privacy policy...</Text>
+              </View>
+            ) : privacyPdfUri ? (
+              <WebView
+                source={{ uri: privacyPdfUri }}
+                style={styles.pdfViewer}
+                originWhitelist={["*"]}
+                allowFileAccess
+              />
+            ) : (
+              <View style={styles.placeholderContainer}>
+                <Text style={styles.placeholderText}>
+                  Could not load the privacy policy PDF.
+                </Text>
+              </View>
+            )
+          ) : null}
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
@@ -522,6 +723,82 @@ const styles = StyleSheet.create({
     color: "#fff",
     marginHorizontal: 8,
     fontSize: 14,
+  },
+  consentContainer: {
+    marginBottom: 4,
+  },
+  consentRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 10,
+  },
+  checkbox: {
+    width: 22,
+    height: 22,
+    borderRadius: 4,
+    borderWidth: 1.5,
+    borderColor: "#cfd8eb",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 10,
+    backgroundColor: "transparent",
+  },
+  checkboxChecked: {
+    backgroundColor: "#3b6fb8",
+    borderColor: "#3b6fb8",
+  },
+  checkboxCheckmark: {
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  consentText: {
+    color: "rgba(255, 255, 255, 0.9)",
+    flex: 1,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  consentLink: {
+    color: "#5b9aff",
+    textDecorationLine: "underline",
+    fontWeight: "600",
+  },
+  legalModalRoot: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    paddingTop: Platform.OS === "ios" ? 52 : 20,
+  },
+  closeButton: {
+    alignSelf: "flex-end",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+  },
+  closeButtonText: {
+    color: "#222",
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  legalTitle: {
+    color: "#0d1b33",
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  placeholderContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 24,
+  },
+  placeholderText: {
+    marginTop: 10,
+    color: "#2f3c54",
+    textAlign: "center",
+    lineHeight: 22,
+    fontSize: 16,
+  },
+  pdfViewer: {
+    flex: 1,
   },
 });
 
