@@ -12,6 +12,7 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  Linking,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { signUp, signOut, getCurrentUser } from "aws-amplify/auth";
@@ -23,7 +24,6 @@ import PrimaryButton from "../Components/PrimaryButton";
 import { Image } from "expo-image";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Asset } from "expo-asset";
-import { WebView } from "react-native-webview";
 // Note: createUser will be called after email confirmation and sign-in
 // when we have an authenticated session
 
@@ -136,6 +136,15 @@ const SignUpScreen = () => {
       }
     }
     setLegalDocOpen(doc);
+  };
+
+  const openPdfFile = async (uri: string | null) => {
+    if (!uri) return;
+    try {
+      await Linking.openURL(uri);
+    } catch {
+      Alert.alert("Couldn't open PDF", "Try again, or close this screen and reopen the link.");
+    }
   };
 
   const formatDobInput = (text: string) => {
@@ -582,12 +591,20 @@ const SignUpScreen = () => {
                 <Text style={styles.placeholderText}>Loading Terms of Service...</Text>
               </View>
             ) : tosPdfUri ? (
-              <WebView
-                source={{ uri: tosPdfUri }}
-                style={styles.pdfViewer}
-                originWhitelist={["*"]}
-                allowFileAccess
-              />
+              <View style={styles.legalDocPanel}>
+                <Text style={styles.legalTitle}>Terms of Service</Text>
+                <Text style={styles.legalDocBody}>
+                  Opens in your device PDF viewer (Quick Look / Files). You can return here with the
+                  close button.
+                </Text>
+                <TouchableOpacity
+                  style={styles.openPdfButton}
+                  onPress={() => openPdfFile(tosPdfUri)}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.openPdfButtonText}>Open PDF</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <View style={styles.placeholderContainer}>
                 <Text style={styles.placeholderText}>
@@ -604,12 +621,20 @@ const SignUpScreen = () => {
                 <Text style={styles.placeholderText}>Loading privacy policy...</Text>
               </View>
             ) : privacyPdfUri ? (
-              <WebView
-                source={{ uri: privacyPdfUri }}
-                style={styles.pdfViewer}
-                originWhitelist={["*"]}
-                allowFileAccess
-              />
+              <View style={styles.legalDocPanel}>
+                <Text style={styles.legalTitle}>Privacy Policy</Text>
+                <Text style={styles.legalDocBody}>
+                  Opens in your device PDF viewer (Quick Look / Files). You can return here with the
+                  close button.
+                </Text>
+                <TouchableOpacity
+                  style={styles.openPdfButton}
+                  onPress={() => openPdfFile(privacyPdfUri)}
+                  activeOpacity={0.85}
+                >
+                  <Text style={styles.openPdfButtonText}>Open PDF</Text>
+                </TouchableOpacity>
+              </View>
             ) : (
               <View style={styles.placeholderContainer}>
                 <Text style={styles.placeholderText}>
@@ -784,6 +809,29 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 12,
   },
+  legalDocPanel: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 8,
+  },
+  legalDocBody: {
+    color: "#2f3c54",
+    fontSize: 16,
+    lineHeight: 24,
+    marginBottom: 28,
+  },
+  openPdfButton: {
+    backgroundColor: "#3b6fb8",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  openPdfButtonText: {
+    color: "#fff",
+    fontSize: 17,
+    fontWeight: "700",
+  },
   placeholderContainer: {
     flex: 1,
     justifyContent: "center",
@@ -796,9 +844,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 22,
     fontSize: 16,
-  },
-  pdfViewer: {
-    flex: 1,
   },
 });
 
