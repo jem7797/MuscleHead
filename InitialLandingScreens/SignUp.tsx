@@ -112,7 +112,7 @@ const SignUpScreen = () => {
     if (doc === "tos" && !tosPdfUri) {
       setLoadingTosPdf(true);
       try {
-        const tosAsset = Asset.fromModule(require("../assets/MeatHead_ToS (1).pdf"));
+        const tosAsset = Asset.fromModule(require("../assets/MeatHead_ToS (2).pdf"));
         await tosAsset.downloadAsync();
         setTosPdfUri(tosAsset.localUri ?? tosAsset.uri ?? null);
       } catch (error) {
@@ -125,7 +125,7 @@ const SignUpScreen = () => {
       setLoadingPrivacyPdf(true);
       try {
         const privacyAsset = Asset.fromModule(
-          require("../assets/MeatHead_PrivacyPolicy.pdf"),
+          require("../assets/MeatHead_PrivacyPolicy (1).pdf"),
         );
         await privacyAsset.downloadAsync();
         setPrivacyPdfUri(privacyAsset.localUri ?? privacyAsset.uri ?? null);
