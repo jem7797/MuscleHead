@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import * as Haptics from "expo-haptics";
 import {
   View,
   Text,
@@ -51,6 +52,7 @@ const LiveSessionScreen: React.FC = () => {
   const [guestIsMale, setGuestIsMale] = useState<boolean | null>(null);
   const subscriptionRef = useRef<(() => void) | null>(null);
   const statusSubscriptionRef = useRef<(() => void) | null>(null);
+  const didBuzzOnSummaryRef = useRef(false);
 
   const tearDownExerciseSubscription = useCallback(() => {
     if (subscriptionRef.current) {
@@ -171,6 +173,10 @@ const LiveSessionScreen: React.FC = () => {
             if (!ended) return;
             tearDownAllRealtime();
             setShowSummary(true);
+            if (!didBuzzOnSummaryRef.current) {
+              didBuzzOnSummaryRef.current = true;
+              Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+            }
           },
         });
         statusSubscriptionRef.current = unsubStatus;
@@ -237,6 +243,10 @@ const LiveSessionScreen: React.FC = () => {
       await endSession({ sessionId });
       tearDownAllRealtime();
       setShowSummary(true);
+      if (!didBuzzOnSummaryRef.current) {
+        didBuzzOnSummaryRef.current = true;
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+      }
     } catch {
     } finally {
       setEnding(false);

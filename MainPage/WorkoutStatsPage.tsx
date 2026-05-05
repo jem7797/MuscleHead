@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import * as Haptics from "expo-haptics";
 import {
   StyleSheet,
   View,
@@ -93,12 +94,14 @@ const WorkoutStatsPage = () => {
         });
       }
       if (response.newlyAwardedMedals?.length > 0) {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         await addMedalsFromWorkout(response.newlyAwardedMedals);
         // Defer navigation so the achievement queue is committed before the new screen mounts
         requestAnimationFrame(() => {
           navigation.navigate("WorkoutInputMainPage");
         });
       } else {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         navigation.navigate("WorkoutInputMainPage");
       }
       addToLifetimeStats(stats.totalWeight, stats.totalTime / 60);
