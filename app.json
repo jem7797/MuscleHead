@@ -15,7 +15,7 @@
       "bundleIdentifier": "com.jem7797.MuscleHead",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "MuscleHead needs access to your photo library to set your profile picture.",
+        "NSPhotoLibraryUsageDescription": "MeatHead uses your photo library to let you add progress photos and profile pictures to track your fitness journey.",
         "NSCameraUsageDescription": "MuscleHead needs camera access to take photos for your posts."
       }
     },
@@ -29,6 +29,9 @@
     },
     "web": {
     },
+    "plugins": [
+      "expo-notifications"
+    ],
     "extra": {
       "eas": {
         "projectId": "0f5e1d9f-5fb8-4783-9f26-9178a13a45af"
