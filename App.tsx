@@ -56,7 +56,6 @@ import { InviteProvider } from "./Contexts/InviteContext";
 import AchievementToast from "./Components/AchievementToast";
 import InviteToast from "./Components/InviteToast";
 import InviteNotification from "./Components/InviteNotification";
-import PushNotificationBootstrap from "./Components/PushNotificationBootstrap";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 
 //@ts-ignore
@@ -115,7 +114,6 @@ export default function App() {
                   <GlobalWorkedMusclesProvider>
                     <AchievementProvider>
                     <InviteProvider>
-                    <PushNotificationBootstrap />
                     <View style={styles.appRoot}>
                     <NavigationContainer ref={navigationRef}>
                       <Stack.Navigator

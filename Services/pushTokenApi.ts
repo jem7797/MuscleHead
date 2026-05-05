@@ -1,26 +1,40 @@
-import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import PushNotificationIOS from "@react-native-community/push-notification-ios";
 import { supabase } from "../lib/supabase";
 
 type RegisterPushTokenArgs = {
   userSubId: string;
 };
 
-async function requestIosPushPermission(): Promise<boolean> {
-  const existing = await Notifications.getPermissionsAsync();
-  if (existing.granted || existing.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL) {
-    return true;
-  }
+async function getApnsToken(): Promise<string | null> {
+  return new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      PushNotificationIOS.removeEventListener("register");
+      PushNotificationIOS.removeEventListener("registrationError");
+      resolve(null);
+    }, 10000);
 
-  const requested = await Notifications.requestPermissionsAsync({
-    ios: {
-      allowAlert: true,
-      allowBadge: true,
-      allowSound: true,
-    },
+    PushNotificationIOS.addEventListener("register", (token: string) => {
+      clearTimeout(timeout);
+      PushNotificationIOS.removeEventListener("register");
+      PushNotificationIOS.removeEventListener("registrationError");
+      resolve(token || null);
+    });
+
+    PushNotificationIOS.addEventListener("registrationError", () => {
+      clearTimeout(timeout);
+      PushNotificationIOS.removeEventListener("register");
+      PushNotificationIOS.removeEventListener("registrationError");
+      resolve(null);
+    });
+
+    PushNotificationIOS.requestPermissions().catch(() => {
+      clearTimeout(timeout);
+      PushNotificationIOS.removeEventListener("register");
+      PushNotificationIOS.removeEventListener("registrationError");
+      resolve(null);
+    });
   });
-
-  return requested.granted || requested.ios?.status === Notifications.IosAuthorizationStatus.PROVISIONAL;
 }
 
 /**
@@ -31,11 +45,7 @@ export async function registerDevicePushToken({
 }: RegisterPushTokenArgs): Promise<void> {
   if (!userSubId || Platform.OS !== "ios") return;
 
-  const granted = await requestIosPushPermission();
-  if (!granted) return;
-
-  const tokenResponse = await Notifications.getDevicePushTokenAsync();
-  const apnsToken = tokenResponse?.data;
+  const apnsToken = await getApnsToken();
   if (!apnsToken) return;
 
   const { error } = await supabase.from("user_push_tokens").upsert(

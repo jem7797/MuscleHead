@@ -29,9 +29,6 @@
     },
     "web": {
     },
-    "plugins": [
-      "expo-notifications"
-    ],
     "extra": {
       "eas": {
         "projectId": "0f5e1d9f-5fb8-4783-9f26-9178a13a45af"

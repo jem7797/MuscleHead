@@ -30,7 +30,7 @@ export const RoutinesProvider = ({ children }: { children: ReactNode }) => {
       const templates = await getWorkoutTemplates();
       setRoutines((templates as RoutineTemplate[]) ?? []);
     } catch {
-      setRoutines([]);
+      // Keep previously loaded routines on transient fetch/auth failures.
     } finally {
       setIsLoading(false);
     }
