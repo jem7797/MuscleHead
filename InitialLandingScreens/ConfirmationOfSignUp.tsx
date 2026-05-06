@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
@@ -6,8 +6,15 @@ import {
   StyleSheet,
   Alert,
   Platform,
+  TouchableOpacity,
 } from "react-native";
-import { confirmSignUp, signIn, signOut, getCurrentUser } from "aws-amplify/auth";
+import {
+  confirmSignUp,
+  signIn,
+  signOut,
+  getCurrentUser,
+  resendSignUpCode,
+} from "aws-amplify/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import PrimaryButton from "../Components/PrimaryButton";
 import { useUser } from "../Contexts/UserContext";
@@ -21,9 +28,40 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
   const { username, email, given_name, birthDate, height, weight } = route.params || {};
   //@ts-ignore
   const { getAndClearTempPassword, setIsAuth, changeUsername} = useUser();
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [isResending, setIsResending] = useState(false);
 
   
 
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [resendCooldown]);
+
+  const handleResendCode = async () => {
+    if (!username || isResending || resendCooldown > 0) return;
+    setIsResending(true);
+    try {
+      await resendSignUpCode({ username });
+      setResendCooldown(45);
+      Alert.alert("Code Sent", "A new verification code has been sent.");
+    } catch (error: any) {
+      const name = error?.name ?? "";
+      if (name === "LimitExceededException" || name === "TooManyRequestsException") {
+        Alert.alert("Please Wait", "Too many attempts. Try again shortly.");
+      } else if (name === "UserNotFoundException") {
+        Alert.alert("Account Not Found", "We couldn't find this account. Please sign up again.");
+      } else {
+        Alert.alert("Resend Failed", error?.message || "Could not resend code. Try again.");
+      }
+    } finally {
+      setIsResending(false);
+    }
+  };
 
   const handleChange = (text: string, index: number) => {
     if (text.length > 1) {
@@ -196,6 +234,22 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
         onPress={handleConfirm}
         containerStyle={styles.button}
       />
+
+      <View style={styles.resendContainer}>
+        <TouchableOpacity
+          onPress={handleResendCode}
+          disabled={isResending || resendCooldown > 0}
+          activeOpacity={0.8}
+        >
+          <Text style={[styles.resendText, (isResending || resendCooldown > 0) && styles.resendTextDisabled]}>
+            {isResending
+              ? "Resending..."
+              : resendCooldown > 0
+                ? `Resend code in ${resendCooldown}s`
+                : "Resend verification code"}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </LinearGradient>
   );
 };
@@ -249,6 +303,18 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 10,
     marginBottom: 20,
+  },
+  resendContainer: {
+    marginTop: -6,
+  },
+  resendText: {
+    color: "#8eb8ff",
+    fontSize: 14,
+    fontWeight: "600",
+    textAlign: "center",
+  },
+  resendTextDisabled: {
+    color: "#9fb0c9",
   },
 });
 

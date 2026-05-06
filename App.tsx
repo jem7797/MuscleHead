@@ -10,6 +10,7 @@ import { Audio, InterruptionModeIOS } from "expo-av";
 import WelcomeScreen from "./InitialLandingScreens/WelcomeScreen";
 import SignUpScreen from "./InitialLandingScreens/SignUp";
 import LogInScreen from "./InitialLandingScreens/LogIn";
+import ForgotPasswordScreen from "./InitialLandingScreens/ForgotPassword";
 import ConfirmSignUpScreen from "./InitialLandingScreens/ConfirmationOfSignUp";
 import IdentityBasics from "./MoreInfoScreens/IdentityBasics";
 import HeightWeight from "./MoreInfoScreens/HeightWeight";
@@ -126,6 +127,10 @@ export default function App() {
                         />
                         <Stack.Screen name="SignUp" component={SignUpScreen} />
                         <Stack.Screen name="LogIn" component={LogInScreen} />
+                        <Stack.Screen
+                          name="ForgotPassword"
+                          component={ForgotPasswordScreen}
+                        />
                         <Stack.Screen
                           name="ConfirmSignUp"
                           component={ConfirmSignUpScreen}

@@ -148,6 +148,14 @@ const LogInScreen = () => {
               blurOnSubmit
             />
 
+            <TouchableOpacity
+              style={styles.forgotPasswordLink}
+              onPress={() => navigation.navigate("ForgotPassword" as never)}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
+
             <PrimaryButton
               label={isLoading ? "Signing in..." : "Log In"}
               variant="continue"
@@ -229,7 +237,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   button: {
-    marginTop: 24,
+    marginTop: 16,
+  },
+  forgotPasswordLink: {
+    alignSelf: "flex-end",
+    marginTop: -4,
+  },
+  forgotPasswordText: {
+    color: "#8eb8ff",
+    fontSize: 13,
+    fontWeight: "600",
   },
   signUpLink: {
     marginTop: 20,
