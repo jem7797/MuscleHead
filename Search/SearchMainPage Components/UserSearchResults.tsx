@@ -50,6 +50,7 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
   currentUserId,
   emptyMessage = "No users found",
 }) => {
+  const { pfpLink } = useUser();
   if (isLoading && users.length === 0) {
     return (
       <View style={styles.container}>

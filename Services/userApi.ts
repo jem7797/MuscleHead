@@ -255,6 +255,36 @@ const EMPTY_SEARCH_RESPONSE = (
   size,
 });
 
+/**
+ * Top recommended users (e.g. by follower count). JWT required via apiRequest.
+ * GET /api/users/recommended — fails silently at call sites that catch empty results.
+ */
+export interface RecommendedUserDto {
+  id: string;
+  username: string;
+  profile_picture: string;
+  number_of_followers: number;
+  display_name: string;
+}
+
+export interface RecommendedUsersResponse {
+  recommended: RecommendedUserDto[];
+}
+
+export const fetchRecommendedUsers = async (): Promise<RecommendedUserDto[]> => {
+  try {
+    const response = await apiRequest("/api/users/recommended", { method: "GET" });
+    if (!response.ok) return [];
+    const text = await response.text();
+    if (!text || !text.trim()) return [];
+    const data = JSON.parse(text) as RecommendedUsersResponse;
+    if (!Array.isArray(data.recommended)) return [];
+    return data.recommended.slice(0, 5);
+  } catch {
+    return [];
+  }
+};
+
 export const searchUsers = async (
   q: string,
   page: number = 0,

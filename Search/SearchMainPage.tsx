@@ -13,7 +13,8 @@ import { useUser } from "../Contexts/UserContext";
 import SearchBar from "./SearchMainPage Components/SearchBar";
 import UserSearchResults, { SearchUser } from "./SearchMainPage Components/UserSearchResults";
 import RecentSearches from "./SearchMainPage Components/RecentSearches";
-import { searchUsers } from "../Services/userApi";
+import RecommendedUsers from "./SearchMainPage Components/RecommendedUsers";
+import { fetchRecommendedUsers, searchUsers, type RecommendedUserDto } from "../Services/userApi";
 import { follow, unfollow, checkFollow, checkFollowRequestStatus } from "../Services/followApi";
 import { getRecentSearches, addRecentSearch, clearRecentSearches } from "../Services/recentSearchesService";
 
@@ -34,6 +35,10 @@ const SearchScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [loadMoreLoading, setLoadMoreLoading] = useState(false);
   const [followLoadingSubId, setFollowLoadingSubId] = useState<string | null>(null);
+  const [recommendedUsers, setRecommendedUsers] = useState<RecommendedUserDto[]>([]);
+  const [recommendedLoading, setRecommendedLoading] = useState(false);
+  const [recommendedFollowedIds, setRecommendedFollowedIds] = useState<Set<string>>(new Set());
+  const [recommendedPendingIds, setRecommendedPendingIds] = useState<Set<string>>(new Set());
 
   const trimmedQuery = query.trim();
   const canSearch = trimmedQuery.length >= 2;
@@ -99,10 +104,46 @@ const SearchScreen = () => {
     [trimmedQuery, canSearch, currentUserId]
   );
 
+  const loadRecommended = useCallback(async () => {
+    setRecommendedLoading(true);
+    try {
+      const list = await fetchRecommendedUsers();
+      setRecommendedUsers(list);
+      if (currentUserId && list.length > 0) {
+        const followed = new Set<string>();
+        const pending = new Set<string>();
+        await Promise.all(
+          list.map(async (dto) => {
+            const subId = dto.id;
+            if (!subId || subId === currentUserId) return;
+            const [isFollowing, reqStatus] = await Promise.all([
+              checkFollow(currentUserId, subId),
+              checkFollowRequestStatus(currentUserId, subId),
+            ]);
+            if (isFollowing) followed.add(subId);
+            else if (reqStatus === "pending") pending.add(subId);
+          })
+        );
+        setRecommendedFollowedIds(followed);
+        setRecommendedPendingIds(pending);
+      } else {
+        setRecommendedFollowedIds(new Set());
+        setRecommendedPendingIds(new Set());
+      }
+    } catch {
+      setRecommendedUsers([]);
+      setRecommendedFollowedIds(new Set());
+      setRecommendedPendingIds(new Set());
+    } finally {
+      setRecommendedLoading(false);
+    }
+  }, [currentUserId]);
+
   useFocusEffect(
     useCallback(() => {
       getRecentSearches().then(setRecentSearches);
-    }, [])
+      loadRecommended();
+    }, [loadRecommended])
   );
 
   useEffect(() => {
@@ -136,6 +177,39 @@ const SearchScreen = () => {
     }
   };
 
+  const applyFollowSuccess = (
+    subId: string,
+    nowFollowing: boolean,
+    reqStatus: string | undefined
+  ) => {
+    const clearPending = () => {
+      setRequestPendingUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(subId);
+        return next;
+      });
+      setRecommendedPendingIds((prev) => {
+        const next = new Set(prev);
+        next.delete(subId);
+        return next;
+      });
+    };
+    if (nowFollowing) {
+      addToFollowingCount(1);
+      setFollowedUserIds((prev) => new Set(prev).add(subId));
+      setRecommendedFollowedIds((prev) => new Set(prev).add(subId));
+      clearPending();
+    } else if (reqStatus === "pending") {
+      setRequestPendingUserIds((prev) => new Set(prev).add(subId));
+      setRecommendedPendingIds((prev) => new Set(prev).add(subId));
+    } else {
+      addToFollowingCount(1);
+      setFollowedUserIds((prev) => new Set(prev).add(subId));
+      setRecommendedFollowedIds((prev) => new Set(prev).add(subId));
+      clearPending();
+    }
+  };
+
   const handleFollowPress = async (user: { sub_id?: string; subId?: string }) => {
     const subId = user.sub_id ?? user.subId;
     if (!subId || !currentUserId) return;
@@ -146,25 +220,7 @@ const SearchScreen = () => {
         checkFollow(currentUserId, subId),
         checkFollowRequestStatus(currentUserId, subId),
       ]);
-      if (nowFollowing) {
-        addToFollowingCount(1);
-        setFollowedUserIds((prev) => new Set(prev).add(subId));
-        setRequestPendingUserIds((prev) => {
-          const next = new Set(prev);
-          next.delete(subId);
-          return next;
-        });
-      } else if (reqStatus === "pending") {
-        setRequestPendingUserIds((prev) => new Set(prev).add(subId));
-      } else {
-        addToFollowingCount(1);
-        setFollowedUserIds((prev) => new Set(prev).add(subId));
-        setRequestPendingUserIds((prev) => {
-          const next = new Set(prev);
-          next.delete(subId);
-          return next;
-        });
-      }
+      applyFollowSuccess(subId, nowFollowing, reqStatus);
     } catch (e) {
       Alert.alert("Follow failed", e instanceof Error ? e.message : "Could not follow. Please try again.");
     } finally {
@@ -179,6 +235,11 @@ const SearchScreen = () => {
       addToFollowingCount(-1);
       await unfollow(subId);
       setFollowedUserIds((prev) => {
+        const next = new Set(prev);
+        next.delete(subId);
+        return next;
+      });
+      setRecommendedFollowedIds((prev) => {
         const next = new Set(prev);
         next.delete(subId);
         return next;
@@ -234,14 +295,27 @@ const SearchScreen = () => {
             onUserPress={handleUserPress}
           />
         ) : (
-          <RecentSearches
-            users={recentSearches}
-            onUserPress={handleUserPress}
-            onClearPress={async () => {
-              await clearRecentSearches();
-              setRecentSearches([]);
-            }}
-          />
+          <>
+            <RecentSearches
+              users={recentSearches}
+              onUserPress={handleUserPress}
+              onClearPress={async () => {
+                await clearRecentSearches();
+                setRecentSearches([]);
+              }}
+            />
+            <RecommendedUsers
+              users={recommendedUsers}
+              isLoading={recommendedLoading}
+              currentUserId={currentUserId}
+              followedUserIds={recommendedFollowedIds}
+              requestPendingUserIds={recommendedPendingIds}
+              followLoadingSubId={followLoadingSubId}
+              onUserPress={handleUserPress}
+              onFollowPress={handleFollowPress}
+              onUnfollowPress={handleUnfollowPress}
+            />
+          </>
         )}
       </ScrollView>
       <NavBar />
