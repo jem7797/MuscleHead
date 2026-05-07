@@ -222,7 +222,8 @@ export const createWorkoutTemplate = async (
     {
       method: "POST",
       body: JSON.stringify(requestBody),
-    }
+    },
+    false
   );
 
   return parseJsonResponse(response);
