@@ -6,7 +6,12 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { surfaceMuted, textSecondary } from "../theme/colors";
+import {
+  borderSubtle,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 export interface RoutineTemplate {
   id?: number;
@@ -43,9 +48,11 @@ const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
     backgroundColor: surfaceMuted,
-    borderRadius: 10,
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   row: {
     flexDirection: "row",
@@ -54,7 +61,7 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     paddingRight: 5,
   },
   subtitle: {

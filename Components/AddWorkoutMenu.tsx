@@ -3,7 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-import { borderSubtle, surfaceElevated } from "../theme/colors";
+import { borderSubtle, surfaceElevated, textPrimary } from "../theme/colors";
 const AddWorkoutMenu: React.FC = () => {
   const navigation = useNavigation<any>();
   const [showAddMenu, setShowAddMenu] = useState(false);
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   addMenuText: {
-    color: "#e85d04",
+    color: textPrimary,
     fontSize: 15,
     fontWeight: "500",
   },

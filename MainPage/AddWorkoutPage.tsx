@@ -8,10 +8,12 @@ import {
   Animated,
 } from "react-native";
 import {
+  accent,
   borderSubtle,
   screenBackground,
   surfaceElevated,
   textPrimary,
+  textSecondary,
 } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -569,7 +571,7 @@ const AddWorkoutPage = () => {
       <Ionicons
         name={isTimerRunning ? "pause" : "play"}
         size={16}
-        color="#e85d04"
+        color={accent}
       />
       <Text style={styles.timerText}>{formatTime(timerSeconds)}</Text>
     </TouchableOpacity>
@@ -597,7 +599,7 @@ const AddWorkoutPage = () => {
             </Text>
             {currentMaxLift > 0 && (
               <View style={styles.maxLiftIcon}>
-                <Ionicons name="barbell" size={20} color="#e85d04" />
+                <Ionicons name="barbell" size={20} color={accent} />
               </View>
             )}
           </View>
@@ -693,12 +695,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#f8f9fa",
-    borderRadius: 12,
+    backgroundColor: surfaceElevated,
+    borderRadius: 14,
     padding: 12,
     marginBottom: 16,
     borderWidth: 1,
-    borderColor: "#e0e6f0",
+    borderColor: borderSubtle,
     overflow: "hidden",
   },
   maxLiftContainer: {
@@ -710,13 +712,13 @@ const styles = StyleSheet.create({
   maxLiftLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#666",
+    color: textSecondary,
     marginBottom: 4,
   },
   maxLiftValue: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#e85d04",
+    color: textPrimary,
   },
   maxLiftIcon: {
     marginTop: 8,
@@ -729,7 +731,7 @@ const styles = StyleSheet.create({
     backgroundColor: screenBackground,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e0e6f0",
+    borderColor: borderSubtle,
     overflow: "hidden",
     position: "relative",
     flexShrink: 0,
@@ -770,16 +772,18 @@ const styles = StyleSheet.create({
   timerButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f4f4f4",
+    backgroundColor: surfaceElevated,
     paddingVertical: 4,
     paddingHorizontal: 8,
     borderRadius: 12,
     gap: 4,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   timerText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#e85d04",
+    color: accent,
   },
 });
 

@@ -2,7 +2,14 @@ import React from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-import { surfaceMuted, borderSubtle } from "../../theme/colors";
+import {
+  accent,
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../../theme/colors";
 interface Set {
   reps: string;
   weight: string;
@@ -42,7 +49,7 @@ const SetsInput: React.FC<SetsInputProps> = ({
             <TextInput
               style={styles.input}
               placeholder="Reps"
-              placeholderTextColor="#8a9bb5"
+              placeholderTextColor={textSecondary}
               value={set.reps}
               onChangeText={(text) => onUpdateSet(index, "reps", text)}
               keyboardType="numeric"
@@ -52,7 +59,7 @@ const SetsInput: React.FC<SetsInputProps> = ({
             <TextInput
               style={styles.input}
               placeholder="Weight (lbs)"
-              placeholderTextColor="#8a9bb5"
+              placeholderTextColor={textSecondary}
               value={set.weight}
               onChangeText={(text) => onUpdateSet(index, "weight", text)}
               keyboardType="numeric"
@@ -68,7 +75,7 @@ const SetsInput: React.FC<SetsInputProps> = ({
               <Ionicons
                 name={set.completed ? "checkmark-circle" : "ellipse-outline"}
                 size={24}
-                color={set.completed ? "#22c55e" : "#8a9bb5"}
+                color={set.completed ? "#22c55e" : textSecondary}
               />
             </TouchableOpacity>
             {sets.length > 1 && (
@@ -76,14 +83,14 @@ const SetsInput: React.FC<SetsInputProps> = ({
                 onPress={() => onRemoveSet(index)}
                 style={styles.removeButton}
               >
-                <Ionicons name="close" size={18} color="#888" />
+                <Ionicons name="close" size={18} color={textSecondary} />
               </TouchableOpacity>
             )}
           </View>
         ))}
 
         <TouchableOpacity onPress={onAddSet} style={styles.addSetButtonBottom}>
-          <Ionicons name="add" size={18} color="#e85d04" />
+          <Ionicons name="add" size={18} color={accent} />
           <Text style={styles.addSetText}>Add Set</Text>
         </TouchableOpacity>
       </View>
@@ -98,12 +105,12 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 10,
   },
   setsContainer: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: screenBackground,
+    borderRadius: 14,
     padding: 12,
     borderWidth: 1,
     borderColor: borderSubtle,
@@ -114,18 +121,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     paddingBottom: 6,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8e8e8",
+    borderBottomColor: borderSubtle,
   },
   setHeaderLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#888",
+    color: textSecondary,
     width: 56,
   },
   setHeaderInput: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#888",
+    color: textSecondary,
     flex: 1,
     textAlign: "center",
   },
@@ -140,7 +147,7 @@ const styles = StyleSheet.create({
   setLabel: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#666",
+    color: textSecondary,
     width: 56,
   },
   input: {
@@ -148,9 +155,9 @@ const styles = StyleSheet.create({
     backgroundColor: surfaceMuted,
     paddingVertical: 8,
     paddingHorizontal: 10,
-    borderRadius: 6,
+    borderRadius: 10,
     fontSize: 15,
-    color: "#e85d04",
+    color: textPrimary,
     borderWidth: 1,
     borderColor: borderSubtle,
     marginHorizontal: 4,
@@ -171,7 +178,7 @@ const styles = StyleSheet.create({
   },
   addSetButtonBottom: {
     backgroundColor: surfaceMuted,
-    borderRadius: 6,
+    borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 10,
     flexDirection: "row",
@@ -184,7 +191,7 @@ const styles = StyleSheet.create({
   addSetText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#e85d04",
+    color: accent,
     marginLeft: 4,
   },
 });

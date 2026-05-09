@@ -1,7 +1,12 @@
 import React from "react";
 import { StyleSheet, View, Text } from "react-native";
 import { useUser } from "../Contexts/UserContext";
-import { surfaceMuted, textSecondary } from "../theme/colors";
+import {
+  borderSubtle,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 interface StatsRowProps {
   totalWeightLiftedLbs: number;
@@ -42,11 +47,13 @@ const styles = StyleSheet.create({
   },
   statCard: {
     backgroundColor: surfaceMuted,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 14,
     minWidth: 140,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   statLabel: {
     fontSize: 12,
@@ -56,7 +63,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
   },
 });
 

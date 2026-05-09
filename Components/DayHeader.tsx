@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { textSecondary } from "../theme/colors";
+import { textPrimary, textSecondary } from "../theme/colors";
 
 interface DayHeaderProps {
   dayName: string;
@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 20,
     fontWeight: "700",
-    color: "#e85d04",
+    color: textPrimary,
   },
   daySubtitle: {
     textAlign: "center",

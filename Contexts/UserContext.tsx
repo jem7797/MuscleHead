@@ -61,6 +61,10 @@ privacySetting: string;
   
   
   
+  /** Full-screen level-up celebration after rank increases from XP (see LevelUpModal). */
+  levelUpModal: { rankName: string } | null;
+  dismissLevelUpModal: () => void;
+
   /** Optimistically update following count. delta: +1 for follow, -1 for unfollow. */
   addToFollowingCount: (delta: number) => void;
   isNatty: boolean | true;
@@ -151,6 +155,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   const [nemesisSubIds, setNemesisSubIdsInternal] = useState<string[]>([]);
   const [gender, setGender] = useState<string>();
+  const [levelUpModal, setLevelUpModal] = useState<{
+    rankName: string;
+  } | null>(null);
+
+  const dismissLevelUpModal = useCallback(() => {
+    setLevelUpModal(null);
+  }, []);
 
   const setNemesisSubIds = useCallback(
     (idsOrUpdater: string[] | ((prev: string[]) => string[])) => {
@@ -214,6 +225,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setGender("");
     setNemesisSubIdsInternal([]);
     clearNemesisSubIds().catch(() => {});
+    setLevelUpModal(null);
   };
 
 
@@ -342,11 +354,13 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       const currentLevel = Math.floor(currentXp / XP_PER_LEVEL) + 1;
       const newLevel = Math.floor(newXp / XP_PER_LEVEL) + 1;
       if (newLevel > currentLevel) {
+        const rankName = getNameForRank(newLevel);
         setRank({
           id: newLevel,
           level: newLevel,
-          name: getNameForRank(newLevel),
+          name: rankName,
         });
+        setLevelUpModal({ rankName });
       }
       return newXp;
     });
@@ -484,6 +498,8 @@ const deleteCurrentUser = async () => {
         lifetimeWeightLifted: lifetimeWeightLifted ?? null,
         lifetimeGymTime: lifetimeGymTime ?? null,
         addToLifetimeStats,
+        levelUpModal,
+        dismissLevelUpModal,
         addToFollowingCount,
         isNatty: isNatty ?? true,
         privacySetting: privacySetting ?? "public",

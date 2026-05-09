@@ -6,7 +6,14 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
-import { screenBackground } from "../theme/colors";
+import {
+  accent,
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 import { useRoute } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
 import { getSessionLogById, type SessionLogApiResponse } from "../Services/sessionLogApi";
@@ -81,7 +88,7 @@ const WorkoutDetailPage = () => {
       <View style={styles.container}>
         <PageHeader title="Workout" />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#e85d04" />
+          <ActivityIndicator size="large" color={accent} />
           <Text style={styles.loadingText}>Loading workout...</Text>
         </View>
       </View>
@@ -208,7 +215,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 15,
-    color: "#51607a",
+    color: textSecondary,
   },
   errorText: {
     fontSize: 15,
@@ -221,20 +228,22 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   statBox: {
-    backgroundColor: "#f4f6fa",
-    borderRadius: 10,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 20,
     minWidth: 100,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   statValue: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#e85d04",
+    color: textPrimary,
   },
   statLabel: {
     fontSize: 13,
-    color: "#51607a",
+    color: textSecondary,
     marginTop: 2,
   },
   notesSection: {
@@ -243,43 +252,43 @@ const styles = StyleSheet.create({
   notesLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#51607a",
+    color: textSecondary,
     marginBottom: 6,
   },
   notesText: {
     fontSize: 15,
-    color: "#e85d04",
+    color: textPrimary,
     lineHeight: 22,
   },
   exercisesTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 16,
   },
   emptyText: {
     fontSize: 15,
-    color: "#51607a",
+    color: textSecondary,
     textAlign: "center",
     paddingVertical: 32,
   },
   exerciseCard: {
-    backgroundColor: "#fafafa",
-    borderRadius: 10,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     padding: 14,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e8ecf4",
+    borderColor: borderSubtle,
   },
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 4,
   },
   areaText: {
     fontSize: 13,
-    color: "#51607a",
+    color: textSecondary,
     marginBottom: 8,
   },
   exerciseStats: {
@@ -287,7 +296,7 @@ const styles = StyleSheet.create({
   },
   statLine: {
     fontSize: 14,
-    color: "#e85d04",
+    color: textSecondary,
   },
 });
 

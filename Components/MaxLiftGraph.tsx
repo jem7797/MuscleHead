@@ -13,6 +13,13 @@ import {
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, Text as SvgText, Line } from "react-native-svg";
 import type { WorkoutSession } from "./WorkoutCard";
 import { getSessionMaxLift, syncMaxLifts } from "../Services/sessionLogApi";
+import {
+  accent,
+  borderSubtle,
+  surfaceElevated,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 const VISIBLE_POINTS = 10;
 
@@ -30,7 +37,7 @@ interface DataPoint {
 }
 
 const CHART_HEIGHT = 240;
-const LINE_COLOR = "#e85d04";
+const LINE_COLOR = accent;
 const POINT_RADIUS = 5;
 const PADDING = { top: 24, right: 16, bottom: 32, left: 64 };
 
@@ -234,7 +241,7 @@ const MaxLiftGraph: React.FC<MaxLiftGraphProps> = ({
                   key={tick}
                   x={8}
                   y={y}
-                  fill="#8a9bb5"
+                  fill={textSecondary}
                   fontSize={10}
                   textAnchor="start"
                 >
@@ -326,31 +333,35 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 12,
   },
   chartWrapper: {
-    backgroundColor: "#f4f6fa",
-    borderRadius: 12,
+    backgroundColor: surfaceElevated,
+    borderRadius: 14,
     padding: 16,
     paddingBottom: 8,
     overflow: "visible",
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   chartPlaceholder: {
     height: CHART_HEIGHT + 40,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f4f6fa",
-    borderRadius: 12,
+    backgroundColor: surfaceElevated,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   loadingText: {
     fontSize: 14,
-    color: "#51607a",
+    color: textSecondary,
     marginTop: 8,
   },
   emptyText: {
     fontSize: 14,
-    color: "#51607a",
+    color: textSecondary,
   },
   labelsRow: {
     flexDirection: "row",
@@ -358,7 +369,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 10,
-    color: "#51607a",
+    color: textSecondary,
     textAlign: "center",
   },
   chartPressable: {

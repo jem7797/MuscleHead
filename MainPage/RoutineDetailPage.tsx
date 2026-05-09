@@ -8,7 +8,13 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
-import { screenBackground } from "../theme/colors";
+import {
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
@@ -183,7 +189,7 @@ const RoutineDetailPage = () => {
       <Ionicons
         name="trash-outline"
         size={22}
-        color={isDeleting ? "#8a9bb5" : "#c53030"}
+        color={isDeleting ? textSecondary : "#c53030"}
       />
     </TouchableOpacity>
   );
@@ -245,7 +251,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 12,
     fontSize: 15,
-    color: "#51607a",
+    color: textSecondary,
   },
   errorText: {
     fontSize: 15,
@@ -254,7 +260,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 15,
-    color: "#51607a",
+    color: textSecondary,
     textAlign: "center",
     paddingVertical: 32,
   },
@@ -263,13 +269,15 @@ const styles = StyleSheet.create({
     alignItems: "flex-start",
     paddingVertical: 14,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   exerciseNumber: {
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -277,7 +285,7 @@ const styles = StyleSheet.create({
   exerciseNumberText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#51607a",
+    color: textSecondary,
   },
   exerciseInfo: {
     flex: 1,
@@ -285,17 +293,17 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 2,
   },
   areaText: {
     fontSize: 13,
-    color: "#51607a",
+    color: textSecondary,
     marginBottom: 4,
   },
   setsReps: {
     fontSize: 14,
-    color: "#8a9bb5",
+    color: textSecondary,
   },
   deleteButton: {
     padding: 8,

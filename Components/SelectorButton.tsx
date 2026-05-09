@@ -1,7 +1,13 @@
 import React from "react";
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from "react-native";
 
-import { borderSubtle, surfaceMuted, textSecondary } from "../theme/colors";
+import {
+  accent,
+  borderSubtle,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 interface SelectorButtonProps {
   options: string[];
   selected: string | null;
@@ -82,7 +88,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 8,
   },
   selectorScroll: {
@@ -104,8 +110,8 @@ const styles = StyleSheet.create({
     borderColor: borderSubtle,
   },
   selectorButtonActive: {
-    backgroundColor: "#e85d04",
-    borderColor: "#e85d04",
+    backgroundColor: accent,
+    borderColor: accent,
   },
   selectorButtonText: {
     fontSize: 13,

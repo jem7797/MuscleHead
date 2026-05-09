@@ -8,7 +8,13 @@ import {
   TouchableOpacity,
 } from "react-native";
 import WorkoutCard, { WorkoutSession } from "./WorkoutCard";
-import { textSecondary } from "../theme/colors";
+import {
+  accent,
+  borderSubtle,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 interface WorkoutCardsSectionProps {
   workouts: WorkoutSession[];
@@ -112,25 +118,28 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
   },
   countText: {
     fontSize: 13,
-    color: "#8a9bb5",
+    color: textSecondary,
   },
   loadMoreCard: {
     width: 160,
-    backgroundColor: "#e85d04",
-    borderRadius: 10,
+    minHeight: 80,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     paddingVertical: 16,
     paddingHorizontal: 12,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   loadMoreCardText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#FFF",
+    color: accent,
     textAlign: "center",
   },
   scrollView: {
@@ -165,7 +174,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 13,
-    color: "#8a9bb5",
+    color: textSecondary,
   },
 });
 

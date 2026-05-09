@@ -3,6 +3,7 @@ import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import SelectorButton from "../../Components/SelectorButton";
 import SetsInput from "./SetsInput";
+import { borderSubtle, surfaceMuted, textSecondary } from "../../theme/colors";
 
 interface Set {
   reps: string;
@@ -46,7 +47,7 @@ const WorkoutBox: React.FC<WorkoutBoxProps> = ({
     <View style={styles.workoutBox}>
       {canRemove && (
         <TouchableOpacity onPress={onRemove} style={styles.removeWorkoutButton}>
-          <Ionicons name="trash-outline" size={18} color="#888" />
+          <Ionicons name="trash-outline" size={18} color={textSecondary} />
         </TouchableOpacity>
       )}
       
@@ -81,12 +82,12 @@ const WorkoutBox: React.FC<WorkoutBoxProps> = ({
 
 const styles = StyleSheet.create({
   workoutBox: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
     position: "relative",
   },
   removeWorkoutButton: {

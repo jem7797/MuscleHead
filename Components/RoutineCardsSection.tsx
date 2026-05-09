@@ -9,7 +9,12 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import RoutineCard, { RoutineTemplate } from "./RoutineCard";
-import { surfaceMuted, textSecondary } from "../theme/colors";
+import {
+  borderSubtle,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 interface RoutineCardsSectionProps {
   routines: RoutineTemplate[];
@@ -110,20 +115,22 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
   },
   countText: {
     fontSize: 13,
-    color: "#8a9bb5",
+    color: textSecondary,
   },
   loadMoreCard: {
     width: 100,
     minHeight: 80,
     backgroundColor: surfaceMuted,
-    borderRadius: 10,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
     padding: 12,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   loadMoreText: {
     fontSize: 13,
@@ -162,7 +169,7 @@ const styles = StyleSheet.create({
   },
   emptySubtext: {
     fontSize: 13,
-    color: "#8a9bb5",
+    color: textSecondary,
   },
 });
 

@@ -57,6 +57,7 @@ import { InviteProvider } from "./Contexts/InviteContext";
 import AchievementToast from "./Components/AchievementToast";
 import InviteToast from "./Components/InviteToast";
 import InviteNotification from "./Components/InviteNotification";
+import LevelUpModal from "./Components/LevelUpModal";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
 import { screenBackground } from "./theme/colors";
 
@@ -283,6 +284,7 @@ export default function App() {
                       <AchievementToast navigationRef={navigationRef} />
                       <InviteToast navigationRef={navigationRef} />
                       <InviteNotification />
+                      <LevelUpModal />
                     </View>
                     </InviteProvider>
                     </AchievementProvider>

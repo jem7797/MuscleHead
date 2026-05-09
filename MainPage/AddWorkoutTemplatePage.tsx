@@ -10,7 +10,14 @@ import {
   FlatList,
   Alert,
 } from "react-native";
-import { screenBackground } from "../theme/colors";
+import {
+  accent,
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
@@ -125,7 +132,7 @@ const AddWorkoutTemplatePage = () => {
           <TextInput
             style={styles.textInput}
             placeholder="e.g. Push Day, Leg Day"
-            placeholderTextColor="#999"
+            placeholderTextColor={textSecondary}
             value={state.name}
             onChangeText={setName}
             returnKeyType="done"
@@ -138,7 +145,7 @@ const AddWorkoutTemplatePage = () => {
           <TextInput
             style={styles.textInput}
             placeholder="e.g. 3"
-            placeholderTextColor="#999"
+            placeholderTextColor={textSecondary}
             value={String(state.sets)}
             onChangeText={(t) => {
               const n = parseInt(t, 10);
@@ -161,7 +168,7 @@ const AddWorkoutTemplatePage = () => {
                 style={styles.removeButton}
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
-                <Ionicons name="trash-outline" size={18} color="#888" />
+                <Ionicons name="trash-outline" size={18} color={textSecondary} />
               </TouchableOpacity>
             )}
             <Text style={styles.exerciseName} numberOfLines={2}>
@@ -182,7 +189,7 @@ const AddWorkoutTemplatePage = () => {
                   returnKeyType="done"
                   blurOnSubmit
                   placeholder="0"
-                  placeholderTextColor="#999"
+                  placeholderTextColor={textSecondary}
                 />
               </View>
             </View>
@@ -190,7 +197,7 @@ const AddWorkoutTemplatePage = () => {
         ))}
 
         <TouchableOpacity onPress={() => setShowPicker(true)} style={styles.addButton}>
-          <Ionicons name="add" size={18} color="#888" />
+          <Ionicons name="add" size={18} color={accent} />
           <Text style={styles.addButtonText}>Add exercise</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -208,15 +215,15 @@ const AddWorkoutTemplatePage = () => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Choose exercise</Text>
               <TouchableOpacity onPress={handleClosePicker} style={styles.modalClose}>
-                <Ionicons name="close" size={24} color="#e85d04" />
+                <Ionicons name="close" size={24} color={textPrimary} />
               </TouchableOpacity>
             </View>
             <View style={styles.searchBarContainer}>
-              <Ionicons name="search" size={20} color="#999" style={styles.searchIcon} />
+              <Ionicons name="search" size={20} color={textSecondary} style={styles.searchIcon} />
               <TextInput
                 style={styles.searchInput}
                 placeholder="Search by exercise or muscle group (e.g. barbell row, abs)"
-                placeholderTextColor="#999"
+                placeholderTextColor={textSecondary}
                 value={pickerSearch}
                 onChangeText={setPickerSearch}
                 autoCapitalize="none"
@@ -226,7 +233,7 @@ const AddWorkoutTemplatePage = () => {
               />
               {pickerSearch.length > 0 && (
                 <TouchableOpacity onPress={() => setPickerSearch("")} style={styles.searchClear}>
-                  <Ionicons name="close-circle" size={20} color="#999" />
+                  <Ionicons name="close-circle" size={20} color={textSecondary} />
                 </TouchableOpacity>
               )}
             </View>
@@ -244,7 +251,7 @@ const AddWorkoutTemplatePage = () => {
                       activeOpacity={0.7}
                     >
                       <Text style={styles.pickerItemText}>{m.name}</Text>
-                      <Ionicons name="add-circle-outline" size={20} color="#e85d04" />
+                      <Ionicons name="add-circle-outline" size={20} color={accent} />
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -275,34 +282,34 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   inputLabel: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 8,
   },
   textInput: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#e85d04",
+    color: textPrimary,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 12,
   },
   exerciseBox: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
     position: "relative",
   },
   removeButton: {
@@ -314,7 +321,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 10,
     paddingRight: 28,
   },
@@ -328,22 +335,22 @@ const styles = StyleSheet.create({
   targetLabel: {
     fontSize: 12,
     fontWeight: "600",
-    color: "#666",
+    color: textSecondary,
     marginBottom: 4,
   },
   targetInput: {
     backgroundColor: screenBackground,
-    borderRadius: 8,
+    borderRadius: 10,
     paddingVertical: 8,
     paddingHorizontal: 12,
     fontSize: 15,
-    color: "#e85d04",
+    color: textPrimary,
     borderWidth: 1,
-    borderColor: "#e0e6f0",
+    borderColor: borderSubtle,
   },
   addButton: {
-    backgroundColor: screenBackground,
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     paddingVertical: 10,
     paddingHorizontal: 14,
     flexDirection: "row",
@@ -351,10 +358,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginTop: 8,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
   },
   addButtonText: {
-    color: "#666",
+    color: textSecondary,
     fontSize: 14,
     fontWeight: "500",
     marginLeft: 4,
@@ -377,12 +384,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e6f0",
+    borderBottomColor: borderSubtle,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#e85d04",
+    color: textPrimary,
   },
   modalClose: {
     padding: 4,
@@ -392,10 +399,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginHorizontal: 20,
     marginBottom: 12,
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
     paddingHorizontal: 12,
   },
   searchIcon: {
@@ -405,7 +412,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     fontSize: 15,
-    color: "#e85d04",
+    color: textPrimary,
   },
   searchClear: {
     padding: 4,
@@ -423,7 +430,7 @@ const styles = StyleSheet.create({
   pickerAreaTitle: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#666",
+    color: textSecondary,
     marginBottom: 8,
   },
   pickerItem: {
@@ -432,15 +439,15 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     paddingHorizontal: 12,
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     marginBottom: 6,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
   },
   pickerItemText: {
     fontSize: 15,
-    color: "#e85d04",
+    color: textPrimary,
     flex: 1,
   },
 });
