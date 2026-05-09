@@ -1,5 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import {
+  borderSubtle,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../../theme/colors";
 
 interface Set {
   reps: string;
@@ -34,12 +40,12 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ workout, muscleGroup, sets 
 
 const styles = StyleSheet.create({
   exerciseItem: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     padding: 12,
     marginBottom: 12,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
   },
   exerciseHeader: {
     flexDirection: "row",
@@ -50,18 +56,18 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
   },
   exerciseMuscleGroup: {
     fontSize: 12,
-    color: "#666",
+    color: textSecondary,
   },
   exerciseSets: {
     gap: 4,
   },
   setText: {
     fontSize: 13,
-    color: "#666",
+    color: textSecondary,
   },
 });
 

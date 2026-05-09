@@ -8,7 +8,13 @@ import {
   Text,
   Alert,
 } from "react-native";
-import { screenBackground } from "../theme/colors";
+import {
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
 import { useMovements } from "../Contexts/MovementContext";
@@ -138,6 +144,7 @@ const WorkoutStatsPage = () => {
           <Text style={styles.inputLabel}>Notes:</Text>
           <TextInput
             placeholder="Enter notes..."
+            placeholderTextColor={textSecondary}
             style={styles.workoutNotesInput}
             multiline
             textAlignVertical="top"
@@ -187,19 +194,19 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 8,
   },
   workoutNotesInput: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
     paddingTop: 12,
     paddingBottom: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#e85d04",
+    color: textPrimary,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
     minHeight: 120,
     textAlignVertical: "top",
   },
@@ -207,7 +214,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 12,
     borderTopWidth: 1,
-    borderTopColor: "#e8e8e8",
+    borderTopColor: borderSubtle,
     backgroundColor: screenBackground,
   },
   buttonRow: {

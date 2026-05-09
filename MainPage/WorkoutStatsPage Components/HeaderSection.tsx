@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { accent, textSecondary } from "../../theme/colors";
 
 const HeaderSection: React.FC = () => {
   return (
@@ -17,13 +18,13 @@ const styles = StyleSheet.create({
   celebrationText: {
     fontSize: 30,
     fontWeight: "700",
-    color: "#e85d04",
+    color: accent,
     marginBottom: 6,
     marginTop: 70,
   },
   subtitleText: {
     fontSize: 16,
-    color: "#666",
+    color: textSecondary,
   },
 });
 

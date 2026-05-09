@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import ExerciseItem from "./ExerciseItem";
+import { textPrimary } from "../../theme/colors";
 
 interface Set {
   reps: string;
@@ -42,7 +43,7 @@ const styles = StyleSheet.create({
   exercisesTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#e85d04",
+    color: textPrimary,
     marginBottom: 16,
   },
 });
