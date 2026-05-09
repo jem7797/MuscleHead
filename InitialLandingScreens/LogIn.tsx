@@ -17,6 +17,16 @@ import { signIn, signOut, getCurrentUser } from "aws-amplify/auth";
 import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
 import PrimaryButton from "../Components/PrimaryButton";
+import {
+  accent,
+  authGradientColors,
+  borderSubtle,
+  screenBackground,
+  surfaceElevated,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -107,7 +117,7 @@ const LogInScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         <LinearGradient
-          colors={["#0c1525", "#182c54ff", "#020b1f"]}
+          colors={[...authGradientColors]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.mainContainer}
@@ -127,7 +137,7 @@ const LogInScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Your username"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               value={username}
               onChangeText={setUsername}
               autoCapitalize="none"
@@ -140,7 +150,7 @@ const LogInScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="••••••••"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               secureTextEntry
               value={password}
               onChangeText={setPassword}
@@ -183,7 +193,7 @@ const LogInScreen = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "#141414e9",
+    backgroundColor: screenBackground,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -199,42 +209,41 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerText: {
-    color: "#fff",
+    color: textPrimary,
     fontSize: 24,
     fontWeight: "600",
     textAlign: "center",
-    textShadowColor: "rgba(0, 0, 0, 0.6)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
   },
   subHeaderText: {
-    color: "rgba(255, 255, 255, 0.8)",
+    color: textSecondary,
     fontSize: 16,
     marginTop: 8,
-    textShadowColor: "rgba(0, 0, 0, 0.4)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 2,
   },
   formBox: {
     width: SCREEN_WIDTH * 0.85,
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 14,
     top: -80,
+    backgroundColor: surfaceElevated,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   label: {
-    color: "#fff",
+    color: textPrimary,
     marginTop: 12,
     marginBottom: 4,
     fontWeight: "600",
   },
   input: {
-    backgroundColor: "#44434373",
-    color: "#fff",
+    backgroundColor: surfaceMuted,
+    color: textPrimary,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 12,
     fontSize: 16,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   button: {
     marginTop: 16,
@@ -244,7 +253,7 @@ const styles = StyleSheet.create({
     marginTop: -4,
   },
   forgotPasswordText: {
-    color: "#8eb8ff",
+    color: accent,
     fontSize: 13,
     fontWeight: "600",
   },
@@ -253,11 +262,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   signUpLinkText: {
-    color: "rgba(255, 255, 255, 0.85)",
+    color: textSecondary,
     fontSize: 15,
   },
   signUpLinkBold: {
-    color: "#5b9aff",
+    color: accent,
     fontWeight: "600",
   },
 });

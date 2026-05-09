@@ -12,7 +12,16 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
-import { screenBackground } from "../theme/colors";
+import {
+  accent,
+  accentBright,
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
+import { LinearGradient } from "expo-linear-gradient";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -162,30 +171,37 @@ const ProfileEditPage = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.centerContent}>
-            <TouchableOpacity
-              style={styles.profilePicture}
-              onPress={handlePfpPress}
-              disabled={uploadingPfp}
-              accessibilityRole="button"
-              accessibilityLabel="Change profile picture"
+            <LinearGradient
+              colors={[accent, accentBright]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.avatarRing}
             >
-              {uploadingPfp ? (
-                <ActivityIndicator color="#fff" size="small" />
-              ) : pfpLink && !pfpImgError ? (
-                <Image
-                  source={{ uri: pfpLink }}
-                  style={styles.profileImage}
-                  onError={() => setPfpImgError(true)}
-                />
-              ) : (
-                <>
-                  <Ionicons name="person" color="#fff" size={48} />
-                  <View style={styles.cameraPill}>
-                    <Ionicons name="add" size={18} color="#fff" />
-                  </View>
-                </>
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.profilePicture}
+                onPress={handlePfpPress}
+                disabled={uploadingPfp}
+                accessibilityRole="button"
+                accessibilityLabel="Change profile picture"
+              >
+                {uploadingPfp ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : pfpLink && !pfpImgError ? (
+                  <Image
+                    source={{ uri: pfpLink }}
+                    style={styles.profileImage}
+                    onError={() => setPfpImgError(true)}
+                  />
+                ) : (
+                  <>
+                    <Ionicons name="person" color="#fff" size={48} />
+                    <View style={styles.cameraPill}>
+                      <Ionicons name="add" size={18} color="#fff" />
+                    </View>
+                  </>
+                )}
+              </TouchableOpacity>
+            </LinearGradient>
 
             <View style={styles.section}>
               <Text style={styles.label}>Username</Text>
@@ -194,7 +210,7 @@ const ProfileEditPage = () => {
               value={editedUsername}
               onChangeText={setEditedUsername}
               placeholder="Your username"
-              placeholderTextColor="#9aa6bd"
+              placeholderTextColor={textSecondary}
               autoCapitalize="none"
               autoCorrect={false}
               returnKeyType="done"
@@ -209,7 +225,7 @@ const ProfileEditPage = () => {
               value={editedBio}
               onChangeText={(t) => setEditedBio(t.slice(0, BIO_CHAR_LIMIT))}
               placeholder="Tell others about yourself (max 100 words)"
-              placeholderTextColor="#9aa6bd"
+              placeholderTextColor={textSecondary}
               multiline
               numberOfLines={4}
               textAlignVertical="top"
@@ -230,7 +246,7 @@ const ProfileEditPage = () => {
                 value={feet}
                 onChangeText={setFeet}
                 placeholder="Ft"
-                placeholderTextColor="#9aa6bd"
+                placeholderTextColor={textSecondary}
                 keyboardType="number-pad"
                 returnKeyType="done"
                 blurOnSubmit
@@ -241,7 +257,7 @@ const ProfileEditPage = () => {
                 value={inches}
                 onChangeText={setInches}
                 placeholder="In"
-                placeholderTextColor="#9aa6bd"
+                placeholderTextColor={textSecondary}
                 keyboardType="number-pad"
                 returnKeyType="done"
                 blurOnSubmit
@@ -258,7 +274,7 @@ const ProfileEditPage = () => {
                 value={editedWeight}
                 onChangeText={setEditedWeight}
                 placeholder="0"
-                placeholderTextColor="#9aa6bd"
+                placeholderTextColor={textSecondary}
                 keyboardType="decimal-pad"
                 returnKeyType="done"
                 blurOnSubmit
@@ -276,7 +292,7 @@ const ProfileEditPage = () => {
               <Switch
                 value={!editedNatty}
                 onValueChange={(v) => setEditedNatty(!v)}
-                trackColor={{ false: "#e0e6f0", true: "#e85d04" }}
+                trackColor={{ false: surfaceMuted, true: "#e85d04" }}
                 thumbColor="#fff"
               />
             </View>
@@ -293,7 +309,7 @@ const ProfileEditPage = () => {
               <Switch
                 value={editedGender}
                 onValueChange={setEditedGender}
-                trackColor={{ false: "#e0e6f0", true: "#e85d04" }}
+                trackColor={{ false: surfaceMuted, true: "#e85d04" }}
                 thumbColor="#fff"
               />
             </View>
@@ -352,17 +368,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "100%",
   },
+  avatarRing: {
+    borderRadius: 51,
+    padding: 3,
+    marginBottom: 24,
+  },
   profilePicture: {
     width: 96,
     height: 96,
     overflow: "hidden",
     borderRadius: 48,
-    borderWidth: 2,
-    borderColor: "#e6eef8",
-    backgroundColor: "#708090",
+    backgroundColor: surfaceMuted,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: 24,
+    position: "relative",
   },
   profileImage: {
     width: "100%",
@@ -372,7 +391,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -8,
     alignSelf: "center",
-    backgroundColor: "#e85d04",
+    backgroundColor: accent,
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
@@ -388,20 +407,21 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#e85d04",
+    color: textPrimary,
+    alignSelf: "stretch",
     marginBottom: 8,
   },
   input: {
     width: "100%",
     maxWidth: 340,
-    backgroundColor: "#f5f7fb",
+    backgroundColor: surfaceMuted,
     borderRadius: 12,
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#e85d04",
+    color: textPrimary,
     borderWidth: 1,
-    borderColor: "#e0e6f0",
+    borderColor: borderSubtle,
   },
   bioInput: {
     minHeight: 100,
@@ -409,7 +429,7 @@ const styles = StyleSheet.create({
   },
   charCount: {
     fontSize: 12,
-    color: "#9aa6bd",
+    color: textSecondary,
     marginTop: 4,
     alignSelf: "flex-end",
   },
@@ -424,7 +444,7 @@ const styles = StyleSheet.create({
   },
   unit: {
     fontSize: 15,
-    color: "#5a6a7e",
+    color: textSecondary,
     fontWeight: "500",
   },
   switchRow: {
@@ -435,7 +455,7 @@ const styles = StyleSheet.create({
   },
   hint: {
     fontSize: 13,
-    color: "#5a6a7e",
+    color: textSecondary,
     marginTop: 6,
   },
 

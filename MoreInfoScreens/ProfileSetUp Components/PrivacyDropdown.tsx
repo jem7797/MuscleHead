@@ -1,6 +1,14 @@
 import React from "react";
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Dimensions } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  accent,
+  borderSubtle,
+  surfaceElevated,
+  textPrimary,
+  textSecondary,
+} from "../../theme/colors";
+import { muscleFigureShadowStyles } from "../../theme/muscleFigureShadow";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -32,7 +40,8 @@ const PrivacyDropdown: React.FC<PrivacyDropdownProps> = ({
   };
 
   return (
-    <View style={styles.dropdownContainer}>
+    <View style={[styles.dropdownOuter, muscleFigureShadowStyles.wrapper]}>
+      <View style={styles.dropdownContainer}>
       <TouchableOpacity 
         style={[
           styles.dropdownButton,
@@ -44,7 +53,7 @@ const PrivacyDropdown: React.FC<PrivacyDropdownProps> = ({
         <Ionicons 
           name={isOpen ? "chevron-up" : "chevron-down"} 
           size={20} 
-          color="#fff" 
+          color={textPrimary}
         />
       </TouchableOpacity>
 
@@ -63,50 +72,55 @@ const PrivacyDropdown: React.FC<PrivacyDropdownProps> = ({
                 <Text style={styles.dropdownOptionLabel}>{option.label}</Text>
                 <Text style={styles.dropdownOptionDescription}>{option.description}</Text>
                 {selectedPrivacy === option.value && (
-                  <Ionicons name="checkmark" size={20} color="#013cdeff" style={styles.checkIcon} />
+                  <Ionicons name="checkmark" size={20} color={accent} style={styles.checkIcon} />
                 )}
               </TouchableOpacity>
             ))}
           </ScrollView>
         </View>
       )}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  dropdownContainer: {
+  dropdownOuter: {
     width: SCREEN_WIDTH * 0.85,
-    zIndex: 1000,
-    position: "relative",
+    alignSelf: "center",
     marginBottom: 24,
+    zIndex: 1000,
+  },
+  dropdownContainer: {
+    width: "100%",
+    position: "relative",
   },
   dropdownButton: {
-    backgroundColor: "rgba(98, 98, 98, 0.67)",
+    backgroundColor: surfaceElevated,
     borderRadius: 14,
     paddingHorizontal: 18,
     paddingVertical: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderWidth: 2,
+    borderColor: borderSubtle,
   },
   dropdownButtonSelected: {
-    borderColor: "#013cdeff",
+    borderColor: accent,
   },
   dropdownButtonText: {
-    color: "#fff",
+    color: textPrimary,
     fontSize: 16,
     fontWeight: "600",
     flex: 1,
   },
   dropdownList: {
-    backgroundColor: "rgba(0, 0, 0, 0.9)",
+    backgroundColor: surfaceElevated,
     borderRadius: 14,
     maxHeight: 300,
     borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderColor: borderSubtle,
     overflow: "hidden",
     position: "absolute",
     top: 52,
@@ -122,16 +136,16 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   dropdownOptionSelected: {
-    backgroundColor: "rgba(1, 60, 222, 0.2)",
+    backgroundColor: "rgba(232, 93, 4, 0.12)",
   },
   dropdownOptionLabel: {
-    color: "#fff",
+    color: textPrimary,
     fontSize: 18,
     fontWeight: "700",
     marginBottom: 4,
   },
   dropdownOptionDescription: {
-    color: "#aaa",
+    color: textSecondary,
     fontSize: 13,
     lineHeight: 18,
     paddingRight: 30,

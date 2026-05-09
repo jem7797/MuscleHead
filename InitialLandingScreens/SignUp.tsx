@@ -21,6 +21,16 @@ import { useNavigation } from "@react-navigation/native";
 import { useUser } from "../Contexts/UserContext";
 import { useOnboarding } from "../Contexts/OnboardingContext";
 import PrimaryButton from "../Components/PrimaryButton";
+import {
+  accent,
+  authGradientColors,
+  borderSubtle,
+  screenBackground,
+  surfaceElevated,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 import { Image } from "expo-image";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Asset } from "expo-asset";
@@ -358,7 +368,7 @@ const SignUpScreen = () => {
         keyboardShouldPersistTaps="handled"
       >
         <LinearGradient
-          colors={["#0c1525", "#182c54ff", "#020b1f"]}
+          colors={[...authGradientColors]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.mainContainer}
@@ -379,7 +389,7 @@ const SignUpScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="John"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               value={given_name}
               onChangeText={setgiven_name}
               autoCapitalize="words"
@@ -391,7 +401,7 @@ const SignUpScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="JohnDoe@email.com"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               value={email}
               onChangeText={setEmail}
               autoCapitalize="none"
@@ -404,7 +414,7 @@ const SignUpScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="MM/DD/YYYY (e.g. 05/15/1990)"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               value={birthDate}
               onChangeText={(text) => setBirthDate(formatDobInput(text))}
               autoCapitalize="none"
@@ -418,7 +428,7 @@ const SignUpScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="Johnny7797"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               value={alias}
               onChangeText={setAlias}
               autoCapitalize="none"
@@ -430,7 +440,7 @@ const SignUpScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="••••••••"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               secureTextEntry
               value={password}
               onChangeText={setPassword}
@@ -462,7 +472,7 @@ const SignUpScreen = () => {
               <TextInput
                 style={[styles.input, styles.heightInput]}
                 placeholder="5"
-                placeholderTextColor="#aaaaaaac"
+                placeholderTextColor={textSecondary}
                 value={heightFeet}
                 onChangeText={setHeightFeet}
                 keyboardType="number-pad"
@@ -474,7 +484,7 @@ const SignUpScreen = () => {
               <TextInput
                 style={[styles.input, styles.heightInput]}
                 placeholder="10"
-                placeholderTextColor="#aaaaaaac"
+                placeholderTextColor={textSecondary}
                 value={heightInches}
                 onChangeText={setHeightInches}
                 keyboardType="number-pad"
@@ -489,7 +499,7 @@ const SignUpScreen = () => {
             <TextInput
               style={styles.input}
               placeholder="150"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               value={weight}
               onChangeText={setWeightLocal}
               keyboardType="number-pad"
@@ -587,7 +597,7 @@ const SignUpScreen = () => {
           {legalDocOpen === "tos" ? (
             loadingTosPdf ? (
               <View style={styles.placeholderContainer}>
-                <ActivityIndicator size="large" color="#3b6fb8" />
+                <ActivityIndicator size="large" color={accent} />
                 <Text style={styles.placeholderText}>Loading Terms of Service...</Text>
               </View>
             ) : tosPdfUri ? (
@@ -617,7 +627,7 @@ const SignUpScreen = () => {
           {legalDocOpen === "privacy" ? (
             loadingPrivacyPdf ? (
               <View style={styles.placeholderContainer}>
-                <ActivityIndicator size="large" color="#3b6fb8" />
+                <ActivityIndicator size="large" color={accent} />
                 <Text style={styles.placeholderText}>Loading privacy policy...</Text>
               </View>
             ) : privacyPdfUri ? (
@@ -652,7 +662,7 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "#141414e9",
+    backgroundColor: screenBackground,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -668,46 +678,48 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   headerText: {
-    color: "#fff",
+    color: textPrimary,
     fontSize: 20,
     fontWeight: "400",
     textAlign: "center",
     lineHeight: 28,
-    textShadowColor: "rgba(0, 0, 0, 0.6)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
   },
   formBox: {
     width: SCREEN_WIDTH * 0.85,
     padding: 20,
-    borderRadius: 12,
+    borderRadius: 14,
     top: -120,
+    backgroundColor: surfaceElevated,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   label: {
-    color: "#fff",
+    color: textPrimary,
     marginTop: 12,
     marginBottom: 4,
     fontWeight: "600",
   },
   input: {
-    backgroundColor: "#44434373",
-    color: "#fff",
+    backgroundColor: surfaceMuted,
+    color: textPrimary,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 12,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   button: {
-    backgroundColor: "#2255a7ff",
     marginTop: 24,
   },
   signInLinkText: {
-    color: "rgba(255, 255, 255, 0.85)",
+    color: textSecondary,
     fontSize: 15,
     marginTop: 25,
   },
   signUpLinkBold: {
-    color: "#5b9aff",
+    color: accent,
     fontWeight: "600",
   },
   genderRow: {
@@ -717,16 +729,21 @@ const styles = StyleSheet.create({
   },
   genderButton: {
     flex: 1,
-    backgroundColor: "#44434373",
+    backgroundColor: surfaceMuted,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   genderButtonSelected: {
-    backgroundColor: "#3b6fb8",
+    backgroundColor: accent,
+    borderColor: accent,
   },
   genderButtonFemaleSelected: {
-    backgroundColor: "#ff2bd6",
+    backgroundColor: surfaceMuted,
+    borderWidth: 2,
+    borderColor: accent,
   },
   genderButtonText: {
     color: "#fff",
@@ -745,7 +762,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   heightSeparator: {
-    color: "#fff",
+    color: textSecondary,
     marginHorizontal: 8,
     fontSize: 14,
   },
@@ -762,15 +779,15 @@ const styles = StyleSheet.create({
     height: 22,
     borderRadius: 4,
     borderWidth: 1.5,
-    borderColor: "#cfd8eb",
+    borderColor: borderSubtle,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 10,
     backgroundColor: "transparent",
   },
   checkboxChecked: {
-    backgroundColor: "#3b6fb8",
-    borderColor: "#3b6fb8",
+    backgroundColor: accent,
+    borderColor: accent,
   },
   checkboxCheckmark: {
     color: "#fff",
@@ -778,19 +795,19 @@ const styles = StyleSheet.create({
     fontWeight: "700",
   },
   consentText: {
-    color: "rgba(255, 255, 255, 0.9)",
+    color: textSecondary,
     flex: 1,
     fontSize: 14,
     lineHeight: 20,
   },
   consentLink: {
-    color: "#5b9aff",
+    color: accent,
     textDecorationLine: "underline",
     fontWeight: "600",
   },
   legalModalRoot: {
     flex: 1,
-    backgroundColor: "#ffffff",
+    backgroundColor: screenBackground,
     paddingTop: Platform.OS === "ios" ? 52 : 20,
   },
   closeButton: {
@@ -799,12 +816,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   closeButtonText: {
-    color: "#222",
+    color: textPrimary,
     fontSize: 20,
     fontWeight: "700",
   },
   legalTitle: {
-    color: "#0d1b33",
+    color: textPrimary,
     fontSize: 24,
     fontWeight: "700",
     marginBottom: 12,
@@ -815,13 +832,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   legalDocBody: {
-    color: "#2f3c54",
+    color: textSecondary,
     fontSize: 16,
     lineHeight: 24,
     marginBottom: 28,
   },
   openPdfButton: {
-    backgroundColor: "#3b6fb8",
+    backgroundColor: accent,
     paddingVertical: 16,
     paddingHorizontal: 24,
     borderRadius: 12,
@@ -840,7 +857,7 @@ const styles = StyleSheet.create({
   },
   placeholderText: {
     marginTop: 10,
-    color: "#2f3c54",
+    color: textSecondary,
     textAlign: "center",
     lineHeight: 22,
     fontSize: 16,

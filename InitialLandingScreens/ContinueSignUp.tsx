@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "../Contexts/UserContext";
 import PrimaryButton from "../Components/PrimaryButton";
+import { accent, authGradientColors, screenBackground, textPrimary, textSecondary } from "../theme/colors";
 
 //@ts-ignore
 const ContinueSignUp = ({ navigation }) => {
@@ -12,14 +13,14 @@ const ContinueSignUp = ({ navigation }) => {
 
   return (
     <LinearGradient
-      colors={["#0c1525", "#182c54ff", "#020b1f"]}
+      colors={[...authGradientColors]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.mainContainer}
     >
       <View style={styles.content}>
         {/* Checkmark Animation Placeholder */}
-        <Ionicons name="checkmark-circle" size={90} color="#3b6fb8" style={styles.iconGlow} />
+        <Ionicons name="checkmark-circle" size={90} color={accent} style={styles.iconGlow} />
         <Text style={styles.headerText}>Congrats, {given_name}, your account was created!</Text>
         <Text style={styles.subText}>
           Let's personalize your experience.
@@ -43,44 +44,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: screenBackground,
   },
   content: {
     alignItems: "center",
     paddingHorizontal: 25,
   },
   iconGlow: {
-    textShadowColor: "#3b6fb8",
+    textShadowColor: accent,
     textShadowRadius: 25,
     marginBottom: 30,
   },
   headerText: {
-    color: "#ffffffff",
+    color: textPrimary,
     fontSize: 24,
     fontWeight: "700",
     textAlign: "center",
     marginBottom: 10,
-    textShadowColor: "rgba(0, 0, 0, 0.7)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 6,
   },
   subText: {
-    color: "#fffafaff",
+    color: textSecondary,
     fontSize: 15,
     textAlign: "center",
     lineHeight: 22,
     marginBottom: 50,
-    opacity: 0.9,
   },
   buttonContainer: {
     width: "100%",
     alignItems: "center",
   },
   primaryButton: {
-    backgroundColor: "#3b6fb8",
-    shadowColor: "#3b6fb8",
-    shadowOpacity: 0.8,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
     marginBottom: 20,
   },
 });

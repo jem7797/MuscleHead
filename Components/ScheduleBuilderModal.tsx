@@ -88,7 +88,7 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
           <View style={styles.modalHeader}>
             <Text style={styles.modalHeaderText}>Schedule Builder</Text>
             <Pressable onPress={onClose} style={styles.closeScheduleBuilderButton}>
-              <Ionicons name="close" size={22} color="#e85d04" />
+              <Ionicons name="close" size={22} color={textPrimary} />
             </Pressable>
           </View>
 
@@ -102,7 +102,7 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
                 <TextInput
                   key={day}
                   placeholder={dayPlaceholders[index]}
-                  placeholderTextColor="#565757"
+                  placeholderTextColor={textSecondary}
                   style={styles.dayText}
                   value={schedule[day]}
                   onChangeText={(value) => handleDayChange(day, value)}
@@ -150,6 +150,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     fontSize: 15,
     fontWeight: "700",
+    color: textPrimary,
   },
   closeScheduleBuilderButton: {
     padding: 6,
@@ -166,12 +167,12 @@ const styles = StyleSheet.create({
     minHeight: 60,
     fontSize: 16,
     padding: 12,
-    color: "#080808",
-    borderColor: "#e85d04",
-    borderWidth: 2,
-    borderRadius: 20,
+    color: textPrimary,
+    backgroundColor: surfaceMuted,
+    borderColor: borderSubtle,
+    borderWidth: 1,
+    borderRadius: 14,
     marginBottom: 12,
-    
   },
 
 

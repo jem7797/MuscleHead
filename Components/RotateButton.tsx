@@ -1,6 +1,11 @@
 import React from "react";
 import { StyleSheet, View, TouchableOpacity, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  borderSubtle,
+  surfaceElevated,
+  textPrimary,
+} from "../theme/colors";
 
 interface RotateButtonProps {
   spin: Animated.AnimatedInterpolation<string | number>;
@@ -19,7 +24,7 @@ const RotateButton: React.FC<RotateButtonProps> = ({ spin, onRotate }) => {
           accessibilityLabel="Rotate to front/back view"
           hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
         >
-          <Ionicons name="swap-horizontal" size={26} color="#e85d04" />
+          <Ionicons name="swap-horizontal" size={26} color={textPrimary} />
         </TouchableOpacity>
       </Animated.View>
     </View>
@@ -35,7 +40,9 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 50,
     right: 20,
-    backgroundColor: "#C4C4C4",
+    backgroundColor: surfaceElevated,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     borderRadius: 22,
     padding: 10,
     elevation: 6,

@@ -1,9 +1,11 @@
 import React from "react";
-import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
+import { Platform, StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { Image } from "expo-image";
+import { BlurView } from "expo-blur";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Feather from "@expo/vector-icons/Feather";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   useNavigation,
   useRoute,
@@ -14,15 +16,14 @@ import {
   getNotifications,
   markAllNotificationsAsRead,
 } from "../Services/notificationsApi";
-import { LinearGradient } from "expo-linear-gradient";
 import {
   accent,
-  borderSubtle,
   navBarGlow,
-  screenBackground,
   textPrimary,
 } from "../theme/colors";
+
 const NavBar = () => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const route = useRoute();
   const { pfpLink, privacySetting } = useUser();
@@ -66,11 +67,19 @@ const NavBar = () => {
   };
 
 
+  const bottomPad = Math.max(9, insets.bottom);
+  const blurIntensity = Platform.OS === "ios" ? 45 : 70;
+
   return (
-    <LinearGradient
-      colors={["rgba(255,255,255,0.09)", screenBackground]}
-      locations={[0, 0.45]}
-      style={styles.container}
+    <BlurView
+      intensity={blurIntensity}
+      tint="dark"
+      style={[
+        styles.container,
+        {
+          paddingBottom: bottomPad,
+        },
+      ]}
     >
       <View style={styles.box}>
         <TouchableOpacity
@@ -170,7 +179,7 @@ const NavBar = () => {
           </View>
         </TouchableOpacity>
       </View>
-    </LinearGradient>
+    </BlurView>
   );
 };
 
@@ -180,10 +189,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingTop: 20,
-    paddingBottom: 10,
-    borderTopWidth: 1,
-    borderColor: borderSubtle,
+    paddingTop: 17,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: "rgba(255, 255, 255, 0.14)",
     overflow: "visible",
   },
 
@@ -197,9 +205,9 @@ const styles = StyleSheet.create({
   },
 
   iconSlot: {
-    minWidth: 56,
-    minHeight: 48,
-    padding: 10,
+    minWidth: 49,
+    minHeight: 42,
+    padding: 9,
     alignItems: "center",
     justifyContent: "center",
     overflow: "visible",
@@ -207,11 +215,11 @@ const styles = StyleSheet.create({
 
   highlightCircle: {
     backgroundColor: accent,
-    borderRadius: 40,
-    minWidth: 58,
-    minHeight: 60,
-    padding: 15,
-    transform: [{ translateY: -14 }],
+    borderRadius: 36,
+    minWidth: 51,
+    minHeight: 52,
+    padding: 13,
+    transform: [{ translateY: -11 }],
     elevation: 12,
     shadowColor: navBarGlow,
     shadowOffset: { width: 0, height: 4 },

@@ -7,6 +7,7 @@ import MuscleManBack from "./MuscleManBack";
 import MuscleWomanFront from "./MuscleWomanFront";
 import MuscleWomanBack from "./MuscleWomanBack";
 import { useUser } from "../Contexts/UserContext";
+import { textPrimary } from "../theme/colors";
 
 interface MuscleManViewProps {
   isBack: boolean;
@@ -36,7 +37,7 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
           onPress={() => navigation.navigate("MuscleDetail")}
           activeOpacity={0.7}
         >
-          <Ionicons name="expand" size={16} color="#e85d04" />
+          <Ionicons name="expand" size={16} color={textPrimary} />
         </TouchableOpacity>
       </View>
     );
@@ -56,7 +57,7 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
         onPress={() => navigation.navigate("MuscleDetail")}
         activeOpacity={0.7}
       >
-        <Ionicons name="expand" size={16} color="#e85d04" />
+        <Ionicons name="expand" size={16} color={textPrimary} />
       </TouchableOpacity>
     </View>
   );

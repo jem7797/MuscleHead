@@ -17,6 +17,15 @@ import {
 } from "aws-amplify/auth";
 import { LinearGradient } from "expo-linear-gradient";
 import PrimaryButton from "../Components/PrimaryButton";
+import {
+  accent,
+  authGradientColors,
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 import { useUser } from "../Contexts/UserContext";
 import { createUser } from "../Services/userApi";
 
@@ -195,7 +204,7 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
 
   return (
     <LinearGradient
-      colors={["#0c1525", "#182c54ff", "#020b1f"]}
+      colors={[...authGradientColors]}
       start={{ x: 0, y: 0 }}
       end={{ x: 0, y: 1 }}
       style={styles.container}
@@ -204,13 +213,7 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
 
       <View style={styles.codeContainer}>
         {code.map((digit, index) => (
-          <LinearGradient
-            key={index}
-            colors={["white", "white"]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.lockBox}
-          >
+          <View key={index} style={styles.lockBox}>
             <TextInput
               ref={(ref) => { inputs.current[index] = ref; }}
               style={styles.codeInput}
@@ -219,12 +222,12 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
               value={digit}
               onChangeText={(text) => handleChange(text, index)}
               placeholder=""
-              placeholderTextColor="#333"
+              placeholderTextColor={textSecondary}
               returnKeyType="done"
               blurOnSubmit
               caretHidden={Platform.OS === "android"}
             />
-          </LinearGradient>
+          </View>
         ))}
       </View>
 
@@ -255,17 +258,19 @@ const ConfirmSignUpScreen = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center" },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: screenBackground,
+  },
   headerText: {
-     color: "#ffffffff",
+    color: textPrimary,
     fontSize: 24,
     fontWeight: "700",
     textAlign: "center",
     marginBottom: 10,
-    textShadowColor: "rgba(0, 0, 0, 0.7)",
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 6,
-    top:-100
+    top: -100,
   },
   codeContainer: {
     flexDirection: "row",
@@ -276,11 +281,14 @@ const styles = StyleSheet.create({
     width: 55,
     height: 65,
     marginHorizontal: 6,
-    borderRadius: 8,
+    borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     shadowColor: "#000",
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowOffset: { width: 2, height: 4 },
     shadowRadius: 6,
     elevation: 6,
@@ -291,30 +299,22 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 26,
     fontWeight: "700",
-    color: "#0c1525",
-    textShadowColor: "rgba(255,255,255,0.7)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 0,
+    color: textPrimary,
   },
   button: {
-    backgroundColor: "#3b6fb8",
-    shadowColor: "#3b6fb8",
-    shadowOpacity: 0.8,
-    shadowOffset: { width: 0, height: 6 },
-    shadowRadius: 10,
     marginBottom: 20,
   },
   resendContainer: {
     marginTop: -6,
   },
   resendText: {
-    color: "#8eb8ff",
+    color: accent,
     fontSize: 14,
     fontWeight: "600",
     textAlign: "center",
   },
   resendTextDisabled: {
-    color: "#9fb0c9",
+    color: textSecondary,
   },
 });
 

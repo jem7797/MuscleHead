@@ -16,3 +16,6 @@ export const accentDeep = "#c2410c";
 
 export const navBarGlow = "rgba(232, 93, 4, 0.45)";
 export const sheetHandle = "rgba(255, 255, 255, 0.2)";
+
+/** Vertical gradient for sign-in / sign-up flows (matches cool grey base) */
+export const authGradientColors = ["#2c3038", "#353840", "#282b32"] as const;

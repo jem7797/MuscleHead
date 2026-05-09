@@ -7,7 +7,12 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
-import { screenBackground } from "../theme/colors";
+import {
+  borderSubtle,
+  screenBackground,
+  surfaceElevated,
+  textPrimary,
+} from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
@@ -625,7 +630,7 @@ const AddWorkoutPage = () => {
               onPress={handleRotate}
             >
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                <Ionicons name="swap-horizontal" size={18} color="#e85d04" />
+                <Ionicons name="swap-horizontal" size={18} color={textPrimary} />
               </Animated.View>
             </TouchableOpacity>
           </View>
@@ -750,11 +755,11 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 8,
     right: 8,
-    backgroundColor: "#f0f4ff",
+    backgroundColor: surfaceElevated,
     borderRadius: 16,
     padding: 6,
     borderWidth: 1,
-    borderColor: "#e85d04",
+    borderColor: borderSubtle,
     zIndex: 10,
     elevation: 2,
     shadowColor: "#000",

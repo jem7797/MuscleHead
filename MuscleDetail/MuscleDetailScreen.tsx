@@ -22,7 +22,12 @@ import MuscleWomanBack from "../Components/MuscleWomanBack";
 // Context provider that manages which muscles should be highlighted
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
-import { screenBackground } from "../theme/colors";
+import {
+  borderSubtle,
+  screenBackground,
+  surfaceElevated,
+  textPrimary,
+} from "../theme/colors";
 import PageHeader from "../Components/PageHeader";
 import InfoPanel from "./MuscleDetailScreen Components/InfoPanel";
 import MuscleSelector from "./MuscleDetailScreen Components/MuscleSelector";
@@ -291,7 +296,7 @@ const MuscleDetailScreen = () => {
             accessibilityRole="button"
             accessibilityLabel="Flip to front/back view"
           >
-            <Ionicons name="swap-horizontal" size={26} color="#e85d04" />
+            <Ionicons name="swap-horizontal" size={26} color={textPrimary} />
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -374,11 +379,13 @@ const styles = StyleSheet.create({
 
   // Flip/rotate button styling
   rotateBtn: {
-    backgroundColor: "#C4C4C4", // Light gray background
-    borderRadius: 22, // 22px radius = circular button (if width = height)
-    padding: 10, // 10px padding inside button (makes it larger)
-    elevation: 6, // Android shadow depth (creates 3D effect)
-    top: -70, // Negative top - moves it up from controls container position
+    backgroundColor: surfaceElevated,
+    borderWidth: 1,
+    borderColor: borderSubtle,
+    borderRadius: 22,
+    padding: 10,
+    elevation: 6,
+    top: -70,
   },
 });
 

@@ -13,6 +13,16 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { confirmResetPassword, resetPassword } from "aws-amplify/auth";
 import PrimaryButton from "../Components/PrimaryButton";
+import {
+  accent,
+  authGradientColors,
+  borderSubtle,
+  screenBackground,
+  surfaceElevated,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 const ForgotPasswordScreen = ({ navigation }: any) => {
   const [step, setStep] = useState<1 | 2>(1);
@@ -96,7 +106,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
         <LinearGradient
-          colors={["#0c1525", "#182c54ff", "#020b1f"]}
+          colors={[...authGradientColors]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.container}
@@ -115,7 +125,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
               value={username}
               onChangeText={setUsername}
               placeholder="yourusername"
-              placeholderTextColor="#aaaaaaac"
+              placeholderTextColor={textSecondary}
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isLoading}
@@ -129,7 +139,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                   value={code}
                   onChangeText={setCode}
                   placeholder="123456"
-                  placeholderTextColor="#aaaaaaac"
+                  placeholderTextColor={textSecondary}
                   keyboardType="number-pad"
                   editable={!isLoading}
                 />
@@ -140,7 +150,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                   value={newPassword}
                   onChangeText={setNewPassword}
                   placeholder="••••••••"
-                  placeholderTextColor="#aaaaaaac"
+                  placeholderTextColor={textSecondary}
                   secureTextEntry
                   editable={!isLoading}
                 />
@@ -151,7 +161,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
                   value={confirmPassword}
                   onChangeText={setConfirmPassword}
                   placeholder="••••••••"
-                  placeholderTextColor="#aaaaaaac"
+                  placeholderTextColor={textSecondary}
                   secureTextEntry
                   editable={!isLoading}
                 />
@@ -183,28 +193,44 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", paddingHorizontal: 20 },
-  title: { color: "#fff", fontSize: 28, fontWeight: "700", marginBottom: 8 },
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    backgroundColor: screenBackground,
+  },
+  title: { color: textPrimary, fontSize: 28, fontWeight: "700", marginBottom: 8 },
   subtitle: {
-    color: "rgba(255,255,255,0.82)",
+    color: textSecondary,
     fontSize: 14,
     textAlign: "center",
     marginBottom: 22,
   },
-  form: { width: "100%", maxWidth: 380 },
-  label: { color: "#fff", marginTop: 10, marginBottom: 6, fontWeight: "600" },
+  form: {
+    width: "100%",
+    maxWidth: 380,
+    backgroundColor: surfaceElevated,
+    borderRadius: 14,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: borderSubtle,
+  },
+  label: { color: textPrimary, marginTop: 10, marginBottom: 6, fontWeight: "600" },
   input: {
-    backgroundColor: "#44434373",
-    color: "#fff",
+    backgroundColor: surfaceMuted,
+    color: textPrimary,
     paddingHorizontal: 12,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 10,
     marginBottom: 10,
     fontSize: 16,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   button: { marginTop: 12, marginBottom: 16 },
   linkText: {
-    color: "#8eb8ff",
+    color: accent,
     textAlign: "center",
     marginTop: 10,
     fontSize: 14,

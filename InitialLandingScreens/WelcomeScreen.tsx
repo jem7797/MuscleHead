@@ -10,6 +10,7 @@ import {
 import { Image } from "expo-image";
 import { Video } from "expo-av";
 import { useUser } from "../Contexts/UserContext";
+import { accent, borderSubtle, surfaceElevated, textPrimary } from "../theme/colors";
 
 const AnimatedImage = Animated.createAnimatedComponent(Image);
 
@@ -135,7 +136,7 @@ const styles = StyleSheet.create({
     top: 150
   },
   buttonLarge: {
-    backgroundColor: "#013cdeaa",
+    backgroundColor: accent,
     width: 260,
     height: 56,
     borderRadius: 12,
@@ -143,7 +144,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonSmall: {
-    backgroundColor: "#1e1e1e91",
+    backgroundColor: surfaceElevated,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     width: 180,
     height: 47,
     borderRadius: 10,
@@ -151,7 +154,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonText: {
-    color: "#fff",
+    color: textPrimary,
     fontSize: 18,
     fontWeight: "600",
   },
