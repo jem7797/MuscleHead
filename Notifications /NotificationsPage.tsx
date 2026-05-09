@@ -78,8 +78,9 @@ const getIconForType = (type: string): string => {
     case "SESSION_INVITE":
       return "fitness";
     case "MEDAL_EARNED":
-    case "LEVEL_UP":
       return "trophy";
+    case "LEVEL_UP":
+      return "level-up";
     case "NEMESIS_POST":
     case "WORKOUT":
       return "fitness";
@@ -355,13 +356,16 @@ const NotificationCenterScreen = () => {
       const timeAgo = formatTimeAgo(invite.sent_at);
       const inviteRowId = getSessionInviteId(invite);
       const isProcessing = inviteActionId === inviteRowId;
-      const InviteIcon = iconMap["fitness"] ?? Bell;
 
       return (
         <View style={styles.notificationCard}>
           <View style={styles.notificationRow}>
             <View style={[styles.iconWrapper, styles.inviteIconWrapper]}>
-              <InviteIcon size={24} color="#3b6fb8" />
+              <Image
+                source={require("../assets/MultiplayerInviteLogoNoBackground.png")}
+                style={styles.sessionInviteLogo}
+                contentFit="contain"
+              />
             </View>
             <View style={styles.content}>
               <Text style={styles.message}>{message}</Text>
@@ -464,6 +468,9 @@ const NotificationCenterScreen = () => {
     const timeAgo = formatTimeAgo(n.createdAt);
     const icon = getIconForType(n.type);
     const IconComponent = iconMap[icon] ?? Bell;
+    const isSessionInviteNotif =
+      (n.type ?? "").toUpperCase() === "SESSION_INVITE";
+    const isLevelUpNotif = (n.type ?? "").toUpperCase() === "LEVEL_UP";
     const achievement = isAchievement(n);
     const expanded = expandedIds.has(n.id);
     const rawDisplayName = achievement
@@ -492,12 +499,28 @@ const NotificationCenterScreen = () => {
             style={[
               styles.iconWrapper,
               achievement && styles.achievementIconWrapper,
+              isSessionInviteNotif && styles.inviteIconWrapper,
+              isLevelUpNotif && styles.levelUpIconWrapper,
             ]}
           >
-            <IconComponent
-              size={24}
-              color={achievement ? "#ffd700" : "#e85d04"}
-            />
+            {isSessionInviteNotif ? (
+              <Image
+                source={require("../assets/MultiplayerInviteLogoNoBackground.png")}
+                style={styles.sessionInviteLogo}
+                contentFit="contain"
+              />
+            ) : isLevelUpNotif ? (
+              <Image
+                source={require("../assets/LevelUpIconNoBackground.png")}
+                style={styles.levelUpLogo}
+                contentFit="contain"
+              />
+            ) : (
+              <IconComponent
+                size={24}
+                color={achievement ? "#ffd700" : "#e85d04"}
+              />
+            )}
           </View>
           <View style={styles.content}>
             <Text style={styles.message}>{displayName}</Text>
@@ -646,7 +669,18 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(21, 18, 0, 0.81)",
   },
   inviteIconWrapper: {
-    backgroundColor: "rgba(59, 111, 184, 0.2)",
+    backgroundColor: surfaceMuted,
+  },
+  sessionInviteLogo: {
+    width: 32,
+    height: 32,
+  },
+  levelUpIconWrapper: {
+    backgroundColor: surfaceMuted,
+  },
+  levelUpLogo: {
+    width: 32,
+    height: 32,
   },
   followRequestIconWrapper: {
     overflow: "hidden",

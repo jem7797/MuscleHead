@@ -7,7 +7,7 @@ import {
   Dimensions,
   Animated,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Image } from "expo-image";
 import { useInvite } from "../Contexts/InviteContext";
 import { getSessionInviteId, markInviteToastSeen } from "../lib/sessionService";
 
@@ -102,7 +102,11 @@ const InviteToast = ({ navigationRef }: InviteToastProps) => {
         ]}
       >
         <View style={styles.iconCircle}>
-          <Ionicons name="fitness" size={28} color="#3b6fb8" />
+          <Image
+            source={require("../assets/MultiplayerInviteLogoNoBackground.png")}
+            style={styles.inviteLogo}
+            contentFit="contain"
+          />
         </View>
         <Text style={styles.inviteText} numberOfLines={2}>
           {message}
@@ -150,6 +154,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
+    overflow: "hidden",
+  },
+  inviteLogo: {
+    width: 36,
+    height: 36,
   },
   inviteText: {
     flex: 1,

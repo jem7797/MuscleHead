@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from "react-native";
 
-import { borderSubtle, screenBackground } from "../theme/colors";
+import { accent, borderSubtle, screenBackground } from "../theme/colors";
 interface PrimaryButtonProps {
   onPress: () => void;
   label: string;
@@ -113,12 +113,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#e85d04",
   },
   buttonContinue: {
-    backgroundColor: "#013cdee0",
+    backgroundColor: accent,
     paddingVertical: 14,
     paddingHorizontal: 40,
     borderRadius: 14,
-    shadowColor: "#3b6fb8",
-    shadowOpacity: 0.8,
+    shadowColor: accent,
+    shadowOpacity: 0.45,
     shadowOffset: { width: 0, height: 6 },
     shadowRadius: 10,
   },
