@@ -17,6 +17,7 @@ import RecommendedUsers from "./SearchMainPage Components/RecommendedUsers";
 import { fetchRecommendedUsers, searchUsers, type RecommendedUserDto } from "../Services/userApi";
 import { follow, unfollow, checkFollow, checkFollowRequestStatus } from "../Services/followApi";
 import { getRecentSearches, addRecentSearch, clearRecentSearches } from "../Services/recentSearchesService";
+import { screenBackground } from "../theme/colors";
 
 const SEARCH_DEBOUNCE_MS = 300;
 const PAGE_SIZE = 10;
@@ -326,7 +327,7 @@ const SearchScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   searchBarContainer: {
     paddingHorizontal: 24,

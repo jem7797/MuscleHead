@@ -1,5 +1,11 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import {
+  borderSubtle,
+  surfaceElevated,
+  textPrimary,
+  textSecondary,
+} from "../../theme/colors";
 
 /**
  * StatsRow Component
@@ -29,7 +35,8 @@ const StatsRow: React.FC<StatsRowProps> = ({
   };
 
   return (
-    <View style={styles.statsRow}>
+    <View style={styles.statsCard}>
+      <View style={styles.statsRow}>
       {stats.map((stat) => {
         const onPress = getPressHandler(stat.label);
         const content = (
@@ -54,15 +61,25 @@ const StatsRow: React.FC<StatsRowProps> = ({
           </View>
         );
       })}
+      </View>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  statsCard: {
+    marginHorizontal: 16,
+    marginTop: 18,
+    paddingVertical: 16,
+    paddingHorizontal: 8,
+    backgroundColor: surfaceElevated,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: borderSubtle,
+  },
   statsRow: {
     flexDirection: "row",
     justifyContent: "center",
-    marginTop: 20,
   },
   statItem: {
     alignItems: "center",
@@ -72,14 +89,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   statValue: {
-    fontSize: 17,
-    fontWeight: "700",
-    color: "#0f1724",
+    fontSize: 19,
+    fontWeight: "800",
+    color: textPrimary,
+    letterSpacing: 0.2,
   },
   statLabel: {
-    marginTop: 3,
+    marginTop: 4,
     fontSize: 12,
-    color: "#5a6a7e",
+    fontWeight: "600",
+    color: textSecondary,
+    letterSpacing: 0.2,
   },
 });
 

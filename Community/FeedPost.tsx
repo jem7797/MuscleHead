@@ -6,12 +6,21 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Platform,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import type { PostResponse, PostComment } from "../Services/postsApi";
 import { deletePost, patchPost, getPost } from "../Services/postsApi";
 import { getProfilePicUrl } from "../utils/profilePicUrl";
 import { useUser } from "../Contexts/UserContext";
+import {
+  accent,
+  borderSubtle,
+  surfaceElevated,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 import { Image } from "expo-image";
 
 const formatTimestamp = (ts: string) => {
@@ -159,7 +168,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
   const displayName = post.user?.username ?? "User";
   const pfpUrl = isOwnPost && pfpLink ? pfpLink : getProfilePicUrl(post.user);
 
-  const actionColor = isNemesisPost ? "#f5c6c6" : "#5a6a7e";
+  const actionColor = isNemesisPost ? "#f5c6c6" : textSecondary;
   const renderActions = () => (
     <View style={styles.textBubbleActions}>
       <TouchableOpacity
@@ -242,7 +251,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
                 <TextInput
                   style={styles.commentInput}
                   placeholder="Add a comment..."
-                  placeholderTextColor="#9aa6bd"
+                  placeholderTextColor={textSecondary}
                   value={commentDraft}
                   onChangeText={setCommentDraft}
                   multiline
@@ -315,7 +324,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
             <TextInput
               style={styles.commentInput}
               placeholder="Add a comment..."
-              placeholderTextColor="#9aa6bd"
+              placeholderTextColor={textSecondary}
               value={commentDraft}
               onChangeText={setCommentDraft}
               multiline
@@ -399,7 +408,7 @@ const FeedPost: React.FC<FeedPostProps> = ({ post, currentUserId, nemesisSubIds 
           <TextInput
             style={styles.commentInput}
             placeholder="Add a comment..."
-            placeholderTextColor="#9aa6bd"
+            placeholderTextColor={textSecondary}
             value={commentDraft}
             onChangeText={setCommentDraft}
             multiline
@@ -428,7 +437,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#708090",
+    backgroundColor: surfaceMuted,
   },
   avatarPlaceholder: {
     alignItems: "center",
@@ -442,7 +451,16 @@ const styles = StyleSheet.create({
 
   textBubbleCard: {
     marginHorizontal: 16,
-    marginBottom: 16,
+    marginBottom: 18,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.2,
+        shadowRadius: 10,
+      },
+      android: { elevation: 6 },
+    }),
   },
   deleteButton: {
     marginLeft: "auto",
@@ -451,10 +469,14 @@ const styles = StyleSheet.create({
   },
   textBubble: {
     flexDirection: "row",
-    backgroundColor: "#f5f6f8",
-    padding: 12,
+    backgroundColor: surfaceElevated,
+    padding: 14,
     borderRadius: 16,
     borderTopLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: borderSubtle,
+    borderLeftWidth: 3,
+    borderLeftColor: accent,
   },
   trophyCardBorder: {
     borderWidth: 2,
@@ -464,10 +486,14 @@ const styles = StyleSheet.create({
   },
   achievementBubble: {
     flexDirection: "row",
-    backgroundColor: "#faf8f0",
-    padding: 12,
+    backgroundColor: "#3f3a32",
+    padding: 14,
     borderRadius: 14,
     borderTopLeftRadius: 2,
+    borderWidth: 1,
+    borderColor: "rgba(255, 215, 0, 0.35)",
+    borderLeftWidth: 3,
+    borderLeftColor: "#FFD700",
   },
   achievementBanner: {
     flexDirection: "row",
@@ -484,7 +510,7 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: "#708090",
+    backgroundColor: surfaceMuted,
   },
   bubbleContent: {
     flex: 1,
@@ -497,16 +523,17 @@ const styles = StyleSheet.create({
   },
   username: {
     fontSize: 15,
-    fontWeight: "600",
-    color: "#0f1724",
+    fontWeight: "700",
+    color: textPrimary,
+    letterSpacing: 0.15,
   },
   timestamp: {
     fontSize: 12,
-    color: "#9aa6bd",
+    color: textSecondary,
   },
   bubbleText: {
     fontSize: 15,
-    color: "#0f1724",
+    color: textPrimary,
     lineHeight: 22,
     marginTop: 4,
   },
@@ -531,7 +558,7 @@ const styles = StyleSheet.create({
     marginLeft: 52,
     paddingTop: 8,
     borderTopWidth: 1,
-    borderTopColor: "#e8ecf4",
+    borderTopColor: borderSubtle,
   },
   commentsSectionNemesis: {
     borderTopColor: "rgba(255,255,255,0.3)",
@@ -544,23 +571,23 @@ const styles = StyleSheet.create({
   },
   commentUsername: {
     fontSize: 13,
-    fontWeight: "600",
-    color: "#0f1724",
+    fontWeight: "700",
+    color: textPrimary,
   },
   commentText: {
     fontSize: 14,
-    color: "#0f1724",
+    color: textSecondary,
     lineHeight: 20,
     marginTop: 2,
   },
   commentsLoading: {
     fontSize: 13,
-    color: "#9aa6bd",
+    color: textSecondary,
     marginBottom: 8,
   },
   commentsEmpty: {
     fontSize: 13,
-    color: "#9aa6bd",
+    color: textSecondary,
     marginBottom: 8,
   },
   commentInputRow: {
@@ -574,10 +601,12 @@ const styles = StyleSheet.create({
     maxHeight: 80,
     paddingHorizontal: 12,
     paddingVertical: 8,
-    backgroundColor: "#f5f6f8",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     borderRadius: 12,
     fontSize: 14,
-    color: "#0f1724",
+    color: textPrimary,
   },
   commentPostBtn: {
     paddingVertical: 8,
@@ -588,25 +617,30 @@ const styles = StyleSheet.create({
   },
   commentPostBtnText: {
     fontSize: 14,
-    fontWeight: "600",
-    color: "#1f2a44",
+    fontWeight: "700",
+    color: accent,
   },
   actionCount: {
     fontSize: 13,
-    color: "#5a6a7e",
+    color: textSecondary,
+    fontWeight: "600",
   },
 
   imageBubble: {
     flexDirection: "row",
-    backgroundColor: "#f5f6f8",
-    padding: 12,
+    backgroundColor: surfaceElevated,
+    padding: 14,
     borderRadius: 16,
     borderTopLeftRadius: 4,
+    borderWidth: 1,
+    borderColor: borderSubtle,
+    borderLeftWidth: 3,
+    borderLeftColor: accent,
   },
   bubbleImage: {
     width: "100%",
     aspectRatio: 1,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
     borderRadius: 12,
     marginTop: 8,
     overflow: "hidden",

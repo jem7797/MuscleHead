@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import NavBar from "../Components/NavBar";
 import { Entypo } from "@expo/vector-icons";
+import { screenBackground, textSecondary } from "../theme/colors";
 
 const HiddenSearchPage = () => {
   
@@ -26,7 +27,7 @@ const HiddenSearchPage = () => {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
-      backgroundColor: "#fff",
+      backgroundColor: screenBackground,
     },
   
     content: {
@@ -37,7 +38,7 @@ const HiddenSearchPage = () => {
     title: {
       fontSize: 20,
       fontWeight: "600",
-      color: "#1f2a44",
+      color: "#e85d04",
     },
   
     subtitle:{
@@ -45,7 +46,7 @@ const HiddenSearchPage = () => {
       marginTop: 20,
       fontSize: 14,
       fontWeight: "600",
-      color: "#2E2C2C",
+      color: textSecondary,
     },
   });
   

@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceMuted, textPrimary, textSecondary } from "../theme/colors";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import BackButton from "../Components/BackButton";
 import NavBar from "../Components/NavBar";
@@ -127,7 +128,7 @@ const FollowRequestsScreen = () => {
       <View style={[styles.container, styles.centered]}>
         <BackButton />
         <Text style={styles.headerTitle}>Follow Requests</Text>
-        <ActivityIndicator size="large" color="#1f2a44" style={styles.loader} />
+        <ActivityIndicator size="large" color="#e85d04" style={styles.loader} />
         <NavBar />
       </View>
     );
@@ -158,7 +159,7 @@ const FollowRequestsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   centered: {
     justifyContent: "center",
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     paddingHorizontal: 24,
     paddingTop: 56,
     paddingBottom: 16,
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   userRowContent: {
     flex: 1,
@@ -214,7 +215,7 @@ const styles = StyleSheet.create({
     marginLeft: 14,
     fontSize: 16,
     fontWeight: "500",
-    color: "#0f1724",
+    color: textPrimary,
   },
   actions: {
     flexDirection: "row",
@@ -223,19 +224,21 @@ const styles = StyleSheet.create({
   declineBtn: {
     paddingVertical: 8,
     paddingHorizontal: 14,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
     borderRadius: 8,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   acceptBtn: {
     paddingVertical: 8,
     paddingHorizontal: 14,
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
     borderRadius: 8,
   },
   declineBtnText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#5a6a7e",
+    color: textSecondary,
   },
   acceptBtnText: {
     fontSize: 14,
@@ -253,7 +256,7 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#5a6a7e",
+    color: textSecondary,
   },
 });
 

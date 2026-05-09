@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { Image } from "expo-image";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -275,7 +276,7 @@ const ProfileEditPage = () => {
               <Switch
                 value={!editedNatty}
                 onValueChange={(v) => setEditedNatty(!v)}
-                trackColor={{ false: "#e0e6f0", true: "#202c76" }}
+                trackColor={{ false: "#e0e6f0", true: "#e85d04" }}
                 thumbColor="#fff"
               />
             </View>
@@ -292,7 +293,7 @@ const ProfileEditPage = () => {
               <Switch
                 value={editedGender}
                 onValueChange={setEditedGender}
-                trackColor={{ false: "#e0e6f0", true: "#202c76" }}
+                trackColor={{ false: "#e0e6f0", true: "#e85d04" }}
                 thumbColor="#fff"
               />
             </View>
@@ -333,7 +334,7 @@ const ProfileEditPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   keyboardView: {
     flex: 1,
@@ -371,7 +372,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: -8,
     alignSelf: "center",
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     paddingHorizontal: 12,
     paddingVertical: 5,
     borderRadius: 16,
@@ -387,7 +388,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 8,
   },
   input: {
@@ -398,7 +399,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
     borderColor: "#e0e6f0",
   },

@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import RoutineCard, { RoutineTemplate } from "./RoutineCard";
+import { surfaceMuted, textSecondary } from "../theme/colors";
 
 interface RoutineCardsSectionProps {
   routines: RoutineTemplate[];
@@ -34,7 +35,7 @@ const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
       <View style={styles.container}>
         <Text style={styles.sectionTitle}>Your Routines</Text>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#202c76" />
+          <ActivityIndicator size="small" color="#e85d04" />
           <Text style={styles.loadingText}>Loading routines...</Text>
         </View>
       </View>
@@ -81,10 +82,10 @@ const RoutineCardsSection: React.FC<RoutineCardsSectionProps> = ({
             disabled={isLoadingMore}
           >
             {isLoadingMore ? (
-              <ActivityIndicator size="small" color="#202c76" />
+              <ActivityIndicator size="small" color="#e85d04" />
             ) : (
               <>
-                <Ionicons name="add-circle-outline" size={28} color="#51607a" />
+                <Ionicons name="add-circle-outline" size={28} color={textSecondary} />
                 <Text style={styles.loadMoreText}>Load more</Text>
               </>
             )}
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   countText: {
     fontSize: 13,
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   loadMoreCard: {
     width: 100,
     minHeight: 80,
-    backgroundColor: "#f4f6fa",
+    backgroundColor: surfaceMuted,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
@@ -126,7 +127,7 @@ const styles = StyleSheet.create({
   },
   loadMoreText: {
     fontSize: 13,
-    color: "#51607a",
+    color: textSecondary,
     marginTop: 6,
   },
   scrollView: {
@@ -147,7 +148,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: "#51607a",
+    color: textSecondary,
   },
   emptyContainer: {
     alignItems: "center",
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#51607a",
+    color: textSecondary,
     marginBottom: 4,
   },
   emptySubtext: {

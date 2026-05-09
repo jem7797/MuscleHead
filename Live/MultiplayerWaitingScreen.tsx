@@ -6,6 +6,7 @@ import { endSession } from "../lib/sessionService";
 import { subscribeToStatus } from "../lib/sessionStatusService";
 import { supabase } from "../lib/supabase";
 
+import { screenBackground } from "../theme/colors";
 interface RouteParams {
   sessionId: string;
   currentUserId: string;
@@ -132,7 +133,7 @@ const MultiplayerWaitingScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   endButton: {
     paddingVertical: 8,
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: "#1f2a44",
+    borderBottomColor: "#e85d04",
   },
   tabText: {
     fontSize: 16,
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
     color: "#9aa6bd",
   },
   tabTextActive: {
-    color: "#1f2a44",
+    color: "#e85d04",
     fontWeight: "600",
   },
   listSection: {
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   exerciseDetail: {
     fontSize: 14,

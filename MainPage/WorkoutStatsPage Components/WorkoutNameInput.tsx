@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 8,
   },
   workoutNameInput: {
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
     borderColor: "#e8e8e8",
   },

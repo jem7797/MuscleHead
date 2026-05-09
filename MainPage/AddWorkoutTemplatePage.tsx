@@ -10,6 +10,7 @@ import {
   FlatList,
   Alert,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
@@ -207,7 +208,7 @@ const AddWorkoutTemplatePage = () => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Choose exercise</Text>
               <TouchableOpacity onPress={handleClosePicker} style={styles.modalClose}>
-                <Ionicons name="close" size={24} color="#1f2a44" />
+                <Ionicons name="close" size={24} color="#e85d04" />
               </TouchableOpacity>
             </View>
             <View style={styles.searchBarContainer}>
@@ -243,7 +244,7 @@ const AddWorkoutTemplatePage = () => {
                       activeOpacity={0.7}
                     >
                       <Text style={styles.pickerItemText}>{m.name}</Text>
-                      <Ionicons name="add-circle-outline" size={20} color="#202c76" />
+                      <Ionicons name="add-circle-outline" size={20} color="#e85d04" />
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -261,7 +262,7 @@ const AddWorkoutTemplatePage = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   content: {
     flex: 1,
@@ -276,7 +277,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 8,
   },
   textInput: {
@@ -285,14 +286,14 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
     borderColor: "#e8e8e8",
   },
   sectionTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 12,
   },
   exerciseBox: {
@@ -313,7 +314,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 10,
     paddingRight: 28,
   },
@@ -331,17 +332,17 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   targetInput: {
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
     borderRadius: 8,
     paddingVertical: 8,
     paddingHorizontal: 12,
     fontSize: 15,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
     borderColor: "#e0e6f0",
   },
   addButton: {
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
     borderRadius: 8,
     paddingVertical: 10,
     paddingHorizontal: 14,
@@ -364,7 +365,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     maxHeight: "80%",
@@ -381,7 +382,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   modalClose: {
     padding: 4,
@@ -404,7 +405,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     fontSize: 15,
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   searchClear: {
     padding: 4,
@@ -439,7 +440,7 @@ const styles = StyleSheet.create({
   },
   pickerItemText: {
     fontSize: 15,
-    color: "#1f2a44",
+    color: "#e85d04",
     flex: 1,
   },
 });

@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
@@ -390,7 +391,7 @@ const ActiveWorkoutPage = () => {
       <Ionicons
         name={isTimerRunning ? "pause" : "play"}
         size={16}
-        color="#202c76"
+        color="#e85d04"
       />
       <Text style={styles.timerText}>{formatTime(timerSeconds)}</Text>
     </TouchableOpacity>
@@ -418,7 +419,7 @@ const ActiveWorkoutPage = () => {
             </Text>
             {currentMaxLift > 0 && (
               <View style={styles.maxLiftIcon}>
-                <Ionicons name="barbell" size={20} color="#202c76" />
+                <Ionicons name="barbell" size={20} color="#e85d04" />
               </View>
             )}
           </View>
@@ -444,7 +445,7 @@ const ActiveWorkoutPage = () => {
               onPress={handleRotate}
             >
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                <Ionicons name="swap-horizontal" size={18} color="#202c76" />
+                <Ionicons name="swap-horizontal" size={18} color="#e85d04" />
               </Animated.View>
             </TouchableOpacity>
           </View>
@@ -524,11 +525,11 @@ const ActiveWorkoutPage = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   centerContent: {
     flex: 1,
@@ -578,7 +579,7 @@ const styles = StyleSheet.create({
   maxLiftValue: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#202c76",
+    color: "#e85d04",
   },
   maxLiftIcon: {
     marginTop: 8,
@@ -588,7 +589,7 @@ const styles = StyleSheet.create({
     height: 260,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#e0e6f0",
@@ -612,7 +613,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 6,
     borderWidth: 1,
-    borderColor: "#202c76",
+    borderColor: "#e85d04",
     zIndex: 10,
     elevation: 2,
     shadowColor: "#000",
@@ -632,7 +633,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#202c76",
+    color: "#e85d04",
   },
   exerciseSection: {
     marginBottom: 20,
@@ -640,7 +641,7 @@ const styles = StyleSheet.create({
   exerciseTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 4,
   },
   targetRepsHint: {
@@ -699,12 +700,12 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 6,
     fontSize: 15,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
     borderColor: "#e8e8e8",
     marginHorizontal: 4,

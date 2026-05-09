@@ -13,7 +13,7 @@ interface BackButtonProps {
 
 const BackButton: React.FC<BackButtonProps> = ({
   onPress,
-  color = "#1f2a44",
+  color = "#e85d04",
   size = 24,
   style,
   backgroundColor,

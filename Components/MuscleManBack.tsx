@@ -1,5 +1,7 @@
 import * as React from "react";
+import { View } from "react-native";
 import Svg, { G, Path as RNSVGPath, SvgProps } from "react-native-svg";
+import { muscleFigureShadowStyles } from "../theme/muscleFigureShadow";
 import { useWorkedMuscles } from "../Contexts/WorkedMusclesContext";
 import { WorkedMuscleEntry } from "../Services/workedMusclesApi";
 import { getMuscleColor } from "../utils/muscleColor";
@@ -22,7 +24,7 @@ const MuscleManBack: React.FC<Props> = ({
   height,
   scale,
   worked,
-  activeColor = "#202c76",
+  activeColor = "#e85d04",
   ...rest
 }) => {
   const W = width ?? (scale ? VB_W * scale : 200);
@@ -152,6 +154,7 @@ const MuscleManBack: React.FC<Props> = ({
   };
 
   return (
+    <View style={muscleFigureShadowStyles.wrapper}>
     <Svg
       id="svg1"
       viewBox={`0 0 ${VB_W} ${VB_H}`}
@@ -756,6 +759,7 @@ const MuscleManBack: React.FC<Props> = ({
       </G>
     </G>
   </Svg>
+    </View>
   );
 };
 

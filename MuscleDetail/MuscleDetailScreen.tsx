@@ -22,6 +22,7 @@ import MuscleWomanBack from "../Components/MuscleWomanBack";
 // Context provider that manages which muscles should be highlighted
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
+import { screenBackground } from "../theme/colors";
 import PageHeader from "../Components/PageHeader";
 import InfoPanel from "./MuscleDetailScreen Components/InfoPanel";
 import MuscleSelector from "./MuscleDetailScreen Components/MuscleSelector";
@@ -290,7 +291,7 @@ const MuscleDetailScreen = () => {
             accessibilityRole="button"
             accessibilityLabel="Flip to front/back view"
           >
-            <Ionicons name="swap-horizontal" size={26} color="#1f2a44" />
+            <Ionicons name="swap-horizontal" size={26} color="#e85d04" />
           </TouchableOpacity>
         </Animated.View>
       </View>
@@ -310,7 +311,7 @@ const styles = StyleSheet.create({
   // Main container - fills entire screen
   container: {
     flex: 1, // Takes up all available space (100% height)
-    backgroundColor: "#fff", // White background
+    backgroundColor: screenBackground, // White background
   },
 
   // Header bar at top of screen
@@ -332,7 +333,7 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 20, // 20px font size
     fontWeight: "700", // Bold weight (700)
-    color: "#1f2a44", // Dark blue-gray color
+    color: "#e85d04", // Dark blue-gray color
   },
 
   // Empty placeholder view - balances back button width for centered title

@@ -1,5 +1,7 @@
 import * as React from "react";
+import { View } from "react-native";
 import Svg, { Defs, G, Path as SvgPath, SvgProps } from "react-native-svg";
+import { muscleFigureShadowStyles } from "../theme/muscleFigureShadow";
 import { WorkedMuscleEntry } from "../Services/workedMusclesApi";
 import { getMuscleColor } from "../utils/muscleColor";
 import { useWorkedMuscles } from "../Contexts/WorkedMusclesContext";
@@ -28,7 +30,7 @@ const MuscleWomanFront: React.FC<Props> = ({
   height,
   scale,
   worked,
-  activeColor = "#202c76",
+  activeColor = "#e85d04",
   ...rest
 }) => {
   const { frontWorked } = useWorkedMuscles();
@@ -181,7 +183,7 @@ const MuscleWomanFront: React.FC<Props> = ({
   };
 
   return (
-   
+    <View style={muscleFigureShadowStyles.wrapper}>
       <Svg
       id="svg1"
       viewBox={`${-VB_PADDING} ${-VB_PADDING} ${VB_W + VB_PADDING * 3} ${VB_H + VB_PADDING * 2.9}`}
@@ -552,7 +554,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               id="path10-9"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -563,7 +565,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -574,7 +576,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -585,7 +587,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -596,7 +598,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -607,7 +609,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -618,7 +620,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -629,7 +631,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -640,7 +642,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -651,7 +653,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -662,7 +664,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -673,7 +675,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -684,7 +686,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -695,7 +697,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -706,7 +708,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={2.24004 * STROKE_SCALE}
@@ -716,7 +718,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               id="Right_Forearm_Outer"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -727,7 +729,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -738,7 +740,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -749,7 +751,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -760,7 +762,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -771,7 +773,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -782,7 +784,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -793,7 +795,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -804,7 +806,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -815,7 +817,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -826,7 +828,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -837,7 +839,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -848,7 +850,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -859,7 +861,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -870,7 +872,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -881,7 +883,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -892,7 +894,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -903,7 +905,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -914,7 +916,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -925,7 +927,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -936,7 +938,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -947,7 +949,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -958,7 +960,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -969,7 +971,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -980,7 +982,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -991,7 +993,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -1002,7 +1004,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -1013,7 +1015,7 @@ const MuscleWomanFront: React.FC<Props> = ({
               transform="matrix(0.97618643,0,0,1.4393464,988.18194,60.966008)"
             />
             <Path
-              fill="#ffffff"
+              fill="none"
               fillOpacity={1}
               stroke="none"
               strokeWidth={1.88976 * STROKE_SCALE}
@@ -1026,6 +1028,7 @@ const MuscleWomanFront: React.FC<Props> = ({
           </G>
         </G>
       </Svg>
+    </View>
     );
 };
 

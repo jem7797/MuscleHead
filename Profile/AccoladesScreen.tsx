@@ -11,6 +11,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceMuted } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
@@ -111,7 +112,7 @@ const AccoladesScreen = () => {
       <PageHeader title="Accolades" />
       {loading ? (
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#202c76" />
+          <ActivityIndicator size="large" color="#e85d04" />
         </View>
       ) : (
         <FlatList
@@ -185,7 +186,7 @@ const AccoladesScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   centered: {
     flex: 1,
@@ -207,8 +208,10 @@ const styles = StyleSheet.create({
   trophyCell: {
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f4f6fa",
+    backgroundColor: surfaceMuted,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   modalOverlay: {
     flex: 1,
@@ -218,7 +221,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     borderRadius: 16,
     padding: 24,
     width: "100%",
@@ -231,7 +234,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     textAlign: "center",
     marginBottom: 12,
     textTransform: "capitalize",
@@ -254,7 +257,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 8,
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
     paddingVertical: 12,
     borderRadius: 12,
     marginBottom: 12,
@@ -268,13 +271,15 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   dismissButton: {
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
     paddingVertical: 12,
     borderRadius: 12,
     alignItems: "center",
   },
   dismissButtonSecondary: {
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   dismissButtonText: {
     fontSize: 16,
@@ -282,7 +287,7 @@ const styles = StyleSheet.create({
     color: "#fff",
   },
   dismissButtonTextSecondary: {
-    color: "#1f2a44",
+    color: "#e85d04",
   },
 });
 

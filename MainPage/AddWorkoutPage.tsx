@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
@@ -563,7 +564,7 @@ const AddWorkoutPage = () => {
       <Ionicons
         name={isTimerRunning ? "pause" : "play"}
         size={16}
-        color="#202c76"
+        color="#e85d04"
       />
       <Text style={styles.timerText}>{formatTime(timerSeconds)}</Text>
     </TouchableOpacity>
@@ -591,7 +592,7 @@ const AddWorkoutPage = () => {
             </Text>
             {currentMaxLift > 0 && (
               <View style={styles.maxLiftIcon}>
-                <Ionicons name="barbell" size={20} color="#202c76" />
+                <Ionicons name="barbell" size={20} color="#e85d04" />
               </View>
             )}
           </View>
@@ -624,7 +625,7 @@ const AddWorkoutPage = () => {
               onPress={handleRotate}
             >
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                <Ionicons name="swap-horizontal" size={18} color="#202c76" />
+                <Ionicons name="swap-horizontal" size={18} color="#e85d04" />
               </Animated.View>
             </TouchableOpacity>
           </View>
@@ -674,7 +675,7 @@ const AddWorkoutPage = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   content: {
     flex: 1,
@@ -710,7 +711,7 @@ const styles = StyleSheet.create({
   maxLiftValue: {
     fontSize: 28,
     fontWeight: "700",
-    color: "#202c76",
+    color: "#e85d04",
   },
   maxLiftIcon: {
     marginTop: 8,
@@ -720,7 +721,7 @@ const styles = StyleSheet.create({
     height: 260,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#e0e6f0",
@@ -753,7 +754,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 6,
     borderWidth: 1,
-    borderColor: "#202c76",
+    borderColor: "#e85d04",
     zIndex: 10,
     elevation: 2,
     shadowColor: "#000",
@@ -773,7 +774,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#202c76",
+    color: "#e85d04",
   },
 });
 

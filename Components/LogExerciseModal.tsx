@@ -11,6 +11,7 @@ import {
   Platform,
   ScrollView,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceElevated, surfaceMuted, textPrimary, textSecondary } from "../theme/colors";
 import PrimaryButton from "./PrimaryButton";
 import SelectorButton from "./SelectorButton";
 import { WORKOUT_BY_MUSCLE_GROUP } from "../constants/workoutByMuscleGroup";
@@ -239,7 +240,7 @@ const styles = StyleSheet.create({
     width: "90%",
     maxWidth: 360,
     maxHeight: "85%",
-    backgroundColor: "#fff",
+    backgroundColor: surfaceElevated,
     borderRadius: 16,
     padding: 24,
   },
@@ -252,7 +253,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 20,
   },
   label: {
@@ -267,7 +268,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
     borderColor: "#e0e6f0",
     marginBottom: 16,

@@ -42,7 +42,7 @@ const styles = StyleSheet.create({
   exercisesTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 16,
   },
 });

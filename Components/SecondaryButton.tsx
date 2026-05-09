@@ -1,6 +1,7 @@
 import React from "react";
 import { Text, TouchableOpacity, StyleSheet } from "react-native";
 
+import { borderSubtle, surfaceMuted, textSecondary } from "../theme/colors";
 interface SecondaryButtonProps {
   onPress: () => void;
   label: string;
@@ -45,9 +46,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   buttonOutline: {
-    backgroundColor: "white",
+    backgroundColor: surfaceMuted,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
   },
   buttonGhost: {
     borderColor: "#3b6fb8",
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
   buttonTextOutline: {
-    color: "#666",
+    color: textSecondary,
   },
   buttonTextGhost: {
     color: "#ffffffff",

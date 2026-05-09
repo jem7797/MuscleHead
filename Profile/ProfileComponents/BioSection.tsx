@@ -1,5 +1,6 @@
 import React from "react";
 import { Text, StyleSheet } from "react-native";
+import { textSecondary } from "../../theme/colors";
 
 /**
  * BioSection Component
@@ -17,10 +18,11 @@ const styles = StyleSheet.create({
   bio: {
     marginTop: 16,
     textAlign: "center",
-    fontSize: 13,
-    lineHeight: 20,
-    color: "#5a6a7e",
+    fontSize: 14,
+    lineHeight: 22,
+    color: textSecondary,
     maxWidth: 360,
+    letterSpacing: 0.15,
   },
 });
 

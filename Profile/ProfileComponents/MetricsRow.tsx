@@ -1,6 +1,12 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
+import {
+  borderSubtle,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../../theme/colors";
 
 /**
  * MetricsRow Component
@@ -21,7 +27,7 @@ const MetricsRow: React.FC<MetricsRowProps> = ({ metrics }) => {
       {metrics.map((metric) => (
         <View key={metric.icon} style={styles.metricItem}>
           <View style={styles.metricBubble}>
-            <FontAwesome5 name={metric.icon} size={16} color="#1f2a44" />
+            <FontAwesome5 name={metric.icon} size={18} color={textPrimary} />
           </View>
           <Text style={styles.metricText}>{metric.value}</Text>
         </View>
@@ -41,23 +47,30 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   metricBubble: {
-    width: 46,
-    height: 46,
-    borderRadius: 23,
-    backgroundColor: "#f4f6fa",
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.22,
+        shadowRadius: 5,
+      },
+      android: { elevation: 4 },
+    }),
   },
   metricText: {
     marginTop: 6,
     fontSize: 10,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: textSecondary,
+    textAlign: "center",
   },
 });
 

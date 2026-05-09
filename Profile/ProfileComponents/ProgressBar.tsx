@@ -1,7 +1,13 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { useUser } from "../../Contexts/UserContext";
-
+import {
+  accentBright,
+  accentDeep,
+  borderSubtle,
+  surfaceMuted,
+} from "../../theme/colors";
 const SEGMENT_COUNT = 5;
 const xp_PER_FULL_BAR = 5;
 
@@ -22,11 +28,16 @@ const ProgressBar = () => {
       {Array.from({ length: SEGMENT_COUNT }).map((_, i) => (
         <React.Fragment key={i}>
           {i > 0 && <View style={styles.progressBarDivider} />}
-          <View
-            style={
-              i < filledCount ? styles.progressBarSegment : styles.progressBarSegmentGrey
-            }
-          />
+          {i < filledCount ? (
+            <LinearGradient
+              colors={[accentDeep, accentBright]}
+              start={{ x: 0, y: 0.5 }}
+              end={{ x: 1, y: 0.5 }}
+              style={styles.progressBarSegment}
+            />
+          ) : (
+            <View style={styles.progressBarSegmentGrey} />
+          )}
         </React.Fragment>
       ))}
     </View>
@@ -36,27 +47,28 @@ const ProgressBar = () => {
 const styles = StyleSheet.create({
   progressBarContainer: {
     width: "100%",
-    height: 8,
+    height: 10,
     flexDirection: "row",
-    backgroundColor: "#e5e9f3",
-    borderRadius: 4,
+    backgroundColor: surfaceMuted,
+    borderRadius: 5,
     marginBottom: 14,
     overflow: "hidden",
     alignItems: "stretch",
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   progressBarSegmentGrey: {
     flex: 1,
-    backgroundColor: "#b4b4b4",
+    backgroundColor: borderSubtle,
     height: "100%",
   },
   progressBarSegment: {
     flex: 1,
-    backgroundColor: "#202c76",
     height: "100%",
   },
   progressBarDivider: {
     width: 2,
-    backgroundColor: "#fff",
+    backgroundColor: surfaceMuted,
     height: "100%",
   },
 });

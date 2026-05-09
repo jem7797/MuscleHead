@@ -30,7 +30,7 @@ interface DataPoint {
 }
 
 const CHART_HEIGHT = 240;
-const LINE_COLOR = "#202c76";
+const LINE_COLOR = "#e85d04";
 const POINT_RADIUS = 5;
 const PADDING = { top: 24, right: 16, bottom: 32, left: 64 };
 
@@ -199,7 +199,7 @@ const MaxLiftGraph: React.FC<MaxLiftGraphProps> = ({
       <View style={styles.container}>
         <Text style={styles.title}>Max Lift Over Time</Text>
         <View style={styles.chartPlaceholder}>
-          <ActivityIndicator size="small" color="#202c76" />
+          <ActivityIndicator size="small" color="#e85d04" />
           <Text style={styles.loadingText}>Loading max lifts...</Text>
         </View>
       </View>
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 12,
   },
   chartWrapper: {
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
     width: 100,
     paddingVertical: 6,
     paddingHorizontal: 10,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     borderRadius: 8,
     alignItems: "center",
   },

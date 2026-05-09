@@ -4,6 +4,7 @@ import {
   View,
   Text,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
@@ -18,7 +19,7 @@ const ConfirmWorkoutPage = () => {
       <PageHeader title="Start Workout" paddingTop={50} paddingHorizontal={16} />
       <View style={styles.content}>
         <View style={styles.confirmContainer}>
-          <Ionicons name="fitness" size={80} color="#202c76" style={styles.icon} />
+          <Ionicons name="fitness" size={80} color="#e85d04" style={styles.icon} />
           <Text style={styles.title}>Ready to Work Out?</Text>
           <Text style={styles.description}>
             Start your training session and track your progress in real-time.
@@ -45,7 +46,7 @@ const ConfirmWorkoutPage = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   content: {
     flex: 1,
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 12,
     textAlign: "center",
   },

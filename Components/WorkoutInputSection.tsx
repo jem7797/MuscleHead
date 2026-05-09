@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceElevated, surfaceMuted, textPrimary, textSecondary } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import WorkoutBox from "../MainPage/AddWorkoutPage Components/WorkoutBox";
 import AddWorkoutButton from "../MainPage/AddWorkoutPage Components/AddWorkoutButton";
@@ -275,7 +276,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
               style={[styles.timerButton, !editable && styles.controlDisabled]}
               disabled={!editable}
             >
-              <Ionicons name={isTimerRunning ? "pause" : "play"} size={16} color="#202c76" />
+              <Ionicons name={isTimerRunning ? "pause" : "play"} size={16} color="#e85d04" />
               <Text style={styles.timerText}>{formatTime(timerSeconds)}</Text>
             </TouchableOpacity>
             <View style={styles.maxLiftContainer}>
@@ -285,7 +286,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
               </Text>
               {currentMaxLift > 0 && (
                 <View style={styles.maxLiftIcon}>
-                  <Ionicons name="barbell" size={20} color="#202c76" />
+                  <Ionicons name="barbell" size={20} color="#e85d04" />
                 </View>
               )}
             </View>
@@ -314,7 +315,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
               disabled={!editable}
             >
               <Animated.View style={{ transform: [{ rotate: spin }] }}>
-                <Ionicons name="swap-horizontal" size={18} color="#202c76" />
+                <Ionicons name="swap-horizontal" size={18} color="#e85d04" />
               </Animated.View>
             </TouchableOpacity>
           </View>
@@ -368,7 +369,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "white" },
+  container: { flex: 1, backgroundColor: screenBackground },
   scrollView: { flex: 1 },
   scrollContent: { padding: 16, paddingBottom: 100 },
   scrollContentNoFooter: { paddingBottom: 24 },
@@ -430,17 +431,17 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     gap: 4,
   },
-  timerText: { fontSize: 13, fontWeight: "500", color: "#202c76" },
+  timerText: { fontSize: 13, fontWeight: "500", color: "#e85d04" },
   maxLiftContainer: { justifyContent: "center", minWidth: 0 },
   maxLiftLabel: { fontSize: 14, fontWeight: "600", color: "#666", marginBottom: 4 },
-  maxLiftValue: { fontSize: 28, fontWeight: "700", color: "#202c76" },
+  maxLiftValue: { fontSize: 28, fontWeight: "700", color: "#e85d04" },
   maxLiftIcon: { marginTop: 8 },
   musclePreviewContainer: {
     width: 150,
     height: 260,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: "#e0e6f0",
@@ -470,7 +471,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 6,
     borderWidth: 1,
-    borderColor: "#202c76",
+    borderColor: "#e85d04",
     zIndex: 10,
     elevation: 2,
     shadowColor: "#000",

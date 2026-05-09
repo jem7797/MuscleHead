@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceElevated, surfaceMuted, textPrimary, textSecondary } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import PrimaryButton from "./PrimaryButton";
 
@@ -87,7 +88,7 @@ const ScheduleBuilderModal: React.FC<ScheduleBuilderModalProps> = ({
           <View style={styles.modalHeader}>
             <Text style={styles.modalHeaderText}>Schedule Builder</Text>
             <Pressable onPress={onClose} style={styles.closeScheduleBuilderButton}>
-              <Ionicons name="close" size={22} color="#1f2a44" />
+              <Ionicons name="close" size={22} color="#e85d04" />
             </Pressable>
           </View>
 
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: surfaceElevated,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     paddingHorizontal: 20,
@@ -166,7 +167,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     padding: 12,
     color: "#080808",
-    borderColor: "#202c76",
+    borderColor: "#e85d04",
     borderWidth: 2,
     borderRadius: 20,
     marginBottom: 12,

@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { TextInput, TouchableOpacity, Pressable, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { borderSubtle, surfaceMuted, textPrimary } from "../../theme/colors";
 
 interface SearchBarProps {
   value: string;
@@ -34,7 +35,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <Ionicons
         name="search"
         size={20}
-        color={isFocused ? "#1f2a44" : "#5a6a7e"}
+        color={isFocused ? "#e85d04" : "#5a6a7e"}
       />
       <TextInput
         ref={inputRef}
@@ -69,15 +70,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 18,
-    backgroundColor: "#f1f4fc",
+    backgroundColor: surfaceMuted,
     borderWidth: 1.5,
-    borderColor: "#d1d9ee",
+    borderColor: borderSubtle,
     gap: 10,
   },
   searchBarFocused: {
-    borderColor: "#1f2a44",
-    shadowColor: "#1f2a44",
-    backgroundColor: "#e7ecff",
+    borderColor: "#e85d04",
+    shadowColor: "#e85d04",
+    backgroundColor: "#363c48",
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.45,
     shadowRadius: 14,
@@ -87,7 +88,7 @@ const styles = StyleSheet.create({
     flex: 1,
     minHeight: 24,
     fontSize: 15,
-    color: "#0f1724",
+    color: textPrimary,
     paddingVertical: 4,
   },
 });

@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   celebrationText: {
     fontSize: 30,
     fontWeight: "700",
-    color: "#202c76",
+    color: "#e85d04",
     marginBottom: 6,
     marginTop: 70,
   },

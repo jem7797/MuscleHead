@@ -13,7 +13,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, value, label, subLabel }) => 
   return (
     <View style={styles.statCard}>
       <View style={styles.statIconContainer}>
-        <Ionicons name={icon as any} size={32} color="#202c76" />
+        <Ionicons name={icon as any} size={32} color="#e85d04" />
       </View>
       <Text style={styles.statValue}>{value}</Text>
       <Text style={styles.statLabel}>{label}</Text>
@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 4,
   },
   statLabel: {

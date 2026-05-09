@@ -15,6 +15,17 @@ import FeedPost from "./FeedPost";
 import { getFeed } from "../Services/postsApi";
 import type { PostResponse } from "../Services/postsApi";
 import { useUser } from "../Contexts/UserContext";
+import { LinearGradient } from "expo-linear-gradient";
+import {
+  accent,
+  accentBright,
+  accentDeep,
+  borderSubtle,
+  screenBackground,
+  surfaceMuted,
+  textPrimary,
+  textSecondary,
+} from "../theme/colors";
 
 const PAGE_SIZE = 20;
 
@@ -108,29 +119,37 @@ const CommunityScreen = () => {
   const renderFooter = () =>
     loadingMore ? (
       <View style={styles.loadingMore}>
-        <ActivityIndicator size="small" color="#1f2a44" />
+        <ActivityIndicator size="small" color={accent} />
       </View>
     ) : null;
 
   if (loading && posts.length === 0) {
     return (
       <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.postButton} onPress={handleCreatePost} activeOpacity={0.7}>
-            <Ionicons name="create-outline" size={24} color="#1f2a44" />
-          </TouchableOpacity>
-        <Text style={styles.title}>Community</Text>
-        <TouchableOpacity
-          style={styles.friendsButton}
-          onPress={() => navigation.navigate("FriendsList")}
-          activeOpacity={0.7}
-          accessibilityLabel="Friends"
-        >
-          <Ionicons name="people" size={24} color="#1f2a44" />
-        </TouchableOpacity>
+        <View style={styles.headerWrap}>
+          <View style={styles.header}>
+            <TouchableOpacity style={styles.headerIconBtn} onPress={handleCreatePost} activeOpacity={0.7}>
+              <Ionicons name="create-outline" size={22} color={accent} />
+            </TouchableOpacity>
+            <Text style={styles.title}>Community</Text>
+            <TouchableOpacity
+              style={styles.headerIconBtn}
+              onPress={() => navigation.navigate("FriendsList")}
+              activeOpacity={0.7}
+              accessibilityLabel="Friends"
+            >
+              <Ionicons name="people" size={22} color={accent} />
+            </TouchableOpacity>
+          </View>
+          <LinearGradient
+            colors={[accentDeep, accentBright, accent]}
+            start={{ x: 0, y: 0.5 }}
+            end={{ x: 1, y: 0.5 }}
+            style={styles.headerAccent}
+          />
         </View>
         <View style={styles.centered}>
-          <ActivityIndicator size="large" color="#1f2a44" />
+          <ActivityIndicator size="large" color={accent} />
         </View>
         <NavBar />
       </View>
@@ -139,28 +158,36 @@ const CommunityScreen = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.postButton}
-          onPress={handleCreatePost}
-          activeOpacity={0.7}
-          accessibilityLabel="Create post"
-        >
-          <Ionicons name="create-outline" size={24} color="#1f2a44" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Community</Text>
-        <TouchableOpacity
-          style={styles.friendsButton}
-          onPress={() => navigation.navigate("FriendsList")}
-          activeOpacity={0.7}
-          accessibilityLabel="Friends"
-        >
-          <Ionicons name="people" size={24} color="#1f2a44" />
-        </TouchableOpacity>
+      <View style={styles.headerWrap}>
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={handleCreatePost}
+            activeOpacity={0.7}
+            accessibilityLabel="Create post"
+          >
+            <Ionicons name="create-outline" size={22} color={accent} />
+          </TouchableOpacity>
+          <Text style={styles.title}>Community</Text>
+          <TouchableOpacity
+            style={styles.headerIconBtn}
+            onPress={() => navigation.navigate("FriendsList")}
+            activeOpacity={0.7}
+            accessibilityLabel="Friends"
+          >
+            <Ionicons name="people" size={22} color={accent} />
+          </TouchableOpacity>
+        </View>
+        <LinearGradient
+          colors={[accentDeep, accentBright, accent]}
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={styles.headerAccent}
+        />
       </View>
       {error && posts.length === 0 ? (
         <View style={styles.centered}>
-          <Ionicons name="cloud-offline-outline" size={48} color="#9aa6bd" />
+          <Ionicons name="cloud-offline-outline" size={48} color={textSecondary} />
           <Text style={styles.errorText}>{error}</Text>
           <TouchableOpacity style={styles.retryButton} onPress={() => loadFeed(0)}>
             <Text style={styles.retryButtonText}>Retry</Text>
@@ -173,7 +200,7 @@ const CommunityScreen = () => {
           renderItem={renderPost}
           ListEmptyComponent={
             <View style={styles.empty}>
-              <Ionicons name="newspaper-outline" size={48} color="#9aa6bd" />
+              <Ionicons name="newspaper-outline" size={48} color={textSecondary} />
               <Text style={styles.emptyText}>No posts yet</Text>
               <Text style={styles.emptySubtext}>Follow users or create a post to see them here</Text>
             </View>
@@ -182,7 +209,7 @@ const CommunityScreen = () => {
           onEndReached={handleLoadMore}
           onEndReachedThreshold={0.5}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor="#1f2a44" />
+            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={accent} />
           }
           contentContainerStyle={posts.length === 0 ? styles.emptyContainer : styles.listContent}
           showsVerticalScrollIndicator={false}
@@ -196,7 +223,11 @@ const CommunityScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
+  },
+  headerWrap: {
+    borderBottomWidth: 1,
+    borderBottomColor: borderSubtle,
   },
   header: {
     flexDirection: "row",
@@ -205,21 +236,23 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 52,
     paddingBottom: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
   },
-  postButton: {
-    padding: 8,
-    marginLeft: -8,
+  headerAccent: {
+    height: 3,
+    width: "100%",
+  },
+  headerIconBtn: {
+    padding: 10,
+    borderRadius: 14,
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#0f1724",
-  },
-  friendsButton: {
-    padding: 8,
-    marginRight: -8,
+    fontSize: 20,
+    fontWeight: "800",
+    letterSpacing: 0.35,
+    color: textPrimary,
   },
   centered: {
     flex: 1,
@@ -229,15 +262,15 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 12,
     fontSize: 16,
-    color: "#5a6a7e",
+    color: textSecondary,
     textAlign: "center",
   },
   retryButton: {
     marginTop: 16,
     paddingVertical: 10,
     paddingHorizontal: 24,
-    backgroundColor: "#1f2a44",
-    borderRadius: 10,
+    backgroundColor: accent,
+    borderRadius: 12,
   },
   retryButtonText: {
     fontSize: 16,
@@ -261,13 +294,13 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 16,
     fontSize: 18,
-    fontWeight: "600",
-    color: "#5a6a7e",
+    fontWeight: "700",
+    color: textPrimary,
   },
   emptySubtext: {
     marginTop: 8,
     fontSize: 14,
-    color: "#9aa6bd",
+    color: textSecondary,
     textAlign: "center",
   },
   loadingMore: {

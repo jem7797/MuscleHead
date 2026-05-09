@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   exerciseMuscleGroup: {
     fontSize: 12,

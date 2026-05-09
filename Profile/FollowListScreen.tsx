@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
+import { borderSubtle, screenBackground, textPrimary, textSecondary } from "../theme/colors";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import BackButton from "../Components/BackButton";
 import NavBar from "../Components/NavBar";
@@ -216,7 +217,7 @@ const FollowListScreen = () => {
       <View style={[styles.container, styles.centered]}>
         <BackButton />
         <Text style={styles.headerTitle}>{title}</Text>
-        <ActivityIndicator size="large" color="#1f2a44" style={styles.loader} />
+        <ActivityIndicator size="large" color="#e85d04" style={styles.loader} />
         <NavBar />
       </View>
     );
@@ -264,7 +265,7 @@ const FollowListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   centered: {
     justifyContent: "center",
@@ -278,13 +279,13 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   headerTitle: {
     flex: 1,
     fontSize: 18,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
     textAlign: "center",
   },
   loader: {
@@ -292,7 +293,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: "#5a6a7e",
+    color: textSecondary,
     marginTop: 24,
   },
   listContent: {
@@ -306,7 +307,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   userRowContent: {
     flex: 1,
@@ -336,12 +337,12 @@ const styles = StyleSheet.create({
     marginLeft: 14,
     fontSize: 16,
     fontWeight: "500",
-    color: "#0f1724",
+    color: textPrimary,
   },
   followButton: {
     paddingVertical: 5,
     paddingHorizontal: 12,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     borderRadius: 8,
   },
   followingButton: {
@@ -367,7 +368,7 @@ const styles = StyleSheet.create({
   emptyText: {
     marginTop: 12,
     fontSize: 15,
-    color: "#5a6a7e",
+    color: textSecondary,
   },
 });
 

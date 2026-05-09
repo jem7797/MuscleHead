@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { accent, borderSubtle, surfaceMuted } from "../theme/colors";
 
 interface PageHeaderProps {
   title: string;
@@ -38,7 +39,7 @@ const PageHeader: React.FC<PageHeaderProps> = ({
       paddingHorizontal !== undefined && { paddingHorizontal },
     ]}>
       <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-        <Ionicons name="arrow-back" size={24} color="#1f2a44" />
+        <Ionicons name="arrow-back" size={22} color={accent} />
       </TouchableOpacity>
       <Text style={styles.headerTitle}>{title}</Text>
       <View style={styles.placeholder}>
@@ -59,15 +60,20 @@ const styles = StyleSheet.create({
   },
   headerWithBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: "#e0e6f0",
+    borderBottomColor: borderSubtle,
   },
   backButton: {
     padding: 8,
+    backgroundColor: surfaceMuted,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   headerTitle: {
     fontSize: 20,
-    fontWeight: "700",
-    color: "#1f2a44",
+    fontWeight: "800",
+    letterSpacing: 0.4,
+    color: accent,
   },
   placeholder: {
     minWidth: 40,

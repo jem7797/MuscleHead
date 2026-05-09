@@ -1,10 +1,10 @@
 /**
  * Returns a hex color based on how much time remains in the 48-hour worked-muscle window.
- * progress = 1.0 (just worked) -> navbar blue #202c76
+ * progress = 1.0 (just worked) -> accent #e85d04
  * progress = 0.0 (about to expire) -> #1A56DB
  */
 export function getMuscleColor(expiresAt: string): string {
-  const justWorked = { r: 32, g: 44, b: 118 }; // #202c76 (navbar blue)
+  const justWorked = { r: 232, g: 93, b: 4 }; // #e85d04
   const aboutToExpire = { r: 26, g: 86, b: 219 }; // #1A56DB
 
   const now = Date.now();

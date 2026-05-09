@@ -6,6 +6,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { useRoute } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
 import { getSessionLogById, type SessionLogApiResponse } from "../Services/sessionLogApi";
@@ -80,7 +81,7 @@ const WorkoutDetailPage = () => {
       <View style={styles.container}>
         <PageHeader title="Workout" />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#202c76" />
+          <ActivityIndicator size="large" color="#e85d04" />
           <Text style={styles.loadingText}>Loading workout...</Text>
         </View>
       </View>
@@ -188,7 +189,7 @@ const WorkoutDetailPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   scrollView: {
     flex: 1,
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   statLabel: {
     fontSize: 13,
@@ -247,13 +248,13 @@ const styles = StyleSheet.create({
   },
   notesText: {
     fontSize: 15,
-    color: "#1f2a44",
+    color: "#e85d04",
     lineHeight: 22,
   },
   exercisesTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 16,
   },
   emptyText: {
@@ -273,7 +274,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 4,
   },
   areaText: {
@@ -286,7 +287,7 @@ const styles = StyleSheet.create({
   },
   statLine: {
     fontSize: 14,
-    color: "#1f2a44",
+    color: "#e85d04",
   },
 });
 

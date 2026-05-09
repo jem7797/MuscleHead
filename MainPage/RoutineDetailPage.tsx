@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
@@ -116,7 +117,7 @@ const RoutineDetailPage = () => {
       <View style={styles.container}>
         <PageHeader title="Routine" />
         <View style={styles.centerContent}>
-          <ActivityIndicator size="large" color="#202c76" />
+          <ActivityIndicator size="large" color="#e85d04" />
           <Text style={styles.loadingText}>Loading routine...</Text>
         </View>
       </View>
@@ -225,7 +226,7 @@ const RoutineDetailPage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   scrollView: {
     flex: 1,
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 2,
   },
   areaText: {

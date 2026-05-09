@@ -274,7 +274,10 @@ export interface RecommendedUsersResponse {
 export const fetchRecommendedUsers = async (): Promise<RecommendedUserDto[]> => {
   try {
     const response = await apiRequest("/api/users/recommended", { method: "GET" });
-    if (!response.ok) return [];
+    if (!response.ok) {
+      await response.text().catch(() => {});
+      return [];
+    }
     const text = await response.text();
     if (!text || !text.trim()) return [];
     const data = JSON.parse(text) as RecommendedUsersResponse;

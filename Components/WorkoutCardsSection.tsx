@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import WorkoutCard, { WorkoutSession } from "./WorkoutCard";
+import { textSecondary } from "../theme/colors";
 
 interface WorkoutCardsSectionProps {
   workouts: WorkoutSession[];
@@ -33,7 +34,7 @@ const WorkoutCardsSection: React.FC<WorkoutCardsSectionProps> = ({
       <View style={styles.container}>
         <Text style={styles.sectionTitle}>Your Workouts</Text>
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color="#202c76" />
+          <ActivityIndicator size="small" color="#e85d04" />
           <Text style={styles.loadingText}>Loading workouts...</Text>
         </View>
       </View>
@@ -84,7 +85,7 @@ const WorkoutCardsSection: React.FC<WorkoutCardsSectionProps> = ({
             disabled={isLoadingMore}
           >
             {isLoadingMore ? (
-              <ActivityIndicator size="small" color="#202c76" />
+              <ActivityIndicator size="small" color="#e85d04" />
             ) : (
               <Text style={styles.loadMoreCardText}>
                 Load more
@@ -111,7 +112,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   countText: {
     fontSize: 13,
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
   },
   loadMoreCard: {
     width: 160,
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
     borderRadius: 10,
     paddingVertical: 16,
     paddingHorizontal: 12,
@@ -150,7 +151,7 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     fontSize: 14,
-    color: "#51607a",
+    color: textSecondary,
   },
   emptyContainer: {
     alignItems: "center",
@@ -159,7 +160,7 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#51607a",
+    color: textSecondary,
     marginBottom: 4,
   },
   emptySubtext: {

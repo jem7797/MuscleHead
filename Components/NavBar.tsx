@@ -14,6 +14,14 @@ import {
   getNotifications,
   markAllNotificationsAsRead,
 } from "../Services/notificationsApi";
+import { LinearGradient } from "expo-linear-gradient";
+import {
+  accent,
+  borderSubtle,
+  navBarGlow,
+  screenBackground,
+  textPrimary,
+} from "../theme/colors";
 const NavBar = () => {
   const navigation = useNavigation<any>();
   const route = useRoute();
@@ -59,7 +67,11 @@ const NavBar = () => {
 
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={["rgba(255,255,255,0.09)", screenBackground]}
+      locations={[0, 0.45]}
+      style={styles.container}
+    >
       <View style={styles.box}>
         <TouchableOpacity
           onPress={() =>
@@ -68,11 +80,16 @@ const NavBar = () => {
               : navigation.navigate("Community")
           }
         >
-          <View style={isCommunityActive ? styles.highlightCircle : undefined}>
+          <View
+            style={[
+              styles.iconSlot,
+              isCommunityActive && styles.highlightCircle,
+            ]}
+          >
             <FontAwesome6
               name="people-group"
               size={24}
-              color={isCommunityActive ? "#fff" : "black"}
+              color={isCommunityActive ? "#fff" : textPrimary}
             />
           </View>
         </TouchableOpacity>
@@ -83,11 +100,13 @@ const NavBar = () => {
               : navigation.navigate("Search")
           }
         >
-          <View style={isSearchActive ? styles.highlightCircle : undefined}>
+          <View
+            style={[styles.iconSlot, isSearchActive && styles.highlightCircle]}
+          >
             <Feather
               name="search"
               size={24}
-              color={isSearchActive ? "#fff" : "black"}
+              color={isSearchActive ? "#fff" : textPrimary}
             />
           </View>
         </TouchableOpacity>
@@ -95,29 +114,29 @@ const NavBar = () => {
           onPress={() => navigation.navigate("WorkoutInputMainPage")}
         >
           <View
-            style={
-              active === "WorkoutInputMainPage"
-                ? styles.highlightCircle
-                : undefined
-            }
+            style={[
+              styles.iconSlot,
+              active === "WorkoutInputMainPage" && styles.highlightCircle,
+            ]}
           >
             <Ionicons
               name="barbell-sharp"
               size={30}
-              color={active === "WorkoutInputMainPage" ? "#fff" : "black"}
+              color={active === "WorkoutInputMainPage" ? "#fff" : textPrimary}
             />
           </View>
         </TouchableOpacity>
         <TouchableOpacity onPress={() => handleNotificationClick()}>
           <View
-            style={
-              active === "Notifications" ? styles.highlightCircle : undefined
-            }
+            style={[
+              styles.iconSlot,
+              active === "Notifications" && styles.highlightCircle,
+            ]}
           >
             <Ionicons
               name="notifications"
               size={24}
-              color={active === "Notifications" ? "#fff" : "black"}
+              color={active === "Notifications" ? "#fff" : textPrimary}
             />
             {unreadCount > 0 && (
               <View style={styles.notificationBadge}>
@@ -130,7 +149,10 @@ const NavBar = () => {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("Profile")}>
           <View
-            style={active === "Profile" ? styles.highlightCircle : undefined}
+            style={[
+              styles.iconSlot,
+              active === "Profile" && styles.highlightCircle,
+            ]}
           >
             {showPfp ? (
               <Image
@@ -142,13 +164,13 @@ const NavBar = () => {
               <Ionicons
                 name="person"
                 size={24}
-                color={active === "Profile" ? "#fff" : "black"}
+                color={active === "Profile" ? "#fff" : textPrimary}
               />
             )}
           </View>
         </TouchableOpacity>
       </View>
-    </View>
+    </LinearGradient>
   );
 };
 
@@ -158,33 +180,46 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    paddingVertical: 3,
-    paddingBottom: 8,
+    paddingTop: 20,
+    paddingBottom: 10,
     borderTopWidth: 1,
-    borderColor: "#a2a2a282",
-    backgroundColor: "#fff",
+    borderColor: borderSubtle,
+    overflow: "visible",
   },
 
   box: {
     alignContent: "center",
     justifyContent: "space-around",
     flexDirection: "row",
-    paddingTop: 3,
+    alignItems: "flex-end",
+    paddingHorizontal: 4,
+    overflow: "visible",
+  },
+
+  iconSlot: {
+    minWidth: 56,
+    minHeight: 48,
+    padding: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "visible",
   },
 
   highlightCircle: {
-    backgroundColor: "#202c76",
+    backgroundColor: accent,
     borderRadius: 40,
+    minWidth: 58,
+    minHeight: 60,
     padding: 15,
-    bottom: 25,
-    elevation: 10,
-    shadowColor: "#202c76",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    overflow: "hidden",
+    transform: [{ translateY: -14 }],
+    elevation: 12,
+    shadowColor: navBarGlow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.85,
+    shadowRadius: 10,
     alignItems: "center",
     justifyContent: "center",
+    overflow: "visible",
   },
   profileIcon: {
     width: 24,

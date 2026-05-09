@@ -9,6 +9,7 @@ import {
   Alert,
   TextInput,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceMuted, textPrimary, textSecondary } from "../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import BackButton from "../Components/BackButton";
 import NavBar from "../Components/NavBar";
@@ -143,7 +144,7 @@ const FriendsListScreen = () => {
       <View style={[styles.container, styles.centered]}>
         <BackButton />
         <Text style={styles.headerTitle}>Friends</Text>
-        <ActivityIndicator size="large" color="#1f2a44" style={styles.loader} />
+        <ActivityIndicator size="large" color="#e85d04" style={styles.loader} />
         <NavBar />
       </View>
     );
@@ -231,7 +232,7 @@ const FriendsListScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   centered: {
     justifyContent: "center",
@@ -245,13 +246,13 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   headerTitle: {
     flex: 1,
     fontSize: 18,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
     textAlign: "center",
   },
   searchBar: {
@@ -261,10 +262,10 @@ const styles = StyleSheet.create({
     marginVertical: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: "#f5f7fb",
+    backgroundColor: surfaceMuted,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "#e0e6f0",
+    borderColor: borderSubtle,
   },
   searchIcon: {
     marginRight: 8,
@@ -272,7 +273,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     fontSize: 16,
-    color: "#1f2a44",
+    color: textPrimary,
     paddingVertical: 0,
   },
   clearButton: {
@@ -284,7 +285,7 @@ const styles = StyleSheet.create({
   errorText: {
     marginTop: 16,
     fontSize: 16,
-    color: "#5a6a7e",
+    color: textSecondary,
     textAlign: "center",
   },
   listContent: {
@@ -297,7 +298,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   userRowContent: {
     flex: 1,
@@ -308,7 +309,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#e0e6f0",
+    backgroundColor: surfaceMuted,
     alignItems: "center",
     justifyContent: "center",
     overflow: "hidden",
@@ -325,14 +326,14 @@ const styles = StyleSheet.create({
   username: {
     fontSize: 16,
     fontWeight: "500",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginLeft: 12,
   },
   inviteButton: {
     paddingVertical: 8,
     paddingHorizontal: 14,
     borderRadius: 8,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     minWidth: 120,
     alignItems: "center",
   },

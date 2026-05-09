@@ -1,6 +1,7 @@
 import React from "react";
 import { View, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { borderSubtle, surfaceMuted, textPrimary } from "../../theme/colors";
 
 /**
  * TopBar Component
@@ -21,7 +22,7 @@ const TopBar: React.FC<TopBarProps> = ({ onSettingsPress }) => {
         accessibilityLabel="Open settings"
         activeOpacity={0.7}
       >
-        <Ionicons name="settings-outline" size={20} color="#0f1724" />
+        <Ionicons name="settings-outline" size={20} color={textPrimary} />
       </TouchableOpacity>
     </View>
   );
@@ -36,9 +37,13 @@ const styles = StyleSheet.create({
     paddingTop: 50,
   },
   topIconButton: {
-    padding: 6,
+    padding: 8,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: surfaceMuted,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
 });
 

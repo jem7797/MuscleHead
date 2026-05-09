@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { surfaceMuted, textSecondary } from "../theme/colors";
 
 export interface RoutineTemplate {
   id?: number;
@@ -30,7 +31,7 @@ const RoutineCard: React.FC<RoutineCardProps> = ({ routine, onPress }) => {
         <Text style={styles.name} numberOfLines={1}>
           {routine.name}
         </Text>
-        <Ionicons name="chevron-forward" size={18} color="#51607a" />
+        <Ionicons name="chevron-forward" size={18} color={textSecondary} />
       </View>
     </TouchableOpacity>
   );
@@ -41,7 +42,7 @@ const CARD_WIDTH = 160;
 const styles = StyleSheet.create({
   card: {
     width: CARD_WIDTH,
-    backgroundColor: "#f4f6fa",
+    backgroundColor: surfaceMuted,
     borderRadius: 10,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -53,12 +54,12 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     paddingRight: 5,
   },
   subtitle: {
     fontSize: 13,
-    color: "#51607a",
+    color: textSecondary,
   },
 });
 

@@ -58,6 +58,7 @@ import AchievementToast from "./Components/AchievementToast";
 import InviteToast from "./Components/InviteToast";
 import InviteNotification from "./Components/InviteNotification";
 import { isSupabaseConfigured, supabase } from "./lib/supabase";
+import { screenBackground } from "./theme/colors";
 
 //@ts-ignore
 Amplify.configure(awsConfig);
@@ -99,7 +100,7 @@ export default function App() {
   if (!isSupabaseAuthReady) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" color="#1f2a44" />
+        <ActivityIndicator size="large" color="#e85d04" />
       </View>
     );
   }
@@ -118,7 +119,10 @@ export default function App() {
                     <View style={styles.appRoot}>
                     <NavigationContainer ref={navigationRef}>
                       <Stack.Navigator
-                        screenOptions={{ headerShown: false }}
+                        screenOptions={{
+                          headerShown: false,
+                          contentStyle: { backgroundColor: screenBackground },
+                        }}
                         initialRouteName="Welcome"
                       >
                         <Stack.Screen
@@ -296,6 +300,7 @@ export default function App() {
 const styles = StyleSheet.create({
   appRoot: {
     flex: 1,
+    backgroundColor: screenBackground,
   },
   container: {
     flex: 1,

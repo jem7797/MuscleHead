@@ -10,6 +10,7 @@ import { Image } from "expo-image";
 import type { SearchUser } from "./UserSearchResults";
 import { getProfilePicUrl } from "../../utils/profilePicUrl";
 import type { RecommendedUserDto } from "../../Services/userApi";
+import { borderSubtle, textPrimary } from "../../theme/colors";
 
 function formatFollowerCount(n: number): string {
   if (!Number.isFinite(n) || n < 0) return "0 followers";
@@ -58,7 +59,7 @@ const RecommendedUsers: React.FC<RecommendedUsersProps> = ({
       <View style={styles.container}>
         <Text style={styles.sectionTitle}>Recommended Users</Text>
         <View style={styles.loadingRow}>
-          <ActivityIndicator size="small" color="#1f2a44" />
+          <ActivityIndicator size="small" color="#e85d04" />
         </View>
       </View>
     );
@@ -142,7 +143,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
     marginBottom: 12,
   },
   loadingRow: {
@@ -155,7 +156,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   userRowContent: {
     flex: 1,
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
   displayName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
   },
   handle: {
     fontSize: 14,
@@ -205,7 +206,7 @@ const styles = StyleSheet.create({
   followButton: {
     paddingVertical: 5,
     paddingHorizontal: 12,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     borderRadius: 8,
     marginLeft: 8,
   },

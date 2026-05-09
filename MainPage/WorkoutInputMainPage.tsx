@@ -33,6 +33,7 @@ import {
   DAY_KEYS,
   type WorkoutScheduleEntry,
 } from "../Services/workoutScheduleApi";
+import { screenBackground, textSecondary } from "../theme/colors";
 
 const { height } = Dimensions.get("window");
 
@@ -222,7 +223,7 @@ const WorkoutInputMainPage = () => {
 
           {isProfileLoading ? (
             <View style={styles.statsLoading}>
-              <ActivityIndicator size="small" color="#1f2a44" />
+              <ActivityIndicator size="small" color="#e85d04" />
               <Text style={styles.statsLoadingText}>Loading stats...</Text>
             </View>
           ) : (
@@ -283,7 +284,7 @@ const NAV_BAR_PADDING = 80;
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   fixedTopBar: {
     position: "absolute",
@@ -309,7 +310,7 @@ const styles = StyleSheet.create({
   },
   statsLoadingText: {
     fontSize: 14,
-    color: "#51607a",
+    color: textSecondary,
   },
 });
 

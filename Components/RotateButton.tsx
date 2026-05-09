@@ -19,7 +19,7 @@ const RotateButton: React.FC<RotateButtonProps> = ({ spin, onRotate }) => {
           accessibilityLabel="Rotate to front/back view"
           hitSlop={{ top: 10, right: 10, bottom: 10, left: 10 }}
         >
-          <Ionicons name="swap-horizontal" size={26} color="#1f2a44" />
+          <Ionicons name="swap-horizontal" size={26} color="#e85d04" />
         </TouchableOpacity>
       </Animated.View>
     </View>

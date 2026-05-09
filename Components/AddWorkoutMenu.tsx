@@ -3,6 +3,7 @@ import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
+import { borderSubtle, surfaceElevated } from "../theme/colors";
 const AddWorkoutMenu: React.FC = () => {
   const navigation = useNavigation<any>();
   const [showAddMenu, setShowAddMenu] = useState(false);
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
     left: 20,
     borderRadius: 24,
     color: "black",
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
     padding: 13,
     zIndex: 400,
     elevation: 8,
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 56,
     top: -4,
-    backgroundColor: "#ffffff",
+    backgroundColor: surfaceElevated,
     borderRadius: 12,
     paddingVertical: 10,
     paddingHorizontal: 12,
@@ -63,7 +64,7 @@ const styles = StyleSheet.create({
     zIndex: 201,
     minWidth: 180,
     borderWidth: 1,
-    borderColor: "#e0e6f0",
+    borderColor: borderSubtle,
     shadowColor: "#000",
     shadowOpacity: 0.15,
     shadowRadius: 8,
@@ -77,7 +78,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   addMenuText: {
-    color: "#1f2a44",
+    color: "#e85d04",
     fontSize: 15,
     fontWeight: "500",
   },

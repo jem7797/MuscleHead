@@ -16,7 +16,7 @@ const CollectionCard: React.FC<CollectionCardProps> = ({ title, icon, onPress })
       onPress={onPress}
     >
       <View style={styles.collectionIcon}>
-        <FontAwesome5 name={icon as any} size={18} color="#1f2a44" />
+        <FontAwesome5 name={icon as any} size={18} color="#e85d04" />
       </View>
       <Text style={styles.collectionText}>{title}</Text>
     </TouchableOpacity>
@@ -33,7 +33,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#d6def0",
     gap: 10,
-    shadowColor: "#1f2a44",
+    shadowColor: "#e85d04",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 6,
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
   collectionText: {
     fontSize: 13,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
 });
 

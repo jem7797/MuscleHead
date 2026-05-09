@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   muscleName: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 4,
   },
   muscleSubname: {
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   exercisesTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 8,
   },
   exerciseItem: {

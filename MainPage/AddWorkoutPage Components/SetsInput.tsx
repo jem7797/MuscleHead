@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
+import { surfaceMuted, borderSubtle } from "../../theme/colors";
 interface Set {
   reps: string;
   weight: string;
@@ -82,7 +83,7 @@ const SetsInput: React.FC<SetsInputProps> = ({
         ))}
 
         <TouchableOpacity onPress={onAddSet} style={styles.addSetButtonBottom}>
-          <Ionicons name="add" size={18} color="#202c76" />
+          <Ionicons name="add" size={18} color="#e85d04" />
           <Text style={styles.addSetText}>Add Set</Text>
         </TouchableOpacity>
       </View>
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 10,
   },
   setsContainer: {
@@ -105,7 +106,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
   },
   setsHeaderRow: {
     flexDirection: "row",
@@ -144,14 +145,14 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: surfaceMuted,
     paddingVertical: 8,
     paddingHorizontal: 10,
     borderRadius: 6,
     fontSize: 15,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
-    borderColor: "#e8e8e8",
+    borderColor: borderSubtle,
     marginHorizontal: 4,
     textAlign: "center",
   },
@@ -169,7 +170,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   addSetButtonBottom: {
-    backgroundColor: "white",
+    backgroundColor: surfaceMuted,
     borderRadius: 6,
     paddingVertical: 8,
     paddingHorizontal: 10,
@@ -177,13 +178,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#d0d0d0",
+    borderColor: borderSubtle,
     marginTop: 4,
   },
   addSetText: {
     fontSize: 13,
     fontWeight: "500",
-    color: "#202c76",
+    color: "#e85d04",
     marginLeft: 4,
   },
 });

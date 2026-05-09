@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceElevated, surfaceMuted, textPrimary, textSecondary } from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import type { LiveSessionExercise } from "../lib/sessionService";
 import MuscleManFront from "./MuscleManFront";
@@ -82,7 +83,7 @@ const SpectatorView: React.FC<SpectatorViewProps> = ({
           </TouchableOpacity>
           <TouchableOpacity style={styles.rotateButton} onPress={handleRotate}>
             <Animated.View style={{ transform: [{ rotate: spin }] }}>
-              <Ionicons name="swap-horizontal" size={18} color="#202c76" />
+              <Ionicons name="swap-horizontal" size={18} color="#e85d04" />
             </Animated.View>
           </TouchableOpacity>
         </View>
@@ -167,7 +168,7 @@ const SpectatorView: React.FC<SpectatorViewProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   muscleSection: {
     paddingTop: 12,
@@ -209,7 +210,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 6,
     borderWidth: 1,
-    borderColor: "#202c76",
+    borderColor: "#e85d04",
     zIndex: 10,
     elevation: 2,
     shadowColor: "#000",
@@ -230,7 +231,7 @@ const styles = StyleSheet.create({
   listTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   maxLiftContainer: {
     alignItems: "flex-end",
@@ -243,7 +244,7 @@ const styles = StyleSheet.create({
   maxLiftValue: {
     fontSize: 16,
     fontWeight: "700",
-    color: "#202c76",
+    color: "#e85d04",
   },
   listScroll: {
     flex: 1,
@@ -263,7 +264,7 @@ const styles = StyleSheet.create({
   exerciseGroup: {
     paddingVertical: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   exerciseGroupSpacing: {
     marginTop: 12,
@@ -271,7 +272,7 @@ const styles = StyleSheet.create({
   exerciseGroupTitle: {
     fontSize: 15,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 4,
   },
   exerciseRow: {
@@ -316,7 +317,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   exerciseMeta: {
     fontSize: 12,

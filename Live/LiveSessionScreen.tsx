@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { useRoute, useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
 import WorkoutInputSection, { type WorkoutItem } from "../Components/WorkoutInputSection";
@@ -310,7 +311,7 @@ const LiveSessionScreen: React.FC = () => {
 
       {loading ? (
         <View style={styles.centeredLoading}>
-          <ActivityIndicator size="large" color="#1f2a44" />
+          <ActivityIndicator size="large" color="#e85d04" />
         </View>
       ) : showSummary ? (
         (() => {
@@ -372,7 +373,7 @@ const LiveSessionScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   endButton: {
     paddingVertical: 8,
@@ -399,7 +400,7 @@ const styles = StyleSheet.create({
   },
   tabActive: {
     borderBottomWidth: 2,
-    borderBottomColor: "#1f2a44",
+    borderBottomColor: "#e85d04",
   },
   tabText: {
     fontSize: 16,
@@ -407,7 +408,7 @@ const styles = StyleSheet.create({
     color: "#9aa6bd",
   },
   tabTextActive: {
-    color: "#1f2a44",
+    color: "#e85d04",
     fontWeight: "600",
   },
   listSection: {
@@ -427,7 +428,7 @@ const styles = StyleSheet.create({
   summaryTitle: {
     fontSize: 20,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 16,
     textAlign: "center",
   },
@@ -457,7 +458,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 14,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   summaryValue: {
     flex: 1,
@@ -472,7 +473,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 32,
     borderRadius: 10,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
   },
   summaryCloseButtonText: {
     fontSize: 16,
@@ -488,7 +489,7 @@ const styles = StyleSheet.create({
   exerciseName: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   exerciseDetail: {
     fontSize: 14,

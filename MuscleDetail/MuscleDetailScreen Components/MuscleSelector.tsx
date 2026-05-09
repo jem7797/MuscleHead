@@ -2,6 +2,7 @@ import React from "react";
 import { View, StyleSheet } from "react-native";
 import SelectorButton from "../../Components/SelectorButton";
 
+import { screenBackground } from "../../theme/colors";
 interface MuscleInfo {
   name: string;
   subname: string;
@@ -57,7 +58,7 @@ const styles = StyleSheet.create({
     bottom: 50,
     left: 0,
     right: 0,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     paddingVertical: 12,
     paddingHorizontal: 16,
     elevation: 8,
@@ -77,8 +78,8 @@ const styles = StyleSheet.create({
     borderColor: "#e0e6f0",
   },
   muscleButtonActive: {
-    backgroundColor: "#202c76",
-    borderColor: "#202c76",
+    backgroundColor: "#e85d04",
+    borderColor: "#e85d04",
   },
   muscleButtonText: {
     fontSize: 14,

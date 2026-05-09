@@ -9,6 +9,7 @@ import {
   Modal,
   Alert,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceMuted, textPrimary, textSecondary } from "../theme/colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import {
   useRoute,
@@ -276,7 +277,7 @@ const UserProfileScreen = () => {
   if (loading) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <ActivityIndicator size="large" color="#1f2a44" />
+        <ActivityIndicator size="large" color="#e85d04" />
         <NavBar />
       </View>
     );
@@ -481,7 +482,7 @@ const UserProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   centered: {
     justifyContent: "center",
@@ -495,13 +496,13 @@ const styles = StyleSheet.create({
     paddingTop: 50,
     paddingBottom: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   headerTitle: {
     flex: 1,
     fontSize: 18,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
     textAlign: "center",
   },
   scrollContent: {
@@ -534,7 +535,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     fontSize: 20,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
   },
   rankText: {
     marginTop: 4,
@@ -551,7 +552,7 @@ const styles = StyleSheet.create({
   followButton: {
     paddingVertical: 8,
     paddingHorizontal: 20,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     borderRadius: 10,
   },
   followingButton: {
@@ -568,7 +569,7 @@ const styles = StyleSheet.create({
   inviteButton: {
     paddingVertical: 8,
     paddingHorizontal: 16,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     borderRadius: 10,
   },
   inviteButtonText: {
@@ -580,7 +581,9 @@ const styles = StyleSheet.create({
     width: 35,
     height: 35,
     borderRadius: 22,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     alignItems: "center",
     justifyContent: "center",
   },
@@ -595,7 +598,7 @@ const styles = StyleSheet.create({
     padding: 24,
   },
   modalContent: {
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     borderRadius: 16,
     padding: 24,
     width: "100%",
@@ -608,12 +611,12 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 8,
   },
   modalText: {
     fontSize: 15,
-    color: "#5a6a7e",
+    color: textSecondary,
     textAlign: "center",
     marginBottom: 24,
     lineHeight: 22,
@@ -630,15 +633,17 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalButtonCancel: {
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   modalButtonConfirm: {
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
   },
   modalButtonCancelText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#5a6a7e",
+    color: textSecondary,
   },
   modalButtonConfirmText: {
     fontSize: 15,
@@ -647,7 +652,7 @@ const styles = StyleSheet.create({
   },
   errorText: {
     fontSize: 16,
-    color: "#5a6a7e",
+    color: textSecondary,
   },
   metricsSection: {
     width: "100%",

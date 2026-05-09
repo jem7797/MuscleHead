@@ -36,7 +36,7 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
           onPress={() => navigation.navigate("MuscleDetail")}
           activeOpacity={0.7}
         >
-          <Ionicons name="expand" size={16} color="#1f2a44" />
+          <Ionicons name="expand" size={16} color="#e85d04" />
         </TouchableOpacity>
       </View>
     );
@@ -56,7 +56,7 @@ const MuscleManView: React.FC<MuscleManViewProps> = ({ isBack, size }) => {
         onPress={() => navigation.navigate("MuscleDetail")}
         activeOpacity={0.7}
       >
-        <Ionicons name="expand" size={16} color="#1f2a44" />
+        <Ionicons name="expand" size={16} color="#e85d04" />
       </TouchableOpacity>
     </View>
   );

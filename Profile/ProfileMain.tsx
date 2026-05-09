@@ -12,6 +12,7 @@ import ProgressBar from "./ProfileComponents/ProgressBar";
 import MetricsRow from "./ProfileComponents/MetricsRow";
 import ContentSection from "./ProfileComponents/ContentSection";
 import { useUser } from "../Contexts/UserContext";
+import { borderSubtle, screenBackground, surfaceElevated } from "../theme/colors";
 
 const formatHeight = (totalInches?: number | null) => {
   if (totalInches === undefined || totalInches === null) {
@@ -162,7 +163,7 @@ const ProfileScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     alignItems: "center",
   },
   scrollView: {
@@ -176,6 +177,12 @@ const styles = StyleSheet.create({
   highlightsContainer: {
     width: "90%",
     marginTop: 26,
+    paddingHorizontal: 16,
+    paddingVertical: 18,
+    backgroundColor: surfaceElevated,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
 });
 

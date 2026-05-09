@@ -12,6 +12,13 @@ import {
   Modal,
   Linking,
 } from "react-native";
+import {
+  borderSubtle,
+  screenBackground,
+  surfaceElevated,
+  surfaceMuted,
+  textPrimary,
+} from "../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "@react-navigation/native";
@@ -250,7 +257,7 @@ const CreatePostScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   header: {
     flexDirection: "row",
@@ -260,12 +267,12 @@ const styles = StyleSheet.create({
     paddingTop: 52,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   title: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
   },
   headerSpacer: {
     width: 40,
@@ -288,11 +295,11 @@ const styles = StyleSheet.create({
   uploadZone: {
     width: "100%",
     minHeight: 160,
-    backgroundColor: "#f8f9fc",
+    backgroundColor: surfaceMuted,
     borderRadius: 16,
     borderWidth: 2,
     borderStyle: "dashed",
-    borderColor: "#e0e6f0",
+    borderColor: borderSubtle,
     alignItems: "center",
     justifyContent: "center",
     marginBottom: 16,
@@ -305,7 +312,7 @@ const styles = StyleSheet.create({
   uploadZonePrimary: {
     fontSize: 17,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginTop: 12,
   },
   uploadZoneSecondary: {
@@ -322,14 +329,16 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 16,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceElevated,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     alignItems: "center",
   },
   pillButtonText: {
     fontSize: 14,
     fontWeight: "500",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   imagePreviewWrapper: {
     width: "100%",
@@ -337,7 +346,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: "hidden",
     marginBottom: 28,
-    backgroundColor: "#f5f6f8",
+    backgroundColor: surfaceMuted,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.06,
@@ -373,8 +382,10 @@ const styles = StyleSheet.create({
     padding: 16,
     paddingBottom: 36,
     fontSize: 16,
-    color: "#0f1724",
-    backgroundColor: "#f8f9fc",
+    color: textPrimary,
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     borderRadius: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -421,7 +432,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   cameraPreviewBtnPrimary: {
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
   },
   cameraPreviewBtnText: {
     fontSize: 16,

@@ -10,6 +10,7 @@ import type { SearchUser } from "./UserSearchResults";
 import { getProfilePicUrl } from "../../utils/profilePicUrl";
 import { useUser } from "../../Contexts/UserContext";
 import { Image } from "expo-image";
+import { borderSubtle, textPrimary } from "../../theme/colors";
 
 interface RecentSearchesProps {
   users: SearchUser[];
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
     marginBottom: 12,
   },
   userRow: {
@@ -76,7 +77,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   avatar: {
     width: 44,
@@ -101,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 16,
     fontWeight: "500",
-    color: "#0f1724",
+    color: textPrimary,
   },
   clearButton: {
     flexDirection: "row",

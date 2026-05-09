@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { textSecondary } from "../theme/colors";
 
 interface DayHeaderProps {
   dayName: string;
@@ -18,7 +19,7 @@ const DayHeader: React.FC<DayHeaderProps> = ({
       <Text style={styles.dayTitle}>{dayName}</Text>
       <TouchableOpacity style={styles.editScheduleContainer} onPress={onEditPress}>
         <Text style={styles.daySubtitle}>{workoutPlanForDay} </Text>
-        <Ionicons name="pencil-outline" size={16} color="#51607a" />
+        <Ionicons name="pencil-outline" size={16} color={textSecondary} />
       </TouchableOpacity>
     </>
   );
@@ -35,11 +36,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     fontSize: 20,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   daySubtitle: {
     textAlign: "center",
-    color: "#51607a",
+    color: textSecondary,
     marginBottom: 8,
     fontSize: 13,
     fontWeight: "500",

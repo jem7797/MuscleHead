@@ -7,6 +7,14 @@ import {
   Pressable,
   TouchableOpacity,
 } from "react-native";
+import {
+  accent,
+  borderSubtle,
+  sheetHandle,
+  surfaceElevated,
+  surfaceMuted,
+  textPrimary,
+} from "../../theme/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useUser } from "../../Contexts/UserContext";
@@ -58,6 +66,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
     >
       <View style={styles.modalOverlay}>
         <View style={styles.modalContent}>
+          <View style={styles.sheetHandle} />
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>User Settings</Text>
             <Pressable
@@ -66,7 +75,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
               accessibilityRole="button"
               accessibilityLabel="Close settings"
             >
-              <Ionicons name="close" size={22} color="#1f2a44" />
+              <Ionicons name="close" size={22} color={accent} />
             </Pressable>
           </View>
 
@@ -78,7 +87,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 onEditProfile?.();
               }}
             >
-              <Ionicons name="create-outline" size={22} color="#1f2a44" />
+              <Ionicons name="create-outline" size={22} color={accent} />
               <Text style={styles.settingsText}>Edit profile</Text>
             </TouchableOpacity>
 
@@ -89,7 +98,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 onAccoladesPress?.();
               }}
             >
-              <Ionicons name="ribbon-sharp" size={22} color="#1f2a44" />
+              <Ionicons name="ribbon-sharp" size={22} color={accent} />
               <Text style={styles.settingsText}>Accolades</Text>
             </TouchableOpacity>
 
@@ -100,7 +109,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({
                 onFollowRequestsPress?.();
               }}
             >
-              <Ionicons name="person-add-outline" size={22} color="#1f2a44" />
+              <Ionicons name="person-add-outline" size={22} color={accent} />
               <Text style={styles.settingsText}>Follow Requests</Text>
             </TouchableOpacity>
 
@@ -136,12 +145,24 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   modalContent: {
-    backgroundColor: "#fff",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
+    backgroundColor: surfaceElevated,
+    borderTopLeftRadius: 22,
+    borderTopRightRadius: 22,
     paddingHorizontal: 20,
-    paddingTop: 18,
+    paddingTop: 10,
     paddingBottom: 30,
+    borderTopWidth: 1,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderColor: borderSubtle,
+  },
+  sheetHandle: {
+    alignSelf: "center",
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: sheetHandle,
+    marginBottom: 14,
   },
   modalHeader: {
     flexDirection: "row",
@@ -150,12 +171,17 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#1f2a44",
+    fontSize: 19,
+    fontWeight: "800",
+    letterSpacing: 0.3,
+    color: accent,
   },
   closeButton: {
     padding: 6,
+    backgroundColor: surfaceMuted,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: borderSubtle,
   },
   settingsList: {
     width: "100%",
@@ -164,17 +190,19 @@ const styles = StyleSheet.create({
   settingsItem: {
     flexDirection: "row",
     alignItems: "center",
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    backgroundColor: "#f5f7fb",
-    marginBottom: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    borderRadius: 14,
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
+    marginBottom: 10,
   },
   settingsText: {
     marginLeft: 12,
     fontSize: 15,
-    color: "#1f2a44",
-    fontWeight: "500",
+    color: textPrimary,
+    fontWeight: "600",
   },
 });
 

@@ -8,6 +8,7 @@ import {
   Text,
   Alert,
 } from "react-native";
+import { screenBackground } from "../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { useWorkoutStats } from "../Contexts/WorkoutStatsContext";
 import { useMovements } from "../Contexts/MovementContext";
@@ -171,7 +172,7 @@ const WorkoutStatsPage = () => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   content: {
     flex: 1,
@@ -186,7 +187,7 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 8,
   },
   workoutNotesInput: {
@@ -196,7 +197,7 @@ const styles = StyleSheet.create({
     paddingBottom: 12,
     paddingHorizontal: 16,
     fontSize: 16,
-    color: "#1f2a44",
+    color: "#e85d04",
     borderWidth: 1,
     borderColor: "#e8e8e8",
     minHeight: 120,
@@ -207,7 +208,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: "#e8e8e8",
-    backgroundColor: "white",
+    backgroundColor: screenBackground,
   },
   buttonRow: {
     flexDirection: "row",

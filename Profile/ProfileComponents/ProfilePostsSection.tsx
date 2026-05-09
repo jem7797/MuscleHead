@@ -11,6 +11,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+import { borderSubtle, screenBackground, surfaceElevated, surfaceMuted, textPrimary } from "../../theme/colors";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import FeedPost from "../../Community/FeedPost";
@@ -267,7 +268,7 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
           <Ionicons
             name="images-outline"
             size={20}
-            color={activeTab === "posts" ? "#1f2a44" : "#9aa6bd"}
+            color={activeTab === "posts" ? "#e85d04" : "#9aa6bd"}
           />
           <Text
             style={[
@@ -287,7 +288,7 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
           <Ionicons
             name="chatbubble-outline"
             size={20}
-            color={activeTab === "texts" ? "#1f2a44" : "#9aa6bd"}
+            color={activeTab === "texts" ? "#e85d04" : "#9aa6bd"}
           />
           <Text
             style={[
@@ -303,7 +304,7 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
 
       {loading ? (
         <View style={styles.loading}>
-          <ActivityIndicator size="small" color="#1f2a44" />
+          <ActivityIndicator size="small" color="#e85d04" />
         </View>
       ) : displayedPosts.length === 0 ? (
         renderEmpty()
@@ -477,7 +478,7 @@ const styles = StyleSheet.create({
   tabRow: {
     flexDirection: "row",
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   tab: {
     flex: 1,
@@ -494,7 +495,7 @@ const styles = StyleSheet.create({
     color: "#9aa6bd",
   },
   tabLabelActive: {
-    color: "#1f2a44",
+    color: "#e85d04",
     fontWeight: "600",
   },
   tabUnderline: {
@@ -503,7 +504,7 @@ const styles = StyleSheet.create({
     left: "20%",
     right: "20%",
     height: 2,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     borderRadius: 1,
   },
   loading: {
@@ -520,7 +521,7 @@ const styles = StyleSheet.create({
     width: "33.333%",
     aspectRatio: 1,
     padding: GAP / 2,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
     overflow: "hidden",
   },
   gridImage: {
@@ -553,7 +554,7 @@ const styles = StyleSheet.create({
   modalContent: {
     width: "100%",
     maxWidth: 400,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
     borderRadius: 16,
     overflow: "hidden",
   },
@@ -600,7 +601,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
     paddingTop: 12,
     borderTopWidth: 1,
-    borderTopColor: "#e8ecf4",
+    borderTopColor: borderSubtle,
   },
   modalCommentsList: {
     marginBottom: 12,
@@ -611,11 +612,11 @@ const styles = StyleSheet.create({
   modalCommentUsername: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
   },
   modalCommentText: {
     fontSize: 14,
-    color: "#0f1724",
+    color: textPrimary,
     lineHeight: 20,
     marginTop: 2,
   },
@@ -641,10 +642,12 @@ const styles = StyleSheet.create({
     maxHeight: 100,
     paddingHorizontal: 12,
     paddingVertical: 10,
-    backgroundColor: "#f5f6f8",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     borderRadius: 12,
     fontSize: 15,
-    color: "#0f1724",
+    color: textPrimary,
   },
   commentPostButton: {
     paddingVertical: 10,
@@ -656,7 +659,7 @@ const styles = StyleSheet.create({
   commentPostText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   commentPostTextDisabled: {
     color: "#9aa6bd",
@@ -668,7 +671,7 @@ const styles = StyleSheet.create({
   modalCaption: {
     marginTop: 12,
     fontSize: 15,
-    color: "#0f1724",
+    color: textPrimary,
     lineHeight: 22,
   },
 });

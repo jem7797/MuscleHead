@@ -12,6 +12,13 @@ import {
   UIManager,
   Alert,
 } from "react-native";
+import {
+  borderSubtle,
+  screenBackground,
+  surfaceElevated,
+  surfaceMuted,
+  textSecondary,
+} from "../theme/colors";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -489,7 +496,7 @@ const NotificationCenterScreen = () => {
           >
             <IconComponent
               size={24}
-              color={achievement ? "#ffd700" : "#202c76"}
+              color={achievement ? "#ffd700" : "#e85d04"}
             />
           </View>
           <View style={styles.content}>
@@ -536,7 +543,7 @@ const NotificationCenterScreen = () => {
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Notifications</Text>
         </View>
-        <ActivityIndicator size="large" color="#202c76" style={styles.loader} />
+        <ActivityIndicator size="large" color="#e85d04" style={styles.loader} />
         <NavBar />
       </View>
     );
@@ -575,7 +582,7 @@ const NotificationCenterScreen = () => {
           ListFooterComponent={
             loadingMore ? (
               <View style={styles.footerLoader}>
-                <ActivityIndicator size="small" color="#202c76" />
+                <ActivityIndicator size="small" color="#e85d04" />
               </View>
             ) : null
           }
@@ -583,7 +590,7 @@ const NotificationCenterScreen = () => {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              tintColor="#202c76"
+              tintColor="#e85d04"
             />
           }
         />
@@ -596,7 +603,7 @@ const NotificationCenterScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: screenBackground,
   },
   centered: {
     justifyContent: "center",
@@ -607,12 +614,12 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     paddingHorizontal: 24,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   headerTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   loader: {
     marginTop: 24,
@@ -623,11 +630,11 @@ const styles = StyleSheet.create({
     paddingBottom: 120,
   },
   notificationCard: {
-    backgroundColor: "#fff",
+    backgroundColor: surfaceElevated,
     borderRadius: 12,
     marginBottom: 8,
     borderWidth: 1,
-    borderColor: "#e8ecf4",
+    borderColor: borderSubtle,
     overflow: "hidden",
   },
   notificationRow: {
@@ -664,20 +671,22 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
+    borderWidth: 1,
+    borderColor: borderSubtle,
     alignItems: "center",
   },
   acceptButton: {
     flex: 1,
     paddingVertical: 10,
     borderRadius: 10,
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
     alignItems: "center",
   },
   declineButtonText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#5a6a7e",
+    color: textSecondary,
   },
   acceptButtonText: {
     fontSize: 14,
@@ -697,7 +706,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    backgroundColor: "#202c76",
+    backgroundColor: "#e85d04",
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 10,
@@ -714,19 +723,19 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: 14,
-    color: "#5a6a7e",
+    color: textSecondary,
     lineHeight: 20,
     paddingLeft: 58,
   },
   notificationRead: {
-    backgroundColor: "#f8f9fa",
-    opacity: 0.9,
+    backgroundColor: surfaceMuted,
+    opacity: 0.92,
   },
   iconWrapper: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: "#e8ecf4",
+    backgroundColor: surfaceMuted,
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
@@ -741,12 +750,12 @@ const styles = StyleSheet.create({
   message: {
     fontSize: 15,
     fontWeight: "500",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginBottom: 2,
   },
   timeAgo: {
     fontSize: 12,
-    color: "#5a6a7e",
+    color: textSecondary,
   },
   emptyState: {
     flex: 1,
@@ -758,13 +767,13 @@ const styles = StyleSheet.create({
   emptyTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
     marginTop: 20,
     marginBottom: 8,
   },
   emptySubtext: {
     fontSize: 14,
-    color: "#5a6a7e",
+    color: textSecondary,
     textAlign: "center",
     lineHeight: 20,
   },

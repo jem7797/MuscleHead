@@ -10,6 +10,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { getProfilePicUrl } from "../../utils/profilePicUrl";
 import { useUser } from "../../Contexts/UserContext";
 import { Image } from "expo-image";
+import { borderSubtle, textPrimary } from "../../theme/colors";
 
 export interface SearchUser {
   sub_id?: string;
@@ -56,7 +57,7 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
       <View style={styles.container}>
         <Text style={styles.sectionTitle}>Users</Text>
         <View style={styles.empty}>
-          <ActivityIndicator size="large" color="#1f2a44" />
+          <ActivityIndicator size="large" color="#e85d04" />
         </View>
       </View>
     );
@@ -134,7 +135,7 @@ const UserSearchResults: React.FC<UserSearchResultsProps> = ({
           disabled={isLoading}
         >
           {isLoading ? (
-            <ActivityIndicator size="small" color="#1f2a44" />
+            <ActivityIndicator size="small" color="#e85d04" />
           ) : (
             <Text style={styles.loadMoreText}>Load more</Text>
           )}
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#0f1724",
+    color: textPrimary,
     marginBottom: 12,
   },
   userRow: {
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 4,
     borderBottomWidth: 1,
-    borderBottomColor: "#e8ecf4",
+    borderBottomColor: borderSubtle,
   },
   userRowContent: {
     flex: 1,
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   followButton: {
     paddingVertical: 5,
     paddingHorizontal: 12,
-    backgroundColor: "#1f2a44",
+    backgroundColor: "#e85d04",
     borderRadius: 8,
   },
   followingButton: {
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     marginLeft: 14,
     fontSize: 16,
     fontWeight: "500",
-    color: "#0f1724",
+    color: textPrimary,
   },
   loadMore: {
     paddingVertical: 16,
@@ -219,7 +220,7 @@ const styles = StyleSheet.create({
   loadMoreText: {
     fontSize: 15,
     fontWeight: "600",
-    color: "#1f2a44",
+    color: "#e85d04",
   },
   empty: {
     paddingVertical: 48,
