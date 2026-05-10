@@ -279,7 +279,7 @@ const WorkoutInputMainPage = () => {
   );
 };
 
-const NAV_BAR_PADDING = 80;
+const NAV_BAR_PADDING = 150;
 
 const styles = StyleSheet.create({
   mainContainer: {

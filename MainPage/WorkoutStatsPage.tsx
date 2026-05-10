@@ -34,6 +34,7 @@ const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
 
 /** Dark scrim over fireworks so cards/text stay readable (matches cool grey base). */
 const FIREWORKS_SCRIM = "rgba(53, 56, 64, 0.72)";
+const SAVE_LOG_PREFIX = "[WorkoutSave]";
 
 const WorkoutStatsPage = () => {
   const navigation = useNavigation<any>();
@@ -57,6 +58,14 @@ const WorkoutStatsPage = () => {
 
   const handleSave = async () => {
     if (!stats) return;
+    console.log(`${SAVE_LOG_PREFIX} Save & Continue tapped`, {
+      totalWorkouts: stats.workouts.length,
+      totalTime: stats.totalTime,
+      totalWeight: stats.totalWeight,
+      maxLift: stats.maxLift,
+      movementsLoading,
+      movementCount: movements.length,
+    });
     setSaving(true);
     try {
       const completedWorkouts = stats.workouts.filter(
@@ -64,10 +73,18 @@ const WorkoutStatsPage = () => {
           w.workout &&
           w.sets.some((s) => s.reps && s.weight)
       );
+      console.log(`${SAVE_LOG_PREFIX} Completed workouts filtered`, {
+        completedCount: completedWorkouts.length,
+        workoutNames: completedWorkouts.map((w) => w.workout),
+      });
+      const unmatchedWorkoutNames: string[] = [];
       const exercises = completedWorkouts
         .map((w) => {
           const exerciseId = w.exerciseId ?? (w.workout ? getMovementId(w.workout) : undefined);
-          if (exerciseId == null) return null;
+          if (exerciseId == null) {
+            if (w.workout) unmatchedWorkoutNames.push(w.workout);
+            return null;
+          }
           const completedSets = w.sets.filter((s) => s.reps && s.weight);
           const lastSet = completedSets[completedSets.length - 1];
           return {
@@ -79,6 +96,10 @@ const WorkoutStatsPage = () => {
           };
         })
         .filter((e): e is NonNullable<typeof e> => e != null);
+      console.log(`${SAVE_LOG_PREFIX} Exercise payload generated`, {
+        payloadCount: exercises.length,
+        unmatchedWorkoutNames,
+      });
 
       if (completedWorkouts.length > 0 && exercises.length === 0) {
         const reason = movementsLoading
@@ -86,6 +107,10 @@ const WorkoutStatsPage = () => {
           : movements.length === 0
             ? "Could not load exercises from the server. Check your connection and try again."
             : "Exercise names could not be matched. The server may use different names than the app.";
+        console.warn(`${SAVE_LOG_PREFIX} Aborting save before API call`, {
+          reason,
+          unmatchedWorkoutNames,
+        });
         Alert.alert("Could not save exercises", reason);
         setSaving(false);
         return;
@@ -101,13 +126,24 @@ const WorkoutStatsPage = () => {
         exercises,
       };
       if (notes.trim()) sessionLogData.notes = notes.trim();
+      console.log(`${SAVE_LOG_PREFIX} createSessionLog request`, sessionLogData);
       const response = await createSessionLog(sessionLogData);
+      console.log(`${SAVE_LOG_PREFIX} createSessionLog success`, response);
       if (exercises.length > 0) {
+        console.log(`${SAVE_LOG_PREFIX} postWorkedMuscles queued`, {
+          exerciseCount: exercises.length,
+        });
         postWorkedMuscles(exercises).then(() => {
+          console.log(`${SAVE_LOG_PREFIX} postWorkedMuscles success`);
           refreshWorkedMuscles();
+        }).catch((postError) => {
+          console.warn(`${SAVE_LOG_PREFIX} postWorkedMuscles failed`, postError);
         });
       }
       if (response.newlyAwardedMedals?.length > 0) {
+        console.log(`${SAVE_LOG_PREFIX} New medals awarded`, {
+          medalCount: response.newlyAwardedMedals.length,
+        });
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         await addMedalsFromWorkout(response.newlyAwardedMedals);
         // Defer navigation so the achievement queue is committed before the new screen mounts
@@ -115,17 +151,30 @@ const WorkoutStatsPage = () => {
           navigation.navigate("WorkoutInputMainPage");
         });
       } else {
+        console.log(`${SAVE_LOG_PREFIX} No new medals, navigating to WorkoutInputMainPage`);
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
         navigation.navigate("WorkoutInputMainPage");
       }
       addToLifetimeStats(stats.totalWeight, stats.totalTime / 60);
       setStats(null);
+      console.log(`${SAVE_LOG_PREFIX} Save flow completed`);
     } catch (e) {
+      const err = e as any;
+      const errorMessage =
+        err?.response?.data?.message ??
+        err?.message ??
+        err?.toString?.() ??
+        "Unknown error";
+      console.error(`${SAVE_LOG_PREFIX} Save failed`, {
+        errorMessage,
+        error: err,
+      });
       Alert.alert(
         "Save failed",
-        "Could not save workout. Please try again."
+        `Could not save workout. ${errorMessage}`
       );
     } finally {
+      console.log(`${SAVE_LOG_PREFIX} handleSave finished`);
       setSaving(false);
     }
   };

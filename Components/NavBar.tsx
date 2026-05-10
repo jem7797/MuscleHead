@@ -67,7 +67,8 @@ const NavBar = () => {
   };
 
 
-  const bottomPad = Math.max(9, insets.bottom);
+  // Nudge icons a bit lower so the bar sits closer to the device bottom edge.
+  const bottomPad = Math.max(4, insets.bottom - 4);
   const blurIntensity = Platform.OS === "ios" ? 45 : 70;
 
   return (
@@ -186,7 +187,7 @@ const NavBar = () => {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    bottom: 0,
+    bottom: -4,
     left: 0,
     right: 0,
     paddingTop: 17,

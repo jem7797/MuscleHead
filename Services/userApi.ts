@@ -7,6 +7,19 @@
 
 import { apiRequest, parseJsonResponse } from "./apiConfig";
 
+export interface StreakResponse {
+  current_streak?: number;
+  currentStreak?: number;
+  longest_streak?: number;
+  longestStreak?: number;
+  last_workout_date?: string | null;
+  lastWorkoutDate?: string | null;
+  streak_status?: "ACTIVE" | "AT_RISK" | "BROKEN" | string | null;
+  streakStatus?: "ACTIVE" | "AT_RISK" | "BROKEN" | string | null;
+  grace_period_start?: string | null;
+  gracePeriodStart?: string | null;
+}
+
 /**
  * Reports a minor (under-13) sign-up attempt to the backend.
  * Backend bans the email - no Cognito account is created.
@@ -133,6 +146,16 @@ export const createUser = async (
  */
 export const getCurrentUserProfile = async (): Promise<any> => {
   const response = await apiRequest("/user/api/me", { method: "GET" });
+  return parseJsonResponse(response);
+};
+
+/**
+ * Gets streak information for the authenticated user.
+ *
+ * Backend enforces authSubId === {subId}; returns 403 for other users.
+ */
+export const getUserStreak = async (subId: string): Promise<StreakResponse> => {
+  const response = await apiRequest(`/user/api/${subId}/streak`, { method: "GET" });
   return parseJsonResponse(response);
 };
 

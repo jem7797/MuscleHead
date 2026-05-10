@@ -11,6 +11,7 @@ import { getCurrentUserSub } from "../Services/apiConfig";
 import {
   getUser,
   getCurrentUserProfile,
+  getUserStreak,
   updateUser,
   deleteUser,
 } from "../Services/userApi";
@@ -29,6 +30,8 @@ interface Rank {
   name: string;
 }
 
+type StreakStatus = "ACTIVE" | "AT_RISK" | "BROKEN";
+
 interface UserContextType {
   // Auth state
   given_name: string;
@@ -45,6 +48,10 @@ interface UserContextType {
   weight: number | null;
   lifetimeWeightLifted: number | null;
   lifetimeGymTime: number | null;
+  currentStreak: number;
+  longestStreak: number;
+  lastWorkoutDate: string | null;
+  streakStatus: StreakStatus | null;
 
 
   //privacy
@@ -134,6 +141,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [weight, setWeight] = useState<number | null>();
   const [lifetimeWeightLifted, setLifetimeWeightLifted] = useState<number>();
   const [lifetimeGymTime, setLifetimeGymTime] = useState<number>();
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [lastWorkoutDate, setLastWorkoutDate] = useState<string | null>(null);
+  const [streakStatus, setStreakStatus] = useState<StreakStatus | null>(null);
   const [isNatty, setIsNatty] = useState<boolean>();
   const [xp, setXp] = useState<number>(0);
   const [rank, setRank] = useState<Rank | null>();
@@ -214,6 +225,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setWeight(undefined);
     setLifetimeWeightLifted(undefined);
     setLifetimeGymTime(undefined);
+    setCurrentStreak(0);
+    setLongestStreak(0);
+    setLastWorkoutDate(null);
+    setStreakStatus(null);
     setIsNatty(undefined);
     setXp(0);
     setRank(null);
@@ -402,8 +417,9 @@ const deleteCurrentUser = async () => {
     if (!id) return;
     setProfileLoading(true);
     try {
+      const isOwnProfile = id === userId;
       const userData =
-        id === userId ? await getCurrentUserProfile() : await getUser(id);
+        isOwnProfile ? await getCurrentUserProfile() : await getUser(id);
       setUsername(userData.username ?? " ");
       setBio(userData.bio ?? "");
       setgiven_name(userData.first_name ?? userData.given_name ?? "");
@@ -413,6 +429,51 @@ const deleteCurrentUser = async () => {
       setWeight(userData.weight ?? null);
       setLifetimeWeightLifted(userData.lifetime_weight_lifted);
       setLifetimeGymTime(userData.lifetime_gym_time);
+
+      if (isOwnProfile) {
+        try {
+          const streakData = await getUserStreak(id);
+          setCurrentStreak(
+            streakData.current_streak ?? streakData.currentStreak ?? 0,
+          );
+          setLongestStreak(
+            streakData.longest_streak ?? streakData.longestStreak ?? 0,
+          );
+          setLastWorkoutDate(
+            streakData.last_workout_date ?? streakData.lastWorkoutDate ?? null,
+          );
+          const rawStreakStatus =
+            streakData.streak_status ?? streakData.streakStatus ?? null;
+          const normalizedStreakStatus =
+            rawStreakStatus === "ACTIVE" ||
+            rawStreakStatus === "AT_RISK" ||
+            rawStreakStatus === "BROKEN"
+              ? rawStreakStatus
+              : null;
+          setStreakStatus(normalizedStreakStatus);
+        } catch {
+          // Fallback to profile payload if streak endpoint is unavailable.
+          setCurrentStreak(
+            userData.current_streak ?? userData.currentStreak ?? 0,
+          );
+          setLongestStreak(
+            userData.longest_streak ?? userData.longestStreak ?? 0,
+          );
+          setLastWorkoutDate(
+            userData.last_workout_date ?? userData.lastWorkoutDate ?? null,
+          );
+          const rawStreakStatus =
+            userData.streak_status ?? userData.streakStatus ?? null;
+          const normalizedStreakStatus =
+            rawStreakStatus === "ACTIVE" ||
+            rawStreakStatus === "AT_RISK" ||
+            rawStreakStatus === "BROKEN"
+              ? rawStreakStatus
+              : null;
+          setStreakStatus(normalizedStreakStatus);
+        }
+      }
+
       setIsNatty(userData.nattyStatus);
       setXp(userData.xp ?? 0);
       setRank(userData.rank);
@@ -497,6 +558,10 @@ const deleteCurrentUser = async () => {
         weight: weight ?? null,
         lifetimeWeightLifted: lifetimeWeightLifted ?? null,
         lifetimeGymTime: lifetimeGymTime ?? null,
+        currentStreak,
+        longestStreak,
+        lastWorkoutDate,
+        streakStatus,
         addToLifetimeStats,
         levelUpModal,
         dismissLevelUpModal,
