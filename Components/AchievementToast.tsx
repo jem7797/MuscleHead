@@ -14,7 +14,10 @@ const NAV_BAR_HEIGHT = 70;
 const DISPLAY_DURATION_MS = 5000;
 
 type AchievementToastProps = {
-  navigationRef: React.RefObject<{ navigate: (name: string) => void; isReady: () => boolean } | null>;
+  navigationRef: React.RefObject<{
+    navigate: (name: string) => void;
+    isReady: () => boolean;
+  } | null>;
 };
 
 /**
@@ -27,11 +30,8 @@ const SLIDE_DISTANCE = 100;
 const SPRING_CONFIG = { tension: 100, friction: 8 };
 
 const AchievementToast = ({ navigationRef }: AchievementToastProps) => {
-  const {
-    activeAchievement,
-    dismissAchievement,
-    triggerAchievementCheck,
-  } = useAchievement();
+  const { activeAchievement, dismissAchievement, triggerAchievementCheck } =
+    useAchievement();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const translateY = useRef(new Animated.Value(SLIDE_DISTANCE)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -82,7 +82,9 @@ const AchievementToast = ({ navigationRef }: AchievementToastProps) => {
   if (!activeAchievement) return null;
 
   const rawName =
-    activeAchievement.medalName ?? activeAchievement.message ?? "Achievement unlocked!";
+    activeAchievement.medalName ??
+    activeAchievement.message ??
+    "Achievement unlocked!";
   const displayName = rawName.replace(/_/g, " ");
 
   return (
@@ -149,6 +151,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginRight: 14,
+    shadowColor: "#ffd700",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 14,
+    elevation: 14,
   },
   achievementName: {
     flex: 1,

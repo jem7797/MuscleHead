@@ -351,8 +351,7 @@ const NotificationCenterScreen = () => {
       const invite = item.data;
       const senderName = invite.host_user_name ?? "Someone";
 
-      const message =
-      `${senderName} invited you to a live session!`;
+      const message = `${senderName} invited you to a live session!`;
       const timeAgo = formatTimeAgo(invite.sent_at);
       const inviteRowId = getSessionInviteId(invite);
       const isProcessing = inviteActionId === inviteRowId;
@@ -658,7 +657,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderWidth: 1,
     borderColor: borderSubtle,
-    overflow: "hidden",
+    overflow: "visible",
   },
   notificationRow: {
     flexDirection: "row",
@@ -667,6 +666,11 @@ const styles = StyleSheet.create({
   },
   achievementIconWrapper: {
     backgroundColor: "rgba(21, 18, 0, 0.81)",
+    shadowColor: "#ffd700",
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.85,
+    shadowRadius: 12,
+    elevation: 12,
   },
   inviteIconWrapper: {
     backgroundColor: surfaceMuted,

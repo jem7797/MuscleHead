@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import * as Haptics from "expo-haptics";
+import { Video, ResizeMode } from "expo-av";
 import {
   StyleSheet,
   View,
@@ -7,6 +8,7 @@ import {
   TextInput,
   Text,
   Alert,
+  Dimensions,
 } from "react-native";
 import {
   borderSubtle,
@@ -27,6 +29,11 @@ import PrimaryButton from "../Components/PrimaryButton";
 import { createSessionLog } from "../Services/sessionLogApi";
 import { useAchievement } from "../Contexts/AchievementContext";
 import { postWorkedMuscles } from "../Services/workedMusclesApi";
+
+const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get("window");
+
+/** Dark scrim over fireworks so cards/text stay readable (matches cool grey base). */
+const FIREWORKS_SCRIM = "rgba(53, 56, 64, 0.72)";
 
 const WorkoutStatsPage = () => {
   const navigation = useNavigation<any>();
@@ -129,46 +136,57 @@ const WorkoutStatsPage = () => {
 
   return (
     <View style={styles.mainContainer}>
-      <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
-        <HeaderSection />
-        <StatsGrid
-          totalTime={formatTime(stats.totalTime)}
-          totalWeight={stats.totalWeight}
-          maxLift={stats.maxLift}
-          maxLiftExercise={stats.maxLiftExercise}
-          totalSets={totalSets}
-        />
-        <ExercisesSection workouts={stats.workouts} />
+      <Video
+        source={require("../assets/MutedFireworks.mp4")}
+        style={styles.fireworksVideo}
+        resizeMode={ResizeMode.COVER}
+        isLooping
+        shouldPlay
+        isMuted
+      />
+      <View style={styles.fireworksScrim} pointerEvents="none" />
 
-        <View style={styles.inputSection}>
-          <Text style={styles.inputLabel}>Notes:</Text>
-          <TextInput
-            placeholder="Enter notes..."
-            placeholderTextColor={textSecondary}
-            style={styles.workoutNotesInput}
-            multiline
-            textAlignVertical="top"
-            value={notes}
-            onChangeText={setNotes}
-            editable={!saving}
-            returnKeyType="done"
-            blurOnSubmit
+      <View style={styles.foreground}>
+        <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>
+          <HeaderSection />
+          <StatsGrid
+            totalTime={formatTime(stats.totalTime)}
+            totalWeight={stats.totalWeight}
+            maxLift={stats.maxLift}
+            maxLiftExercise={stats.maxLiftExercise}
+            totalSets={totalSets}
           />
-        </View>
-      </ScrollView>
-      <View style={styles.footerContainer}>
-        <View style={styles.buttonRow}>
-          <View style={styles.buttonWrapper}>
-             
-            <PrimaryButton label="Save Workout Template" variant="default" onPress={() => {}} />
-          </View>
-          <View style={styles.buttonWrapper}>
-            <PrimaryButton
-              label={saving ? "Saving..." : "Save & Continue"}
-              variant="default"
-              onPress={handleSave}
-              disabled={saving || movementsLoading}
+          <ExercisesSection workouts={stats.workouts} />
+
+          <View style={styles.inputSection}>
+            <Text style={styles.inputLabel}>Notes:</Text>
+            <TextInput
+              placeholder="Enter notes..."
+              placeholderTextColor={textSecondary}
+              style={styles.workoutNotesInput}
+              multiline
+              textAlignVertical="top"
+              value={notes}
+              onChangeText={setNotes}
+              editable={!saving}
+              returnKeyType="done"
+              blurOnSubmit
             />
+          </View>
+        </ScrollView>
+        <View style={styles.footerContainer}>
+          <View style={styles.buttonRow}>
+            <View style={styles.buttonWrapper}>
+              <PrimaryButton label="Save Workout Template" variant="default" onPress={() => {}} />
+            </View>
+            <View style={styles.buttonWrapper}>
+              <PrimaryButton
+                label={saving ? "Saving..." : "Save & Continue"}
+                variant="default"
+                onPress={handleSave}
+                disabled={saving || movementsLoading}
+              />
+            </View>
           </View>
         </View>
       </View>
@@ -180,6 +198,22 @@ const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
     backgroundColor: screenBackground,
+    position: "relative",
+  },
+  fireworksVideo: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: SCREEN_W,
+    height: SCREEN_H,
+  },
+  fireworksScrim: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: FIREWORKS_SCRIM,
+  },
+  foreground: {
+    flex: 1,
+    zIndex: 1,
   },
   content: {
     flex: 1,
@@ -215,7 +249,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderTopWidth: 1,
     borderTopColor: borderSubtle,
-    backgroundColor: screenBackground,
+    backgroundColor: "rgba(53, 56, 64, 0.92)",
   },
   buttonRow: {
     flexDirection: "row",

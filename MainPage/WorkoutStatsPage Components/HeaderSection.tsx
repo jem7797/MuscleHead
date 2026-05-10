@@ -5,7 +5,7 @@ import { accent, textSecondary } from "../../theme/colors";
 const HeaderSection: React.FC = () => {
   return (
     <View style={styles.headerSection}>
-      <Text style={styles.celebrationText}>🎉 Workout Complete! 🎉</Text>
+      <Text style={styles.celebrationText}>Workout Complete</Text>
     </View>
   );
 };
