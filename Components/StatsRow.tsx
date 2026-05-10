@@ -22,6 +22,13 @@ const StatsRow: React.FC<StatsRowProps> = ({
   totalMinutes,
 }) => {
   const { lifetimeWeightLifted, currentStreak, streakStatus } = useUser();
+  const resolvedLifetimeWeight = Math.floor(
+    lifetimeWeightLifted ?? totalWeightLiftedLbs ?? 0,
+  );
+  const lifetimeWeightLabel =
+    resolvedLifetimeWeight > 9999
+      ? `${Math.floor(resolvedLifetimeWeight / 1000)}k lbs`
+      : `${resolvedLifetimeWeight} lbs`;
   const glowAnim = useRef(new Animated.Value(0)).current;
   const streakVisualMode: "active" | "risk" | "none" | "idle" =
     currentStreak <= 0
@@ -153,9 +160,7 @@ const StatsRow: React.FC<StatsRowProps> = ({
     <View style={styles.statsRow}>
       <View style={styles.statCard}>
         <Text style={styles.statLabel}>Lifetime Weights Lifted</Text>
-        <Text style={styles.statValue}>
-          {lifetimeWeightLifted ? lifetimeWeightLifted : totalWeightLiftedLbs} lbs
-        </Text>
+        <Text style={styles.statValue}>{lifetimeWeightLabel}</Text>
       </View>
       <Animated.View style={[styles.statCard, styles.streakCard, streakGlowStyle]}>
         <Text style={styles.statLabel}>Streak</Text>

@@ -5,6 +5,8 @@ import {
   Text,
   ScrollView,
   ActivityIndicator,
+  TouchableOpacity,
+  Alert,
 } from "react-native";
 import {
   accent,
@@ -14,9 +16,14 @@ import {
   textPrimary,
   textSecondary,
 } from "../theme/colors";
-import { useRoute } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import { Ionicons } from "@expo/vector-icons";
 import PageHeader from "../Components/PageHeader";
-import { getSessionLogById, type SessionLogApiResponse } from "../Services/sessionLogApi";
+import {
+  deleteSessionLog,
+  getSessionLogById,
+  type SessionLogApiResponse,
+} from "../Services/sessionLogApi";
 import {
   getSessionExercisesBySessionId,
   type SessionExerciseResponse,
@@ -25,6 +32,7 @@ import { useMovements } from "../Contexts/MovementContext";
 
 const WorkoutDetailPage = () => {
   const route = useRoute<any>();
+  const navigation = useNavigation<any>();
   const sessionId = route.params?.sessionId as number | undefined;
   const { movements } = useMovements();
 
@@ -39,6 +47,7 @@ const WorkoutDetailPage = () => {
   const [session, setSession] = useState<SessionLogApiResponse | null>(null);
   const [exercises, setExercises] = useState<SessionExerciseResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -115,10 +124,52 @@ const WorkoutDetailPage = () => {
 
   const totalWeight = session.total_weight_lifted ?? 0;
   const timeMins = session.timeSpentInGym ?? 0;
+  const handleDeleteWorkout = () => {
+    if (sessionId == null || isDeleting) return;
+    Alert.alert(
+      "Delete Workout",
+      "Are you sure you want to delete this workout? This cannot be undone.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              setIsDeleting(true);
+              await deleteSessionLog(sessionId);
+              navigation.goBack();
+            } catch (e: any) {
+              Alert.alert(
+                "Delete failed",
+                e?.message || "Could not delete workout. Please try again.",
+              );
+            } finally {
+              setIsDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+  const deleteButton = (
+    <TouchableOpacity
+      onPress={handleDeleteWorkout}
+      disabled={isDeleting}
+      style={styles.deleteButton}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
+      <Ionicons
+        name="trash-outline"
+        size={22}
+        color={isDeleting ? textSecondary : "#c53030"}
+      />
+    </TouchableOpacity>
+  );
 
   return (
     <View style={styles.container}>
-      <PageHeader title={dateStr} />
+      <PageHeader title={dateStr} rightComponent={deleteButton} />
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
@@ -297,6 +348,9 @@ const styles = StyleSheet.create({
   statLine: {
     fontSize: 14,
     color: textSecondary,
+  },
+  deleteButton: {
+    padding: 8,
   },
 });
 
