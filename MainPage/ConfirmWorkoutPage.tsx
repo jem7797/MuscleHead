@@ -10,6 +10,10 @@ import { useNavigation } from "@react-navigation/native";
 import PageHeader from "../Components/PageHeader";
 import PrimaryButton from "../Components/PrimaryButton";
 import SecondaryButton from "../Components/SecondaryButton";
+import {
+  clearSoloWorkoutTimer,
+  SOLO_TIMER_KEYS,
+} from "../Services/soloWorkoutTimerStorage";
 
 const ConfirmWorkoutPage = () => {
   const navigation = useNavigation<any>();
@@ -29,7 +33,10 @@ const ConfirmWorkoutPage = () => {
             <PrimaryButton
               label="Start Workout"
               variant="confirm"
-              onPress={() => navigation.replace("AddWorkout")}
+              onPress={async () => {
+                await clearSoloWorkoutTimer(SOLO_TIMER_KEYS.addWorkout);
+                navigation.replace("AddWorkout");
+              }}
             />
             <SecondaryButton
               label="Cancel"

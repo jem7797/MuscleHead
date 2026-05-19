@@ -1,16 +1,30 @@
 import { RealtimeChannel } from "@supabase/supabase-js";
 import { isSupabaseConfigured, supabase } from "./supabase";
-import type { LiveWorkoutSession } from "./sessionService";
 
-export function subscribeToStatus({
+/** Session row from live_workout_sessions (status + timer columns). */
+export interface LiveSessionRow {
+  id?: string;
+  status?: string;
+  host_user_id?: string;
+  guest_user_id?: string | null;
+  timer_state?: string;
+  timerState?: string;
+  timer_started_at?: string;
+  timerStartedAt?: string;
+  timer_elapsed_seconds?: number;
+  timerElapsedSeconds?: number;
+  [key: string]: unknown;
+}
+
+export function subscribeToSession({
   sessionId,
-  onStatusUpdate,
+  onSessionUpdate,
 }: {
   sessionId: string;
-  onStatusUpdate: (payload: {
+  onSessionUpdate: (payload: {
     event: string;
-    new?: LiveWorkoutSession;
-    old?: LiveWorkoutSession;
+    new?: LiveSessionRow;
+    old?: LiveSessionRow;
   }) => void;
 }): { channel: RealtimeChannel | null; unsubscribe: () => void } {
   if (!isSupabaseConfigured()) {
@@ -18,7 +32,7 @@ export function subscribeToStatus({
   }
 
   const channel = supabase
-    .channel(`session-status:${sessionId}`)
+    .channel(`session-updates:${sessionId}`)
     .on(
       "postgres_changes",
       {
@@ -28,22 +42,13 @@ export function subscribeToStatus({
         filter: `id=eq.${sessionId}`,
       },
       (payload) => {
-        const newData = (payload as unknown as { new?: { status?: string } })
-          .new;
-        const oldData = (payload as unknown as { old?: { status?: string } })
-          .old;
-
-        if (newData?.status == oldData?.status) {
-          return;
-        }
-
-        onStatusUpdate({
+        onSessionUpdate({
           event:
             (payload as { eventType?: string; event?: string }).eventType ??
             (payload as { event?: string }).event ??
             "UPDATE",
-          new: (payload as unknown as { new?: LiveWorkoutSession }).new,
-          old: (payload as unknown as { old?: LiveWorkoutSession }).old,
+          new: (payload as unknown as { new?: LiveSessionRow }).new,
+          old: (payload as unknown as { old?: LiveSessionRow }).old,
         });
       },
     )
@@ -55,3 +60,6 @@ export function subscribeToStatus({
 
   return { channel, unsubscribe };
 }
+
+/** @deprecated Use subscribeToSession */
+export const subscribeToStatus = subscribeToSession;

@@ -27,6 +27,8 @@ import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
 import { WORKOUT_BY_MUSCLE_GROUP } from "../constants/workoutByMuscleGroup";
 import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
+import { formatDuration } from "../utils/formatDuration";
+import type { LiveSessionTimerState } from "../utils/liveSessionTimer";
 
 export interface WorkoutSet {
   reps: string;
@@ -67,6 +69,12 @@ export interface WorkoutInputSectionProps {
   readOnlyBackWorked?: string[];
   /** When false, hides the footer Done button (e.g. live sessions). Defaults to true. */
   showDoneButton?: boolean;
+  /** Live multiplayer: show server elapsed time instead of a local timer. */
+  useServerTimer?: boolean;
+  serverTimerSeconds?: number;
+  serverTimerState?: LiveSessionTimerState;
+  /** Host-only live controls (pause/resume on server). */
+  onServerTimerToggle?: () => void;
 }
 
 const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
@@ -77,6 +85,10 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
   readOnlyFrontWorked,
   readOnlyBackWorked,
   showDoneButton = true,
+  useServerTimer = false,
+  serverTimerSeconds = 0,
+  serverTimerState = "STOPPED",
+  onServerTimerToggle,
 }) => {
   const { gender } = useUser();
   const MuscleFront = gender === "Female" ? MuscleWomanFront : MuscleManFront;
@@ -140,10 +152,12 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
   );
 
   useEffect(() => {
+    if (useServerTimer) return;
     setIsTimerRunning(true);
-  }, []);
+  }, [useServerTimer]);
 
   useEffect(() => {
+    if (useServerTimer) return;
     if (isTimerRunning) {
       timerInterval.current = setInterval(() => {
         setTimerSeconds((prev) => prev + 1);
@@ -154,7 +168,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
     return () => {
       if (timerInterval.current) clearInterval(timerInterval.current);
     };
-  }, [isTimerRunning]);
+  }, [isTimerRunning, useServerTimer]);
 
   const handleRotate = () => {
     Animated.sequence([
@@ -164,9 +178,26 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
     setIsBack((s) => !s);
   };
 
-  const toggleTimer = () => setIsTimerRunning(!isTimerRunning);
-  const formatTime = (s: number) =>
-    `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
+  const toggleTimer = () => {
+    if (useServerTimer) {
+      onServerTimerToggle?.();
+      return;
+    }
+    setIsTimerRunning(!isTimerRunning);
+  };
+
+  const formatTime = (s: number) => formatDuration(s);
+
+  const displayedTimerSeconds = useServerTimer ? serverTimerSeconds : timerSeconds;
+  const timerIconName = useServerTimer
+    ? serverTimerState === "RUNNING"
+      ? "pause"
+      : serverTimerState === "PAUSED"
+        ? "play"
+        : "stop"
+    : isTimerRunning
+      ? "pause"
+      : "play";
 
   const addWorkout = () => {
     const newId = Math.max(...workouts.map((w) => w.id), 0) + 1;
@@ -281,10 +312,10 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
             <TouchableOpacity
               onPress={toggleTimer}
               style={[styles.timerButton, !editable && styles.controlDisabled]}
-              disabled={!editable}
+              disabled={!editable || (useServerTimer && !onServerTimerToggle)}
             >
-              <Ionicons name={isTimerRunning ? "pause" : "play"} size={16} color="#e85d04" />
-              <Text style={styles.timerText}>{formatTime(timerSeconds)}</Text>
+              <Ionicons name={timerIconName} size={16} color="#e85d04" />
+              <Text style={styles.timerText}>{formatTime(displayedTimerSeconds)}</Text>
             </TouchableOpacity>
             <View style={styles.maxLiftContainer}>
               <Text style={styles.maxLiftLabel}>Max Lift</Text>

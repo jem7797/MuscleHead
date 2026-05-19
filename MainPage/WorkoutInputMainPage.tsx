@@ -55,9 +55,7 @@ const WorkoutInputMainPage = () => {
   } = useWorkouts();
 
   useEffect(() => {
-    if (routines.length === 0) {
-      fetchRoutines();
-    }
+    fetchRoutines();
   }, [fetchRoutines]);
 
 

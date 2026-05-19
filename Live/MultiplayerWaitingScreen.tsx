@@ -3,7 +3,7 @@ import PageHeader from "../Components/PageHeader";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { endSession } from "../lib/sessionService";
-import { subscribeToStatus } from "../lib/sessionStatusService";
+import { subscribeToSession } from "../lib/sessionStatusService";
 import { supabase } from "../lib/supabase";
 
 import { screenBackground } from "../theme/colors";
@@ -59,9 +59,9 @@ const MultiplayerWaitingScreen = () => {
 
         // 4) Subscribe after auth is set.
         if (cancelled) return;
-        const sub = subscribeToStatus({
+        const sub = subscribeToSession({
           sessionId,
-          onStatusUpdate(payload) {
+          onSessionUpdate(payload) {
             if (payload.event === "UPDATE" && payload.new?.status) {
               const status = payload.new.status;
               if (status === "in_progress") {

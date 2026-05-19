@@ -7,7 +7,12 @@ import {
   declineInvite as apiDeclineInvite,
   endSession as apiEndSession,
   getSession,
+  pauseSessionTimer,
+  resumeSessionTimer,
+  startSessionTimer,
   getUnseenPendingInvites,
+  type SessionWithExercises,
+  type LiveSessionTimer,
   markInviteToastSeen as apiMarkInviteToastSeen,
   getSessionInviteId,
   type LiveWorkoutSession,
@@ -16,7 +21,14 @@ import {
 } from "../Services/liveSessionApi";
 import { AppState } from "react-native";
 
-export type { LiveWorkoutSession, LiveSessionExercise, SessionInvite };
+export type {
+  LiveWorkoutSession,
+  LiveSessionExercise,
+  SessionInvite,
+  SessionWithExercises,
+  LiveSessionTimer,
+};
+export { pauseSessionTimer, resumeSessionTimer, startSessionTimer };
 export { getSessionInviteId };
 
 const INVITE_POLL_INTERVAL_MS = 5000;
@@ -231,12 +243,21 @@ export async function markInviteToastSeen({
 }
 
 /**
- * Fetches session details with exercises from the backend.
+ * Fetches session details (exercises + server timer) from the backend.
+ */
+export async function fetchLiveSession(
+  sessionId: string,
+): Promise<SessionWithExercises> {
+  return getSession(sessionId);
+}
+
+/**
+ * Fetches session exercises from the backend.
  */
 export async function fetchSessionExercises(
   sessionId: string,
 ): Promise<LiveSessionExercise[]> {
-  const session = await getSession(sessionId);
+  const session = await fetchLiveSession(sessionId);
   const exercises = session.exercises ?? [];
   return exercises.sort(
     (a, b) => new Date(a.logged_at).getTime() - new Date(b.logged_at).getTime(),

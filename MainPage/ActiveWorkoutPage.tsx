@@ -32,6 +32,8 @@ import {
 } from "../Services/workoutTemplateApi";
 import { useMovements } from "../Contexts/MovementContext";
 import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
+import { useSoloWorkoutTimer } from "../hooks/useSoloWorkoutTimer";
+import { SOLO_TIMER_KEYS } from "../Services/soloWorkoutTimerStorage";
 
 interface SetData {
   weight: string;
@@ -128,6 +130,29 @@ const ActiveWorkoutPage = () => {
   const MuscleBack = gender === "Female" ? MuscleWomanBack : MuscleManBack;
   const routineId = route.params?.routineId as number | undefined;
   const templateJson = route.params?.templateJson as string | undefined;
+
+  const timerKey = useMemo(() => {
+    if (routineId != null) return SOLO_TIMER_KEYS.activeRoutine(routineId);
+    if (templateJson) {
+      try {
+        const parsed = JSON.parse(templateJson) as { id?: number };
+        if (parsed?.id != null) return SOLO_TIMER_KEYS.activeRoutine(parsed.id);
+      } catch {
+        /* ignore */
+      }
+    }
+    return "solo-active-unknown";
+  }, [routineId, templateJson]);
+
+  const {
+    timerSeconds,
+    isTimerRunning,
+    toggleTimer,
+    getElapsedSeconds,
+    clearTimer,
+    formatTime,
+  } = useSoloWorkoutTimer(timerKey);
+
   const { movements } = useMovements();
 
   const movementById = useMemo(() => {
@@ -143,9 +168,6 @@ const ActiveWorkoutPage = () => {
   const [exercises, setExercises] = useState<ExerciseState[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const timerInterval = useRef<NodeJS.Timeout | null>(null);
   const [isBack, setIsBack] = useState(false);
   const spinVal = useRef(new Animated.Value(0)).current;
 
@@ -225,27 +247,6 @@ const ActiveWorkoutPage = () => {
     setIsBack((s) => !s);
   };
 
-  useEffect(() => {
-    setIsTimerRunning(true);
-  }, []);
-
-  useEffect(() => {
-    if (isTimerRunning) {
-      timerInterval.current = setInterval(() => {
-        setTimerSeconds((prev) => prev + 1);
-      }, 1000);
-    } else if (timerInterval.current) {
-      clearInterval(timerInterval.current);
-    }
-    return () => {
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
-    };
-  }, [isTimerRunning]);
-
-  const toggleTimer = () => setIsTimerRunning(!isTimerRunning);
-
   const updateSet = (
     exerciseIndex: number,
     setIndex: number,
@@ -310,7 +311,7 @@ const ActiveWorkoutPage = () => {
     ex.routineExercise.exercise?.name ??
     "Unknown";
 
-  const handleDone = () => {
+  const handleDone = async () => {
     let totalWeight = 0;
     let maxLift = 0;
     let maxLiftExercise = "";
@@ -339,21 +340,18 @@ const ActiveWorkoutPage = () => {
       };
     });
 
+    const totalTime = getElapsedSeconds();
+
     setStats({
       workoutName: template?.name ?? "",
       workouts,
-      totalTime: timerSeconds,
+      totalTime,
       totalWeight,
       maxLift,
       maxLiftExercise,
     });
+    await clearTimer();
     navigation.navigate("WorkoutStats");
-  };
-
-  const formatTime = (s: number) => {
-    const m = Math.floor(s / 60);
-    const sec = s % 60;
-    return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
   };
 
   if (routineId == null && !templateJson) {

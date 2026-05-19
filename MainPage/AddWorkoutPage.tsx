@@ -30,6 +30,8 @@ import MuscleWomanBack from "../Components/MuscleWomanBack";
 import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
 import { WORKOUT_BY_MUSCLE_GROUP } from "../constants/workoutByMuscleGroup";
+import { useSoloWorkoutTimer } from "../hooks/useSoloWorkoutTimer";
+import { SOLO_TIMER_KEYS } from "../Services/soloWorkoutTimerStorage";
 
 interface ExerciseSet {
   reps: string;
@@ -88,9 +90,14 @@ const AddWorkoutPage = () => {
     },
   ]);
 
-  const [timerSeconds, setTimerSeconds] = useState(0);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-  const timerInterval = useRef<NodeJS.Timeout | null>(null);
+  const {
+    timerSeconds,
+    isTimerRunning,
+    toggleTimer,
+    getElapsedSeconds,
+    clearTimer,
+    formatTime,
+  } = useSoloWorkoutTimer(SOLO_TIMER_KEYS.addWorkout);
   const [isBack, setIsBack] = useState(false);
   const spinVal = useRef(new Animated.Value(0)).current;
 
@@ -411,33 +418,6 @@ const AddWorkoutPage = () => {
     setIsBack((s) => !s);
   };
 
-  // Start timer on mount
-  useEffect(() => {
-    setIsTimerRunning(true);
-  }, []);
-
-  useEffect(() => {
-    if (isTimerRunning) {
-      timerInterval.current = setInterval(() => {
-        setTimerSeconds((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
-    }
-
-    return () => {
-      if (timerInterval.current) {
-        clearInterval(timerInterval.current);
-      }
-    };
-  }, [isTimerRunning]);
-
-  const toggleTimer = () => {
-    setIsTimerRunning(!isTimerRunning);
-  };
-
   const addWorkout = () => {
     const newId = Math.max(...workouts.map((w) => w.id), 0) + 1;
     setWorkouts([
@@ -527,7 +507,7 @@ const AddWorkoutPage = () => {
     );
   };
 
-  const handleDone = () => {
+  const handleDone = async () => {
     // Calculate stats
     let totalWeight = 0;
     let maxLift = 0;
@@ -548,22 +528,19 @@ const AddWorkoutPage = () => {
       });
     });
 
+    const totalTime = getElapsedSeconds();
+
     setStats({
       workoutName: "",
       workouts: workouts,
-      totalTime: timerSeconds,
+      totalTime,
       totalWeight: totalWeight,
       maxLift: maxLift,
       maxLiftExercise: maxLiftExercise,
     });
 
+    await clearTimer();
     navigation.navigate("WorkoutStats");
-  };
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const timerComponent = (

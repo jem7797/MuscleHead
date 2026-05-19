@@ -6,6 +6,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ActivityIndicator,
+  AppState,
+  type AppStateStatus,
 } from "react-native";
 import { screenBackground } from "../theme/colors";
 import { useRoute, useNavigation } from "@react-navigation/native";
@@ -15,14 +17,19 @@ import SpectatorView from "../Components/SpectatorView";
 import {
   subscribeToSession,
   logExercise,
-  fetchSessionExercises,
+  fetchLiveSession,
   endSession,
+  pauseSessionTimer,
+  resumeSessionTimer,
   type LiveSessionExercise,
 } from "../lib/sessionService";
+import { useLiveSessionTimerDisplay } from "../hooks/useLiveSessionTimerDisplay";
+import { formatDuration } from "../utils/formatDuration";
 import { supabase } from "../lib/supabase";
 import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
 import { getUser } from "../Services/userApi";
-import { subscribeToStatus } from "../lib/sessionStatusService";
+import { subscribeToSession as subscribeToSessionRow } from "../lib/sessionStatusService";
+import { applyTimerFromSessionRow } from "../utils/liveSessionTimer";
 
 type TabKey = "host" | "guest";
 
@@ -54,6 +61,9 @@ const LiveSessionScreen: React.FC = () => {
   const subscriptionRef = useRef<(() => void) | null>(null);
   const statusSubscriptionRef = useRef<(() => void) | null>(null);
   const didBuzzOnSummaryRef = useRef(false);
+  const sessionSyncActiveRef = useRef(true);
+
+  const { displaySeconds, timerState, applyTimer } = useLiveSessionTimerDisplay();
 
   const tearDownExerciseSubscription = useCallback(() => {
     if (subscriptionRef.current) {
@@ -120,9 +130,37 @@ const LiveSessionScreen: React.FC = () => {
     [hostUserId, guestUserId]
   );
 
+  const syncSessionFromServer = useCallback(async () => {
+    if (!sessionSyncActiveRef.current) return;
+    try {
+      const session = await fetchLiveSession(sessionId);
+      sortIntoLists(session.exercises ?? []);
+      if (session.timer) {
+        applyTimer(session.timer);
+      }
+    } catch {
+      // keep last known exercises/timer
+    }
+  }, [sessionId, sortIntoLists, applyTimer]);
+
+  const handleServerTimerToggle = useCallback(async () => {
+    if (!isHost) return;
+    try {
+      const timer =
+        timerState === "RUNNING"
+          ? await pauseSessionTimer(sessionId)
+          : await resumeSessionTimer(sessionId);
+      applyTimer(timer);
+    } catch {
+      // refresh on failure
+      syncSessionFromServer();
+    }
+  }, [isHost, timerState, sessionId, applyTimer, syncSessionFromServer]);
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
+      sessionSyncActiveRef.current = true;
       try {
         await supabase.auth.signInAnonymously();
 
@@ -133,8 +171,7 @@ const LiveSessionScreen: React.FC = () => {
 
         await supabase.realtime.setAuth(session.access_token);
 
-        const exercises = await fetchSessionExercises(sessionId);
-        sortIntoLists(exercises);
+        await syncSessionFromServer();
 
         const { unsubscribe: unsubExercises } = subscribeToSession({
           sessionId,
@@ -165,14 +202,26 @@ const LiveSessionScreen: React.FC = () => {
         });
         subscriptionRef.current = unsubExercises;
 
-        const { unsubscribe: unsubStatus } = subscribeToStatus({
+        const { unsubscribe: unsubSession } = subscribeToSessionRow({
           sessionId,
-          onStatusUpdate: (payload) => {
+          onSessionUpdate: (payload) => {
+            if (payload.new) {
+              const applied = applyTimerFromSessionRow(payload.new, applyTimer);
+              const status = String(payload.new.status ?? "").toUpperCase();
+              // Fallback if realtime row has no timer columns yet (e.g. guest just joined).
+              if (!applied && status === "IN_PROGRESS") {
+                syncSessionFromServer();
+              }
+            }
+
             const status = payload.new?.status;
             if (!status) return;
             const ended = String(status).toUpperCase() === "ENDED";
             if (!ended) return;
+
+            sessionSyncActiveRef.current = false;
             tearDownAllRealtime();
+            syncSessionFromServer();
             setShowSummary(true);
             if (!didBuzzOnSummaryRef.current) {
               didBuzzOnSummaryRef.current = true;
@@ -180,7 +229,7 @@ const LiveSessionScreen: React.FC = () => {
             }
           },
         });
-        statusSubscriptionRef.current = unsubStatus;
+        statusSubscriptionRef.current = unsubSession;
       } catch {
       } finally {
         setLoading(false);
@@ -199,7 +248,23 @@ const LiveSessionScreen: React.FC = () => {
         statusSubscriptionRef.current = null;
       }
     };
-  }, [sessionId, hostUserId, guestUserId, sortIntoLists, tearDownAllRealtime]);
+  }, [sessionId, hostUserId, guestUserId, sortIntoLists, tearDownAllRealtime, syncSessionFromServer]);
+
+  // One GET when returning to foreground to correct drift — no interval polling.
+  useEffect(() => {
+    if (loading || showSummary) return;
+
+    const onAppStateChange = (next: AppStateStatus) => {
+      if (next === "active") {
+        syncSessionFromServer();
+      }
+    };
+    const subscription = AppState.addEventListener("change", onAppStateChange);
+
+    return () => {
+      subscription.remove();
+    };
+  }, [loading, showSummary, syncSessionFromServer]);
 
   useEffect(() => {
     const loadParticipantGenders = async () => {
@@ -242,7 +307,9 @@ const LiveSessionScreen: React.FC = () => {
     setEnding(true);
     try {
       await endSession({ sessionId });
+      sessionSyncActiveRef.current = false;
       tearDownAllRealtime();
+      await syncSessionFromServer();
       setShowSummary(true);
       if (!didBuzzOnSummaryRef.current) {
         didBuzzOnSummaryRef.current = true;
@@ -273,17 +340,22 @@ const LiveSessionScreen: React.FC = () => {
       <PageHeader
         title="Live Workout"
         rightComponent={
-          isHost && !showSummary ? (
-            <TouchableOpacity
-              onPress={handleEndSession}
-              disabled={ending}
-              style={styles.endButton}
-              activeOpacity={0.7}
-            >
-              <Text style={styles.endButtonText}>
-                {ending ? "Ending..." : "End Session"}
-              </Text>
-            </TouchableOpacity>
+          !showSummary ? (
+            <View style={styles.headerRight}>
+              <Text style={styles.headerTimer}>{formatDuration(displaySeconds)}</Text>
+              {isHost ? (
+                <TouchableOpacity
+                  onPress={handleEndSession}
+                  disabled={ending}
+                  style={styles.endButton}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.endButtonText}>
+                    {ending ? "Ending..." : "End Session"}
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
           ) : undefined
         }
       />
@@ -360,6 +432,10 @@ const LiveSessionScreen: React.FC = () => {
               onSetComplete={handleSetComplete}
               editable={canEdit}
               showDoneButton={false}
+              useServerTimer
+              serverTimerSeconds={displaySeconds}
+              serverTimerState={timerState}
+              onServerTimerToggle={isHost ? handleServerTimerToggle : undefined}
             />
           </View>
           <View style={[styles.sessionPanel, canEdit && styles.sessionPanelHidden]}>
@@ -380,6 +456,17 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: screenBackground,
+  },
+  headerRight: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  headerTimer: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#e85d04",
+    fontVariant: ["tabular-nums"],
   },
   endButton: {
     paddingVertical: 8,

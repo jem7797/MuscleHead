@@ -80,8 +80,66 @@ export function getSessionInviteId(
   return "";
 }
 
+export type LiveSessionTimerState = "STOPPED" | "RUNNING" | "PAUSED";
+
+export interface LiveSessionTimer {
+  elapsedSeconds: number;
+  timerState: LiveSessionTimerState;
+  serverTime: string;
+}
+
 export interface SessionWithExercises extends LiveWorkoutSession {
   exercises?: LiveSessionExercise[];
+  timer?: LiveSessionTimer;
+}
+
+function normalizeTimerFromSession(
+  raw: Record<string, unknown>,
+): LiveSessionTimer | undefined {
+  const timerRaw = raw.timer;
+  if (!timerRaw || typeof timerRaw !== "object") return undefined;
+
+  const t = timerRaw as Record<string, unknown>;
+  const elapsed = Number(t.elapsedSeconds ?? t.elapsed_seconds);
+  const serverTime = String(t.serverTime ?? t.server_time ?? "");
+  const state = String(t.timerState ?? t.timer_state ?? "STOPPED").toUpperCase();
+
+  if (!Number.isFinite(elapsed) || !serverTime) return undefined;
+
+  const timerState =
+    state === "RUNNING" || state === "PAUSED" || state === "STOPPED"
+      ? state
+      : "STOPPED";
+
+  return {
+    elapsedSeconds: Math.floor(elapsed),
+    timerState,
+    serverTime,
+  };
+}
+
+function normalizeSessionWithExercises(
+  raw: Record<string, unknown>,
+): SessionWithExercises {
+  const exercises = Array.isArray(raw.exercises)
+    ? (raw.exercises as LiveSessionExercise[])
+    : undefined;
+
+  return {
+    id: String(raw.id ?? ""),
+    host_user_id: String(raw.host_user_id ?? raw.hostUserId ?? ""),
+    guest_user_id:
+      raw.guest_user_id != null
+        ? String(raw.guest_user_id)
+        : raw.guestUserId != null
+          ? String(raw.guestUserId)
+          : null,
+    host_user_name: String(raw.host_user_name ?? raw.hostUserName ?? ""),
+    status: String(raw.status ?? ""),
+    created_at: String(raw.created_at ?? raw.createdAt ?? ""),
+    exercises,
+    timer: normalizeTimerFromSession(raw),
+  };
 }
 
 /**
@@ -166,7 +224,68 @@ export async function endSession({ sessionId }: { sessionId: string }): Promise<
  */
 export async function getSession(sessionId: string): Promise<SessionWithExercises> {
   const response = await apiRequest(`${BASE}/${sessionId}`, {}, false);
-  return parseJsonResponse<SessionWithExercises>(response);
+  const data = await parseJsonResponse<Record<string, unknown>>(response);
+  return normalizeSessionWithExercises(data);
+}
+
+function parseTimerResponse(data: unknown): LiveSessionTimer {
+  const row =
+    data && typeof data === "object" ? (data as Record<string, unknown>) : {};
+  const nested =
+    row.timer && typeof row.timer === "object"
+      ? (row.timer as Record<string, unknown>)
+      : row;
+  const elapsed = Number(nested.elapsedSeconds ?? nested.elapsed_seconds);
+  const serverTime = String(nested.serverTime ?? nested.server_time ?? "");
+  const state = String(nested.timerState ?? nested.timer_state ?? "STOPPED").toUpperCase();
+
+  if (!Number.isFinite(elapsed) || !serverTime) {
+    throw new Error("Invalid timer response");
+  }
+
+  const timerState =
+    state === "RUNNING" || state === "PAUSED" || state === "STOPPED"
+      ? state
+      : "STOPPED";
+
+  return {
+    elapsedSeconds: Math.floor(elapsed),
+    timerState,
+    serverTime,
+  };
+}
+
+/**
+ * POST /api/live-sessions/{sessionId}/timer/start — host only (reset + start).
+ */
+export async function startSessionTimer(sessionId: string): Promise<LiveSessionTimer> {
+  const response = await apiRequest(`${BASE}/${sessionId}/timer/start`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  }, false);
+  return parseTimerResponse(await parseJsonResponse(response));
+}
+
+/**
+ * POST /api/live-sessions/{sessionId}/timer/pause — host only.
+ */
+export async function pauseSessionTimer(sessionId: string): Promise<LiveSessionTimer> {
+  const response = await apiRequest(`${BASE}/${sessionId}/timer/pause`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  }, false);
+  return parseTimerResponse(await parseJsonResponse(response));
+}
+
+/**
+ * POST /api/live-sessions/{sessionId}/timer/resume — host only.
+ */
+export async function resumeSessionTimer(sessionId: string): Promise<LiveSessionTimer> {
+  const response = await apiRequest(`${BASE}/${sessionId}/timer/resume`, {
+    method: "POST",
+    body: JSON.stringify({}),
+  }, false);
+  return parseTimerResponse(await parseJsonResponse(response));
 }
 
 /**

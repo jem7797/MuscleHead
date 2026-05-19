@@ -26,6 +26,7 @@ import {
 } from "../Services/workoutTemplateApi";
 import { useMovements } from "../Contexts/MovementContext";
 import { useRoutines } from "../Contexts/RoutinesContext";
+import { clearSoloWorkoutTimer, SOLO_TIMER_KEYS } from "../Services/soloWorkoutTimerStorage";
 
 /** Normalize template to list of { name, reps, sets } for display */
 const getDisplayExercises = (
@@ -143,7 +144,8 @@ const RoutineDetailPage = () => {
 
   const displayExercises = getDisplayExercises(template, movementById);
 
-  const handleBeginWorkout = () => {
+  const handleBeginWorkout = async () => {
+    await clearSoloWorkoutTimer(SOLO_TIMER_KEYS.activeRoutine(template!.id));
     navigation.navigate("ActiveWorkout", {
       routineId: template!.id,
       templateJson: JSON.stringify(template),

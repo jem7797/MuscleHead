@@ -34,8 +34,13 @@ export interface WorkoutTemplatesPageParams {
  */
 export const getWorkoutTemplates = async (): Promise<any[]> => {
   const sub = await getCurrentUserSub();
-  const query = sub ? `?subId=${encodeURIComponent(sub)}` : "";
-  const response = await apiRequest(`/workoutTemplate/api/${query}`, { method: "GET" });
+  if (!sub) {
+    throw new Error("Not authenticated");
+  }
+  const response = await apiRequest(
+    `/workoutTemplate/api?subId=${encodeURIComponent(sub)}`,
+    { method: "GET" },
+  );
   const data = await parseJsonResponse<unknown>(response);
   if (Array.isArray(data)) return data;
   if (data && typeof data === "object" && "content" in data && Array.isArray((data as any).content)) {
