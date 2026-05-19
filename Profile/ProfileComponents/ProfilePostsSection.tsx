@@ -12,7 +12,7 @@ import {
   Platform,
 } from "react-native";
 import { borderSubtle, screenBackground, surfaceElevated, surfaceMuted, textPrimary } from "../../theme/colors";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
 import FeedPost from "../../Community/FeedPost";
 import { getPostsByUser, deletePost, patchPost, getPost } from "../../Services/postsApi";
@@ -27,6 +27,7 @@ interface ProfilePostsSectionProps {
   subId: string;
   currentUserId?: string | null;
   nemesisSubIds?: string[];
+  onCreatePost?: () => void;
 }
 
 const getImageUrl = (raw?: string | null) => {
@@ -38,8 +39,10 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
   subId,
   currentUserId,
   nemesisSubIds = [],
+  onCreatePost,
 }) => {
   const navigation = useNavigation<any>();
+  const isOwnProfile = !!currentUserId && subId === currentUserId;
   const [activeTab, setActiveTab] = useState<ProfileTab>("posts");
   const [allPosts, setAllPosts] = useState<PostResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -71,9 +74,11 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
     }
   }, [subId]);
 
-  useEffect(() => {
-    loadPosts();
-  }, [loadPosts]);
+  useFocusEffect(
+    useCallback(() => {
+      loadPosts();
+    }, [loadPosts]),
+  );
 
   useEffect(() => {
     if (selectedPost) {
@@ -226,6 +231,12 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
       <Text style={styles.emptyText}>
         {activeTab === "posts" ? "No image posts yet" : "No text posts yet"}
       </Text>
+      {isOwnProfile && onCreatePost && (
+        <TouchableOpacity style={styles.createPostButton} onPress={onCreatePost} activeOpacity={0.8}>
+          <Ionicons name="add" size={18} color="#fff" />
+          <Text style={styles.createPostButtonText}>Create post</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -260,6 +271,16 @@ const ProfilePostsSection: React.FC<ProfilePostsSectionProps> = ({
   return (
     <View style={styles.container}>
       <View style={styles.tabRow}>
+        {isOwnProfile && onCreatePost && (
+          <TouchableOpacity
+            style={styles.tabCreateButton}
+            onPress={onCreatePost}
+            activeOpacity={0.7}
+            accessibilityLabel="Create post"
+          >
+            <Ionicons name="add-circle-outline" size={22} color="#e85d04" />
+          </TouchableOpacity>
+        )}
         <TouchableOpacity
           style={[styles.tab, activeTab === "posts" && styles.tabActive]}
           onPress={() => setActiveTab("posts")}
@@ -477,8 +498,13 @@ const styles = StyleSheet.create({
   },
   tabRow: {
     flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
     borderBottomColor: borderSubtle,
+  },
+  tabCreateButton: {
+    paddingHorizontal: 12,
+    paddingVertical: 12,
   },
   tab: {
     flex: 1,
@@ -543,6 +569,21 @@ const styles = StyleSheet.create({
     marginTop: 12,
     fontSize: 15,
     color: "#9aa6bd",
+  },
+  createPostButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    marginTop: 16,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    backgroundColor: "#e85d04",
+    borderRadius: 10,
+  },
+  createPostButtonText: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#fff",
   },
   modalOverlay: {
     flex: 1,

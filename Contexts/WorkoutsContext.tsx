@@ -10,6 +10,7 @@ import {
   type SessionLogApiResponse,
 } from "../Services/sessionLogApi";
 import type { WorkoutSession } from "../Components/WorkoutCard";
+import { formatDuration } from "../utils/formatDuration";
 
 const PAGE_SIZE = 10;
 
@@ -38,10 +39,11 @@ function formatDate(dateStr: string): string {
 function formatSubtitle(log: SessionLogApiResponse): string {
   const parts: string[] = [];
   const weight = log.total_weight_lifted;
-  const mins = log.timeSpentInGym;
+  const durationSeconds = log.timeSpentInGym ?? log.total_duration;
   if (weight != null && weight > 0)
     parts.push(`${Math.round(weight).toLocaleString()} lbs`);
-  if (mins != null && mins > 0) parts.push(`${mins} min`);
+  if (durationSeconds != null && durationSeconds > 0)
+    parts.push(formatDuration(durationSeconds));
   return parts.join(" • ") || formatDate(log.date);
 }
 

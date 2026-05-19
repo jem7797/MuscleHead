@@ -155,21 +155,28 @@ const StatsRow: React.FC<StatsRowProps> = ({
         ? "reset"
         : "";
 
-
   return (
     <View style={styles.statsRow}>
       <View style={styles.statCard}>
         <Text style={styles.statLabel}>Lifetime Weights Lifted</Text>
         <Text style={styles.statValue}>{lifetimeWeightLabel}</Text>
       </View>
-      <Animated.View style={[styles.statCard, styles.streakCard, streakGlowStyle]}>
+      <Animated.View
+        style={[styles.statCard, styles.streakCard, streakGlowStyle]}
+      >
         <Text style={styles.statLabel}>Streak</Text>
-        <Text style={styles.statValue}>{currentStreak} day{currentStreak === 1 ? "" : "s"}</Text>
-        {streakMeta ? <Text style={styles.streakMeta}>{streakMeta}</Text> : null}
+        <Text style={styles.statValue}>
+          {currentStreak} day{currentStreak === 1 ? "" : "s"}
+        </Text>
+        {streakMeta ? (
+          <Text style={styles.streakMeta}>{streakMeta}</Text>
+        ) : null}
       </Animated.View>
       <View style={styles.statCard}>
         <Text style={styles.statLabel}>Lifetime Workout Time</Text>
-        <Text style={styles.statValue}>{`${totalHours}h ${totalMinutes}m`}</Text>
+        <Text
+          style={styles.statValue}
+        >{`${totalHours}h ${totalMinutes}m`}</Text>
       </View>
     </View>
   );
@@ -218,4 +225,3 @@ const styles = StyleSheet.create({
 });
 
 export default StatsRow;
-

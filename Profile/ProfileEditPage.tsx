@@ -34,6 +34,15 @@ import PrivacyDropdown from "../MoreInfoScreens/ProfileSetUp Components/PrivacyD
 /** ~100 words at ~5 chars/word */
 const BIO_CHAR_LIMIT = 500;
 
+const SWITCH_TRACK_OFF = "#4c525f";
+const SWITCH_THUMB = "#ffffff";
+
+const profileSwitchProps = {
+  trackColor: { false: SWITCH_TRACK_OFF, true: accent },
+  thumbColor: SWITCH_THUMB,
+  ios_backgroundColor: SWITCH_TRACK_OFF,
+};
+
 const ProfileEditPage = () => {
   const navigation = useNavigation<any>();
   const {
@@ -94,6 +103,14 @@ const ProfileEditPage = () => {
   }, [height]);
 
   useEffect(() => setPfpImgError(false), [pfpLink]);
+
+  useEffect(() => {
+    setEditedNatty(isNatty ?? true);
+  }, [isNatty]);
+
+  useEffect(() => {
+    setEditedGender((gender ?? "Male") === "Male");
+  }, [gender]);
 
   const hasChanges =
     editedUsername.trim() !== (username ?? "").trim() ||
@@ -287,51 +304,48 @@ const ProfileEditPage = () => {
 
 
           <View style={styles.section}>
-            <View style={styles.switchRow}>
-              <Text style={styles.label}>Natty status</Text>
-              <Switch
-                value={!editedNatty}
-                onValueChange={(v) => setEditedNatty(!v)}
-                trackColor={{ false: surfaceMuted, true: "#e85d04" }}
-                thumbColor="#fff"
-              />
+            <Text style={styles.groupLabel}>Preferences</Text>
+            <View style={styles.preferencesCard}>
+              <View style={styles.preferenceRow}>
+                <View style={styles.preferenceText}>
+                  <Text style={styles.preferenceTitle}>Natty status</Text>
+                  <Text style={styles.preferenceValue}>
+                    {editedNatty ? "Natty" : "Not natty"}
+                  </Text>
+                </View>
+                <Switch
+                  value={editedNatty}
+                  onValueChange={setEditedNatty}
+                  {...profileSwitchProps}
+                />
+              </View>
+              <View style={styles.preferenceDivider} />
+              <View style={styles.preferenceRow}>
+                <View style={styles.preferenceText}>
+                  <Text style={styles.preferenceTitle}>Gender</Text>
+                  <Text style={styles.preferenceValue}>
+                    {editedGender ? "Male" : "Female"}
+                  </Text>
+                </View>
+                <Switch
+                  value={editedGender}
+                  onValueChange={setEditedGender}
+                  {...profileSwitchProps}
+                />
+              </View>
             </View>
-            <Text style={styles.hint}>
-              {editedNatty ? "Natty" : "Not natty"}
-            </Text>
-          </View>
           </View>
 
-
-          <View style={styles.section}>
-            <View style={styles.switchRow}>
-              <Text style={styles.label}>Gender</Text>
-              <Switch
-                value={editedGender}
-                onValueChange={setEditedGender}
-                trackColor={{ false: surfaceMuted, true: "#e85d04" }}
-                thumbColor="#fff"
-              />
-            </View>
-            <Text style={styles.hint}>
-              {editedGender ? "Male" : "Female"}
-            </Text>
+          <View style={[styles.section, { paddingBottom: isDropdownOpen ? 170 : 0 }]}>
+            <PrivacyDropdown
+              options={privacyOptions}
+              selectedPrivacy={selectedPrivacySetting}
+              isOpen={isDropdownOpen}
+              onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+              onSelect={handleSelectPrivacy}
+            />
           </View>
-          
-
-<View style = {{paddingBottom: isDropdownOpen ? 170: 0}}>
-          <PrivacyDropdown
-            options={privacyOptions}
-            selectedPrivacy={selectedPrivacySetting}
-            isOpen={isDropdownOpen}
-            onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
-            onSelect={handleSelectPrivacy}
-          />
-
-</View>
-
-
-
+          </View>
         </ScrollView>
 
 
@@ -362,16 +376,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 24,
     paddingBottom: 100,
-    alignItems: "center",
   },
   centerContent: {
-    alignItems: "center",
     width: "100%",
+    maxWidth: 340,
+    alignSelf: "center",
   },
   avatarRing: {
     borderRadius: 51,
     padding: 3,
     marginBottom: 24,
+    alignSelf: "center",
   },
   profilePicture: {
     width: 96,
@@ -401,8 +416,49 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 24,
     width: "100%",
-    maxWidth: 340,
+    alignSelf: "stretch",
+  },
+  groupLabel: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: textPrimary,
+    marginBottom: 10,
+    alignSelf: "stretch",
+  },
+  preferencesCard: {
+    width: "100%",
+    backgroundColor: surfaceMuted,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: borderSubtle,
+    overflow: "hidden",
+  },
+  preferenceRow: {
+    flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 12,
+  },
+  preferenceText: {
+    flex: 1,
+    minWidth: 0,
+  },
+  preferenceTitle: {
+    fontSize: 15,
+    fontWeight: "600",
+    color: textPrimary,
+    marginBottom: 2,
+  },
+  preferenceValue: {
+    fontSize: 13,
+    color: textSecondary,
+  },
+  preferenceDivider: {
+    height: 1,
+    backgroundColor: borderSubtle,
+    marginHorizontal: 16,
   },
   label: {
     fontSize: 14,
@@ -447,21 +503,6 @@ const styles = StyleSheet.create({
     color: textSecondary,
     fontWeight: "500",
   },
-  switchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  hint: {
-    fontSize: 13,
-    color: textSecondary,
-    marginTop: 6,
-  },
-
-  privacySettings:{
-paddingBottom: 170,
-},
 },
 );
 

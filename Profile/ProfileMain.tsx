@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { View, StyleSheet, ScrollView, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import NavBar from "../Components/NavBar";
 import TopBar from "./ProfileComponents/TopBar";
 import ProfileHeader from "./ProfileComponents/ProfileHeader";
@@ -38,6 +38,7 @@ const ProfileScreen = () => {
     userId,
     nemesisSubIds,
     deleteCurrentUser,
+    refreshUserProfile,
   } = useUser();
 
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -66,6 +67,14 @@ const ProfileScreen = () => {
   ];
 
   const toggleSettings = () => setIsSettingsOpen((p) => !p);
+
+  const handleCreatePost = () => navigation.navigate("CreatePost");
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshUserProfile();
+    }, [refreshUserProfile]),
+  );
 
   const handleDeleteAccountRequest = () => {
     setIsSettingsOpen(false);
@@ -98,7 +107,7 @@ const ProfileScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TopBar onSettingsPress={toggleSettings} />
+      <TopBar onSettingsPress={toggleSettings} onCreatePostPress={handleCreatePost} />
 
       <ScrollView
         style={styles.scrollView}
@@ -140,6 +149,7 @@ const ProfileScreen = () => {
           subId={userId}
           currentUserId={userId}
           nemesisSubIds={nemesisSubIds}
+          onCreatePost={handleCreatePost}
         />
 
         {/* spacer so content isn't obscured by bottom nav */}

@@ -29,6 +29,7 @@ import {
   type SessionExerciseResponse,
 } from "../Services/sessionInstanceApi";
 import { useMovements } from "../Contexts/MovementContext";
+import { formatDuration } from "../utils/formatDuration";
 
 const WorkoutDetailPage = () => {
   const route = useRoute<any>();
@@ -123,7 +124,7 @@ const WorkoutDetailPage = () => {
   });
 
   const totalWeight = session.total_weight_lifted ?? 0;
-  const timeMins = session.timeSpentInGym ?? 0;
+  const durationSeconds = session.timeSpentInGym ?? session.total_duration ?? 0;
   const handleDeleteWorkout = () => {
     if (sessionId == null || isDeleting) return;
     Alert.alert(
@@ -182,10 +183,10 @@ const WorkoutDetailPage = () => {
               <Text style={styles.statLabel}>lbs lifted</Text>
             </View>
           )}
-          {timeMins > 0 && (
+          {durationSeconds > 0 && (
             <View style={styles.statBox}>
-              <Text style={styles.statValue}>{timeMins}</Text>
-              <Text style={styles.statLabel}>min</Text>
+              <Text style={styles.statValue}>{formatDuration(durationSeconds)}</Text>
+              <Text style={styles.statLabel}>duration</Text>
             </View>
           )}
         </View>

@@ -9,12 +9,25 @@ import { borderSubtle, surfaceMuted, textPrimary } from "../../theme/colors";
  */
 interface TopBarProps {
   onSettingsPress: () => void;
+  onCreatePostPress?: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ onSettingsPress }) => {
+const TopBar: React.FC<TopBarProps> = ({ onSettingsPress, onCreatePostPress }) => {
   return (
     <View style={styles.topBar}>
-      <View style={{ width: 34 }} />
+      {onCreatePostPress ? (
+        <TouchableOpacity
+          style={styles.topIconButton}
+          onPress={onCreatePostPress}
+          accessibilityRole="button"
+          accessibilityLabel="Create post"
+          activeOpacity={0.7}
+        >
+          <Ionicons name="create-outline" size={20} color="#e85d04" />
+        </TouchableOpacity>
+      ) : (
+        <View style={styles.topIconSpacer} />
+      )}
       <TouchableOpacity
         style={styles.topIconButton}
         onPress={onSettingsPress}
@@ -35,6 +48,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: "90%",
     paddingTop: 50,
+  },
+  topIconSpacer: {
+    width: 34,
   },
   topIconButton: {
     padding: 8,

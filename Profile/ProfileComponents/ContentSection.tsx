@@ -6,6 +6,7 @@ interface ContentSectionProps {
   subId?: string;
   currentUserId?: string | null;
   nemesisSubIds?: string[];
+  onCreatePost?: () => void;
 }
 
 /**
@@ -16,11 +17,17 @@ const ContentSection: React.FC<ContentSectionProps> = ({
   subId,
   currentUserId,
   nemesisSubIds = [],
+  onCreatePost,
 }) => {
   if (!subId) return null;
   return (
     <View style={styles.contentSection}>
-      <ProfilePostsSection subId={subId} currentUserId={currentUserId} nemesisSubIds={nemesisSubIds} />
+      <ProfilePostsSection
+        subId={subId}
+        currentUserId={currentUserId}
+        nemesisSubIds={nemesisSubIds}
+        onCreatePost={onCreatePost}
+      />
     </View>
   );
 };
