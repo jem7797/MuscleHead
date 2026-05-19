@@ -350,21 +350,27 @@ const LiveSessionScreen: React.FC = () => {
             </View>
           );
         })()
-      ) : canEdit ? (
-        <WorkoutInputSection
-          onDone={async () => {}}
-          listContent={null}
-          onSetComplete={handleSetComplete}
-          editable={canEdit}
-          showDoneButton={false}
-        />
       ) : (
-        <SpectatorView
-          exercises={otherExercises}
-          frontWorked={otherFrontWorked}
-          backWorked={otherBackWorked}
-          isMale={otherIsMale}
-        />
+        <View style={styles.sessionBody}>
+          {/* Keep mounted so Host/Guest tab switches don't reset draft workout state */}
+          <View style={[styles.sessionPanel, !canEdit && styles.sessionPanelHidden]}>
+            <WorkoutInputSection
+              onDone={async () => {}}
+              listContent={null}
+              onSetComplete={handleSetComplete}
+              editable={canEdit}
+              showDoneButton={false}
+            />
+          </View>
+          <View style={[styles.sessionPanel, canEdit && styles.sessionPanelHidden]}>
+            <SpectatorView
+              exercises={otherExercises}
+              frontWorked={otherFrontWorked}
+              backWorked={otherBackWorked}
+              isMale={otherIsMale}
+            />
+          </View>
+        </View>
       )}
     </View>
   );
@@ -410,6 +416,15 @@ const styles = StyleSheet.create({
   tabTextActive: {
     color: "#e85d04",
     fontWeight: "600",
+  },
+  sessionBody: {
+    flex: 1,
+  },
+  sessionPanel: {
+    flex: 1,
+  },
+  sessionPanelHidden: {
+    display: "none",
   },
   listSection: {
     marginBottom: 16,
