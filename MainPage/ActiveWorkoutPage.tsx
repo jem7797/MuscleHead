@@ -4,7 +4,6 @@ import {
   View,
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   Animated,
 } from "react-native";
@@ -33,12 +32,22 @@ import {
 import { useMovements } from "../Contexts/MovementContext";
 import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
 import { useSoloWorkoutTimer } from "../hooks/useSoloWorkoutTimer";
+import { usePreviousSetsCache } from "../hooks/usePreviousSetsCache";
 import { SOLO_TIMER_KEYS } from "../Services/soloWorkoutTimerStorage";
+import SetsInput, { type SetType } from "./AddWorkoutPage Components/SetsInput";
+
+const DEFAULT_SET = {
+  weight: "",
+  reps: "",
+  completed: false,
+  setType: "normal" as SetType,
+};
 
 interface SetData {
   weight: string;
   reps: string;
   completed: boolean;
+  setType?: SetType;
 }
 
 interface ExerciseState {
@@ -113,11 +122,7 @@ const buildInitialState = (
       exercise: { id: item.exerciseId, name: item.name, areaOfActivation: "" },
       exerciseName: item.name,
     } as RoutineExerciseDetail & { exerciseName: string },
-    sets: Array.from({ length: item.sets }, () => ({
-      weight: "",
-      reps: "",
-      completed: false,
-    })),
+    sets: Array.from({ length: item.sets }, () => ({ ...DEFAULT_SET })),
     targetReps: item.reps,
   }));
 };
@@ -152,6 +157,7 @@ const ActiveWorkoutPage = () => {
     clearTimer,
     formatTime,
   } = useSoloWorkoutTimer(timerKey);
+  const { fetchForExercise, getPreviousSets } = usePreviousSetsCache();
 
   const { movements } = useMovements();
 
@@ -222,6 +228,24 @@ const ActiveWorkoutPage = () => {
     };
   }, [routineId, templateJson, movementById]);
 
+  const templateExerciseIds = useMemo(() => {
+    if (!template) return [] as number[];
+    return buildInitialState(template, movementById)
+      .map(
+        (ex) =>
+          ex.routineExercise.exercise?.id ??
+          ex.routineExercise.exerciseId ??
+          0,
+      )
+      .filter((id) => id > 0);
+  }, [template, movementById]);
+
+  useEffect(() => {
+    templateExerciseIds.forEach((id) => {
+      void fetchForExercise(id);
+    });
+  }, [templateExerciseIds, fetchForExercise]);
+
   const spin = useMemo(
     () =>
       spinVal.interpolate({
@@ -250,7 +274,7 @@ const ActiveWorkoutPage = () => {
   const updateSet = (
     exerciseIndex: number,
     setIndex: number,
-    field: "weight" | "reps" | "completed",
+    field: "weight" | "reps" | "completed" | "setType",
     value: string | boolean,
   ) => {
     setExercises((prev) => {
@@ -262,6 +286,8 @@ const ActiveWorkoutPage = () => {
       if (!s) return prev;
       if (field === "completed") {
         newSets[setIndex] = { ...s, completed: value as boolean };
+      } else if (field === "setType") {
+        newSets[setIndex] = { ...s, setType: value as SetType };
       } else {
         newSets[setIndex] = { ...s, [field]: value as string };
       }
@@ -311,6 +337,11 @@ const ActiveWorkoutPage = () => {
     ex.routineExercise.exercise?.name ??
     "Unknown";
 
+  const exerciseIdFor = (ex: ExerciseState) =>
+    ex.routineExercise.exercise?.id ??
+    ex.routineExercise.exerciseId ??
+    null;
+
   const handleDone = async () => {
     let totalWeight = 0;
     let maxLift = 0;
@@ -336,7 +367,11 @@ const ActiveWorkoutPage = () => {
           null,
         muscleGroup: ex.routineExercise.exercise?.areaOfActivation ?? null,
         workout: exerciseName(ex),
-        sets: ex.sets.map((s) => ({ reps: s.reps, weight: s.weight })),
+        sets: ex.sets.map((s) => ({
+          reps: s.reps,
+          weight: s.weight,
+          setType: s.setType,
+        })),
       };
     });
 
@@ -454,70 +489,37 @@ const ActiveWorkoutPage = () => {
           </View>
         </View>
 
-        {exercises.map((ex, exIndex) => (
-          <View
-            key={`ex-${exIndex}-${ex.routineExercise.exerciseId ?? exIndex}`}
-            style={styles.exerciseSection}
-          >
-            <Text style={styles.exerciseTitle}>{exerciseName(ex)}</Text>
-            {ex.targetReps > 0 && (
-              <Text style={styles.targetRepsHint}>
-                Target: {ex.targetReps} reps
-              </Text>
-            )}
-            <View style={styles.setsContainer}>
-              <View style={styles.setsHeaderRow}>
-                <Text style={styles.setHeaderLabel}>Set</Text>
-                <Text style={styles.setHeaderInput}>Reps</Text>
-                <Text style={styles.setHeaderInput}>Weight (lbs)</Text>
-                <View style={styles.checkHeader} />
-              </View>
-              {ex.sets.map((set, setIndex) => (
-                <View key={`set-${setIndex}`} style={styles.setRow}>
-                  <Text style={styles.setLabel}>Set {setIndex + 1}</Text>
-                  <TextInput
-                    style={styles.input}
-                    placeholder={ex.targetReps ? String(ex.targetReps) : "Reps"}
-                    placeholderTextColor="#8a9bb5"
-                    value={set.reps}
-                    onChangeText={(t) =>
-                      updateSet(exIndex, setIndex, "reps", t)
-                    }
-                    keyboardType="numeric"
-                    returnKeyType="done"
-                    blurOnSubmit
-                  />
-                  <TextInput
-                    style={styles.input}
-                    placeholder="Weight (lbs)"
-                    placeholderTextColor="#8a9bb5"
-                    value={set.weight}
-                    onChangeText={(t) =>
-                      updateSet(exIndex, setIndex, "weight", t)
-                    }
-                    keyboardType="numeric"
-                    returnKeyType="done"
-                    blurOnSubmit
-                  />
-                  <TouchableOpacity
-                    style={styles.checkButton}
-                    onPress={() =>
-                      updateSet(exIndex, setIndex, "completed", !set.completed)
-                    }
-                  >
-                    <Ionicons
-                      name={
-                        set.completed ? "checkmark-circle" : "ellipse-outline"
-                      }
-                      size={24}
-                      color={set.completed ? "#22c55e" : "#8a9bb5"}
-                    />
-                  </TouchableOpacity>
-                </View>
-              ))}
+        {exercises.map((ex, exIndex) => {
+          const exerciseId = exerciseIdFor(ex);
+          return (
+            <View
+              key={`ex-${exIndex}-${ex.routineExercise.exerciseId ?? exIndex}`}
+              style={styles.exerciseSection}
+            >
+              <Text style={styles.exerciseTitle}>{exerciseName(ex)}</Text>
+              {ex.targetReps > 0 && (
+                <Text style={styles.targetRepsHint}>
+                  Target: {ex.targetReps} reps
+                </Text>
+              )}
+              <SetsInput
+                workoutName={exerciseName(ex)}
+                hideTitle
+                showAddSet={false}
+                showRemoveSet={false}
+                sets={ex.sets}
+                previousSets={
+                  exerciseId != null ? getPreviousSets(exerciseId) : undefined
+                }
+                onAddSet={() => {}}
+                onRemoveSet={() => {}}
+                onUpdateSet={(setIndex, field, value) =>
+                  updateSet(exIndex, setIndex, field, value)
+                }
+              />
             </View>
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
 
       <PrimaryButton label="Done" variant="footer" onPress={handleDone} />
@@ -651,74 +653,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "#51607a",
     marginBottom: 8,
-  },
-  setsContainer: {
-    backgroundColor: "#fafafa",
-    borderRadius: 8,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: "#e8e8e8",
-  },
-  setsHeaderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-    paddingBottom: 6,
-    borderBottomWidth: 1,
-    borderBottomColor: "#e8e8e8",
-  },
-  setHeaderText: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#888",
-    flex: 1,
-    textAlign: "center",
-  },
-  setHeaderLabel: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#888",
-    width: 56,
-  },
-  setHeaderInput: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#888",
-    flex: 1,
-    textAlign: "center",
-  },
-  checkHeader: {
-    width: 32,
-  },
-  setRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  setLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#666",
-    width: 56,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: screenBackground,
-    paddingVertical: 8,
-    paddingHorizontal: 10,
-    borderRadius: 6,
-    fontSize: 15,
-    color: "#e85d04",
-    borderWidth: 1,
-    borderColor: "#e8e8e8",
-    marginHorizontal: 4,
-    textAlign: "center",
-  },
-  checkButton: {
-    width: 32,
-    height: 32,
-    alignItems: "center",
-    justifyContent: "center",
   },
 });
 

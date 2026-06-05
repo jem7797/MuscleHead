@@ -151,3 +151,32 @@ export const getSessionExercisesBySessionId = async (
   const data = await parseJsonResponse<SessionExerciseResponse[]>(response);
   return Array.isArray(data) ? data : [];
 };
+
+export interface PreviousAttemptSet {
+  reps: number;
+  weight: number;
+}
+
+export interface LastExerciseAttemptResponse {
+  date: string;
+  sets: PreviousAttemptSet[];
+}
+
+/**
+ * Gets the user's last logged attempt for an exercise.
+ * GET /sessionInstance/api/last?exerciseId={id}
+ * Returns null on 204 No Content (no prior attempt).
+ */
+export const getLastExerciseAttempt = async (
+  exerciseId: number,
+): Promise<LastExerciseAttemptResponse | null> => {
+  const response = await apiRequest(
+    `/sessionInstance/api/last?exerciseId=${encodeURIComponent(exerciseId)}`,
+    { method: "GET" },
+    false,
+  );
+
+  if (response.status === 204) return null;
+
+  return parseJsonResponse<LastExerciseAttemptResponse>(response);
+};

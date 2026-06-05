@@ -30,10 +30,20 @@ import { EXERCISE_TO_MUSCLES } from "../constants/exerciseToMuscles";
 import { formatDuration } from "../utils/formatDuration";
 import type { LiveSessionTimerState } from "../utils/liveSessionTimer";
 
+import type { SetType } from "../MainPage/AddWorkoutPage Components/SetsInput";
+
+const DEFAULT_SET = {
+  reps: "",
+  weight: "",
+  completed: false,
+  setType: "normal" as SetType,
+};
+
 export interface WorkoutSet {
   reps: string;
   weight: string;
   completed?: boolean;
+  setType?: SetType;
 }
 
 export interface WorkoutItem {
@@ -49,11 +59,7 @@ const INITIAL_WORKOUT: WorkoutItem = {
   exerciseId: null,
   muscleGroup: null,
   workout: null,
-  sets: [
-    { reps: "", weight: "", completed: false },
-    { reps: "", weight: "", completed: false },
-    { reps: "", weight: "", completed: false },
-  ],
+  sets: [{ ...DEFAULT_SET }, { ...DEFAULT_SET }, { ...DEFAULT_SET }],
 };
 
 export interface WorkoutInputSectionProps {
@@ -208,11 +214,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
         exerciseId: null,
         muscleGroup: null,
         workout: null,
-        sets: [
-          { reps: "", weight: "", completed: false },
-          { reps: "", weight: "", completed: false },
-          { reps: "", weight: "", completed: false },
-        ],
+        sets: [{ ...DEFAULT_SET }, { ...DEFAULT_SET }, { ...DEFAULT_SET }],
       },
     ]);
   };
@@ -239,7 +241,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
     setWorkouts(
       workouts.map((w) =>
         w.id === workoutId
-          ? { ...w, sets: [...w.sets, { reps: "", weight: "", completed: false }] }
+          ? { ...w, sets: [...w.sets, { ...DEFAULT_SET }] }
           : w
       )
     );
@@ -258,7 +260,7 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
   const updateSet = (
     workoutId: number,
     setIndex: number,
-    field: "reps" | "weight" | "completed",
+    field: "reps" | "weight" | "completed" | "setType",
     value: string | boolean
   ) => {
     setWorkouts(
@@ -277,6 +279,8 @@ const WorkoutInputSection: React.FC<WorkoutInputSectionProps> = ({
               onSetComplete(w.workout, reps, weight ?? null);
             }
           }
+        } else if (field === "setType") {
+          newSets[setIndex] = { ...s, setType: value as SetType };
         } else {
           newSets[setIndex] = { ...s, [field]: value as string };
         }

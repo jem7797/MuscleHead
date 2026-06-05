@@ -7,9 +7,12 @@ import {
   textSecondary,
 } from "../../theme/colors";
 
+import type { SetType } from "../../AddWorkoutPage Components/SetsInput";
+
 interface Set {
   reps: string;
   weight: string;
+  setType?: SetType;
 }
 
 interface ExerciseItemProps {
@@ -29,7 +32,8 @@ const ExerciseItem: React.FC<ExerciseItemProps> = ({ workout, muscleGroup, sets 
         {sets.map((set, setIndex) => (
           set.reps && set.weight ? (
             <Text key={setIndex} style={styles.setText}>
-              Set {setIndex + 1}: {set.reps} reps × {set.weight} lbs
+              {(set.setType ?? "normal") === "warmup" ? "Warm-up" : `Set ${setIndex + 1}`}:{" "}
+              {set.weight} lbs × {set.reps} reps
             </Text>
           ) : null
         ))}

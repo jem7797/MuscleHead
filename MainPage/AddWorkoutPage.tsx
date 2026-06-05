@@ -31,12 +31,23 @@ import { WorkedMusclesProvider } from "../Contexts/WorkedMusclesContext";
 import { useUser } from "../Contexts/UserContext";
 import { WORKOUT_BY_MUSCLE_GROUP } from "../constants/workoutByMuscleGroup";
 import { useSoloWorkoutTimer } from "../hooks/useSoloWorkoutTimer";
+import { usePreviousSetsCache } from "../hooks/usePreviousSetsCache";
 import { SOLO_TIMER_KEYS } from "../Services/soloWorkoutTimerStorage";
+
+import type { SetType } from "./AddWorkoutPage Components/SetsInput";
+
+const DEFAULT_SET = {
+  reps: "",
+  weight: "",
+  completed: false,
+  setType: "normal" as SetType,
+};
 
 interface ExerciseSet {
   reps: string;
   weight: string;
   completed: boolean;
+  setType?: SetType;
 }
 
 interface SessionInstance {
@@ -61,9 +72,9 @@ const AddWorkoutPage = () => {
       muscleGroup: null,
       workout: null,
       sets: [
-        { reps: "", weight: "", completed: false },
-        { reps: "", weight: "", completed: false },
-        { reps: "", weight: "", completed: false },
+        { ...DEFAULT_SET },
+        { ...DEFAULT_SET },
+        { ...DEFAULT_SET },
       ],
     },
     {
@@ -72,9 +83,9 @@ const AddWorkoutPage = () => {
       muscleGroup: null,
       workout: null,
       sets: [
-        { reps: "", weight: "", completed: false },
-        { reps: "", weight: "", completed: false },
-        { reps: "", weight: "", completed: false },
+        { ...DEFAULT_SET },
+        { ...DEFAULT_SET },
+        { ...DEFAULT_SET },
       ],
     },
     {
@@ -83,9 +94,9 @@ const AddWorkoutPage = () => {
       muscleGroup: null,
       workout: null,
       sets: [
-        { reps: "", weight: "", completed: false },
-        { reps: "", weight: "", completed: false },
-        { reps: "", weight: "", completed: false },
+        { ...DEFAULT_SET },
+        { ...DEFAULT_SET },
+        { ...DEFAULT_SET },
       ],
     },
   ]);
@@ -98,6 +109,7 @@ const AddWorkoutPage = () => {
     clearTimer,
     formatTime,
   } = useSoloWorkoutTimer(SOLO_TIMER_KEYS.addWorkout);
+  const { fetchForExercise, getPreviousSets } = usePreviousSetsCache();
   const [isBack, setIsBack] = useState(false);
   const spinVal = useRef(new Animated.Value(0)).current;
 
@@ -427,11 +439,7 @@ const AddWorkoutPage = () => {
         exerciseId: null,
         muscleGroup: null,
         workout: null,
-        sets: [
-          { reps: "", weight: "", completed: false },
-          { reps: "", weight: "", completed: false },
-          { reps: "", weight: "", completed: false },
-        ],
+        sets: [{ ...DEFAULT_SET }, { ...DEFAULT_SET }, { ...DEFAULT_SET }],
       },
     ]);
   };
@@ -457,6 +465,9 @@ const AddWorkoutPage = () => {
     setWorkouts(
       workouts.map((w) => (w.id === id ? { ...w, workout, exerciseId } : w)),
     );
+    if (exerciseId != null) {
+      void fetchForExercise(exerciseId);
+    }
   };
 
   const addSet = (workoutId: number) => {
@@ -465,7 +476,7 @@ const AddWorkoutPage = () => {
         w.id === workoutId
           ? {
               ...w,
-              sets: [...w.sets, { reps: "", weight: "", completed: false }],
+              sets: [...w.sets, { ...DEFAULT_SET }],
             }
           : w,
       ),
@@ -485,7 +496,7 @@ const AddWorkoutPage = () => {
   const updateSet = (
     workoutId: number,
     setIndex: number,
-    field: "reps" | "weight" | "completed",
+    field: "reps" | "weight" | "completed" | "setType",
     value: string | boolean,
   ) => {
     setWorkouts(
@@ -496,6 +507,11 @@ const AddWorkoutPage = () => {
           if (s) {
             if (field === "completed") {
               newSets[setIndex] = { ...s, completed: value as boolean };
+            } else if (field === "setType") {
+              newSets[setIndex] = {
+                ...s,
+                setType: value as SetType,
+              };
             } else {
               newSets[setIndex] = { ...s, [field]: value as string };
             }
@@ -627,6 +643,11 @@ const AddWorkoutPage = () => {
               muscleGroups={muscleGroups}
               availableWorkouts={availableWorkouts}
               canRemove={workouts.length > 1}
+              previousSets={
+                workoutItem.exerciseId != null
+                  ? getPreviousSets(workoutItem.exerciseId)
+                  : undefined
+              }
               onRemove={() => removeWorkout(workoutItem.id)}
               onSelectMuscleGroup={(group) =>
                 updateWorkoutMuscleGroup(workoutItem.id, group)

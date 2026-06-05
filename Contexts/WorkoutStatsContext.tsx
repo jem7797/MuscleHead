@@ -3,6 +3,7 @@ import React, { createContext, useContext, useState } from 'react';
 interface Set {
   reps: string;
   weight: string;
+  setType?: "normal" | "warmup";
 }
 
 interface Workout {

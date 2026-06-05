@@ -2,20 +2,15 @@ import React from "react";
 import { View, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import SelectorButton from "../../Components/SelectorButton";
-import SetsInput from "./SetsInput";
+import SetsInput, { type WorkoutSetInput } from "./SetsInput";
+import type { PreviousAttemptSet } from "../../Services/sessionInstanceApi";
 import { borderSubtle, surfaceMuted, textSecondary } from "../../theme/colors";
-
-interface Set {
-  reps: string;
-  weight: string;
-  completed?: boolean;
-}
 
 interface Workout {
   id: number;
   muscleGroup: string | null;
   workout: string | null;
-  sets: Set[];
+  sets: WorkoutSetInput[];
 }
 
 interface WorkoutBoxProps {
@@ -28,7 +23,12 @@ interface WorkoutBoxProps {
   onSelectWorkout: (workout: string) => void;
   onAddSet: () => void;
   onRemoveSet: (index: number) => void;
-  onUpdateSet: (index: number, field: "reps" | "weight" | "completed", value: string | boolean) => void;
+  onUpdateSet: (
+    index: number,
+    field: "reps" | "weight" | "completed" | "setType",
+    value: string | boolean,
+  ) => void;
+  previousSets?: PreviousAttemptSet[] | null;
 }
 
 const WorkoutBox: React.FC<WorkoutBoxProps> = ({
@@ -42,6 +42,7 @@ const WorkoutBox: React.FC<WorkoutBoxProps> = ({
   onAddSet,
   onRemoveSet,
   onUpdateSet,
+  previousSets,
 }) => {
   return (
     <View style={styles.workoutBox}>
@@ -71,6 +72,7 @@ const WorkoutBox: React.FC<WorkoutBoxProps> = ({
         <SetsInput
           workoutName={workout.workout}
           sets={workout.sets}
+          previousSets={previousSets}
           onAddSet={onAddSet}
           onRemoveSet={onRemoveSet}
           onUpdateSet={onUpdateSet}
